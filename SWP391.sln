@@ -3,14 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "API\API.csproj", "{0DEBB85F-C223-4240-A91D-58CBCFD00DFC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API_", "API_\API_.csproj", "{0DEBB85F-C223-4240-A91D-58CBCFD00DFC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.BLL", "Application.BLL\Application.BLL.csproj", "{E644E7E7-2933-40B0-8AD5-2F1B17122061}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.DAL", "Application.DAL\Application.DAL.csproj", "{9B0F5764-FD17-4C39-8757-01D715F0B307}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "react_", "react_\react_.esproj", "{03679645-42C5-82B9-CBE7-3F4A40809116}"
-EndProject
+
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
