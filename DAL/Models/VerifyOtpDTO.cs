@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace DAL.Models
 {
-    public class OtpDTO
+    public class VerifyOtpDTO
     {
-        public string Gmail { get; set; }
-
+        public string Email { get; set; }
         public string Otpcode { get; set; }
-        public DateTime Expireat { get; set; }
     }
 }

@@ -24,7 +24,7 @@ namespace YourApp.Controllers
             var result = _otpService.SendOtpByPhone(request.phone);
 
 
-            var user = _context.Users.FirstOrDefault(u => u.Phone == request.phone);
+            var user = _context.Users.FirstOrDefault(u => u.PhoneNumber == request.phone);
 
             if (user == null)
             {
@@ -33,12 +33,12 @@ namespace YourApp.Controllers
             }
 
 
-            return Ok(new { message = result, gmail = user.gmail });
+            return Ok(new { message = result, gmail = user.Email });
         }
         [HttpPost("verify-otp")]
         public IActionResult VerifyOtp([FromBody] VerifyOtpDTO request)
         {
-            var token = _otpService.VerifyOtpAndReturnToken(request.gmail, request.Otpcode);
+            var token = _otpService.VerifyOtpAndReturnToken(request.Email, request.Otpcode);
 
             if (token == null)
                 return BadRequest("OTP invalid or time out.");

@@ -5,6 +5,7 @@ using System.Net.Mail;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using DAL;
 using DAL.Models;
 using DAL.Models;
@@ -24,16 +25,22 @@ namespace BLL.OtpService
             _context = context;
         }
 
-        public void SaveOtp(string gmail, string otpcode, DateTime expireat)
+        public string SaveOtp(string gmail, string otpcode, DateTime expireat)
         {
-            var otp = new Otp
+            var user = _context.Users.FirstOrDefault(x => x.Email == gmail);
+            if (user == null)
+                throw new Exception("User not found");
+            var otp = new Otps
             {
-                Gmail = gmail,
-                Otpcode = otpcode,
-                Expireat = expireat
+                
+                Code = otpcode,
+                ExpiredAt = expireat,
+                UserId =  user.UserId
+
             };
-            _context.otp.Add(otp);
+            _context.Otps.Add(otp);
             _context.SaveChanges();
+            return gmail;
         }
         public string GenerateOtp()
         {
@@ -70,9 +77,9 @@ namespace BLL.OtpService
         }
         public string SendOtpByPhone(string phone)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Phone == phone);
+            var user = _context.Users.FirstOrDefault(u => u.PhoneNumber == phone);
 
-            if (user == null || string.IsNullOrEmpty(user.gmail))
+            if (user == null || string.IsNullOrEmpty(user.Email))
             {
                 return "Cant find this pople use this phone.";
             }
@@ -80,30 +87,32 @@ namespace BLL.OtpService
             var otp = GenerateOtp();
             var expireAt = DateTime.Now.AddMinutes(5);
 
-            SaveOtp(user.gmail, otp, expireAt);
+            SaveOtp(user.Email, otp, expireAt);
 
 
-            var sendResult = SendOtpEmail(user.gmail, otp);
+            var sendResult = SendOtpEmail(user.Email, otp);
             return sendResult;
         }
         public string VerifyOtpAndReturnToken(string email, string otpcode)
         {
-            var otpRecord = _context.otp
-                .OrderByDescending(o => o.otpId)
-                .FirstOrDefault(o => o.Gmail.ToLower() == email.ToLower() && o.Otpcode == otpcode.Trim());
-
+            var otpRecord = _context.Otps
+    .Include(o => o.User) // <-- để truy cập User.Email
+    .OrderByDescending(o => o.UserId)
+    .FirstOrDefault(o =>
+        o.User.Email.ToLower() == email.ToLower() &&
+        o.Code == otpcode.Trim());
             if (otpRecord == null)
             {
                 Console.WriteLine("OTP not found.");
                 return null;
             }
-            if (otpRecord.Expireat < DateTime.UtcNow)
+            if (otpRecord.ExpiredAt < DateTime.UtcNow)
             {
                 Console.WriteLine("OTP expired.");
                 return null;
             }
 
-            var user = _context.Users.FirstOrDefault(u => u.gmail.ToLower() == otpRecord.Gmail.ToLower());
+            var user = _context.Users.FirstOrDefault(u => u.UserId == otpRecord.UserId);
             if (user == null)
             {
                 Console.WriteLine("User not exist this.");

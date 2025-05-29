@@ -10,7 +10,7 @@ namespace BLL.AuthService
 {
     public interface IAuthService
     {
-        Task<(bool Success, string Message, User user)> LoginUserAsync(LoginDTO loginDTO);
-        string CreateToken(User user);
+        Task<(bool Success, string Message, Users user)> LoginUserAsync(LoginDTO loginDTO);
+        string CreateToken(Users user);
     }
 }

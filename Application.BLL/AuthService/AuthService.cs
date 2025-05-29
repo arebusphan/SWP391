@@ -28,13 +28,13 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
-    public async Task<(bool Success, string Message, User user)> LoginUserAsync(LoginDTO loginDTO)
+    public async Task<(bool Success, string Message, Users user)> LoginUserAsync(LoginDTO loginDTO)
     {
-        if (loginDTO == null || string.IsNullOrWhiteSpace(loginDTO.Phone))
+        if (loginDTO == null || string.IsNullOrWhiteSpace(loginDTO.PhoneNumber))
         {
             return (false, "Phone number can not empty", null);
         }
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Phone == loginDTO.Phone);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.PhoneNumber == loginDTO.PhoneNumber);
         if (user == null)
         {
             return (false, "No user found with this number", null);
@@ -42,14 +42,14 @@ public class AuthService : IAuthService
         string token = CreateToken(user);
         return (true, "Login success", user);
     }
-    public string CreateToken(User user)
+    public string CreateToken(Users user)
     {
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, user.username),
-            new Claim(ClaimTypes.MobilePhone, user.Phone),
-            new Claim(ClaimTypes.Email, user.gmail),
-            new Claim(ClaimTypes.Role, user.Role),
+            new Claim(ClaimTypes.Name, user.FullName),
+            new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.RoleName),
 
         };
 

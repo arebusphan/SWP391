@@ -8,6 +8,6 @@ namespace DAL.Models
 {
     public class LoginDTO
     {
-        public string Phone { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; }
     }
 }
