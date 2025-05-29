@@ -3,10 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-namespace Application.DAL
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using DAL.Models;
+using static System.Net.WebRequestMethods;
+namespace DAL
 {
-    internal class AppDbContext
+    public class AppDbContext : DbContext
     {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Otp> otp { get; set; }
     }
 }

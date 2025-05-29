@@ -5,9 +5,9 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API_", "API_\API_.csproj", "{0DEBB85F-C223-4240-A91D-58CBCFD00DFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.BLL", "Application.BLL\Application.BLL.csproj", "{E644E7E7-2933-40B0-8AD5-2F1B17122061}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BLL", "Application.BLL\BLL.csproj", "{E644E7E7-2933-40B0-8AD5-2F1B17122061}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.DAL", "Application.DAL\Application.DAL.csproj", "{9B0F5764-FD17-4C39-8757-01D715F0B307}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "Application.DAL\DAL.csproj", "{9B0F5764-FD17-4C39-8757-01D715F0B307}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "react", "react\react.esproj", "{2DC6648E-746B-B2CE-D7D7-59FCEE909F41}"
 EndProject

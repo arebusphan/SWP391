@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DAL;
+using DAL.Models;
 
-namespace Application.BLL.AuthService
+namespace BLL.AuthService
 {
-    internal interface IAuthService
+    public interface IAuthService
     {
+        Task<(bool Success, string Message, User user)> LoginUserAsync(LoginDTO loginDTO);
+        string CreateToken(User user);
     }
 }
