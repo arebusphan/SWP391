@@ -163,3 +163,16 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                             type="text"
                             placeholder="Nhập mã OTP"
                             value={otp}
+                            onChange={(e) => setOtp(e.target.value)}
+                            maxLength={6}
+                            autoFocus
+                        />
+                        <Button onClick={handleVerifyOtp} disabled={loading || otp.length !== 6}>
+                            {loading ? "Đang xác minh..." : "Xác minh"}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
+}

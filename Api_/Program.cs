@@ -55,7 +55,7 @@ namespace WebApplication6
                 options.AddPolicy("AllowFrontend",
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:50751")
+                        policy.WithOrigins("http://localhost:5678")
                               .AllowAnyHeader()
                               .AllowAnyMethod()
                               .AllowCredentials();
@@ -79,4 +79,3 @@ namespace WebApplication6
         }
     }
 }
-
