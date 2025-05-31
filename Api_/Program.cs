@@ -78,6 +78,9 @@ namespace WebApplication6
             builder.Services.AddScoped<IHealthCheckRepository, HealthCheckRepository>();
             builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
 
+            builder.Services.AddScoped<IHealthEventRepository, HealthEventRepository>();
+            builder.Services.AddScoped<IHealthEventService, HealthEventService>();
+
 
 
             builder.Services.AddAuthentication(options =>
