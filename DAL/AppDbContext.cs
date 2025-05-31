@@ -19,8 +19,8 @@ namespace DAL
         public DbSet<Students> Students { get; set; }
         public DbSet<HealthChecks> HealthChecks { get; set; }
         public DbSet<MedicationRequests> MedicationRequests { get; set; }
-
-
+       
+        
 
     }
 }
