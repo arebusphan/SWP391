@@ -11,6 +11,7 @@ using BLL.StudentService;
 using BLL.HealthCheckService;
 using BLL.MedicationService;
 using BLL.UserService;
+using DAL.Repositories;
 namespace WebApplication6
 {
     public class Program
@@ -64,11 +65,19 @@ namespace WebApplication6
 
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<OtpService>();
-            builder.Services.AddScoped<IStudentService, StudentService>();
-            builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
-            builder.Services.AddScoped<IMedicationService, MedicationService>();
+            
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUserService, UserService>();
+
+            builder.Services.AddScoped<IMedicationRepository, MedicationRepository>();
+            builder.Services.AddScoped<IMedicationService, MedicationService>();
+
+            builder.Services.AddScoped<IStudentService, StudentService>();
+            builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+
+            builder.Services.AddScoped<IHealthCheckRepository, HealthCheckRepository>();
+            builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
+
 
 
             builder.Services.AddAuthentication(options =>

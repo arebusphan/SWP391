@@ -1,23 +1,20 @@
-﻿using DAL;
-using DAL.Models;
-using System;
-using System.Linq;
+﻿using DAL.Models;
+using DAL.Repositories;
 
 namespace BLL.HealthCheckService
 {
     public class HealthCheckService : IHealthCheckService
     {
-        private readonly AppDbContext _context;
+        private readonly IHealthCheckRepository _healthRepo;
 
-        public HealthCheckService(AppDbContext context)
+        public HealthCheckService(IHealthCheckRepository healthRepo)
         {
-            _context = context;
+            _healthRepo = healthRepo;
         }
 
         public void SubmitHealthProfile(int studentId, HealthProfileDTO dto, int recordedBy)
         {
-            var student = _context.Students.FirstOrDefault(s => s.StudentId == studentId);
-            if (student == null)
+            if (!_healthRepo.StudentExists(studentId))
                 throw new Exception("Student not found");
 
             var profile = new HealthChecks
@@ -35,8 +32,7 @@ namespace BLL.HealthCheckService
                 RecordedBy = recordedBy
             };
 
-            _context.HealthChecks.Add(profile);
-            _context.SaveChanges();
+            _healthRepo.AddHealthCheck(profile);
         }
     }
 }

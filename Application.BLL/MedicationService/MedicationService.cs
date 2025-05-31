@@ -1,52 +1,45 @@
-﻿using DAL;
+﻿using BLL.MedicationService;
 using DAL.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
+using DAL.Repositories;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace BLL.MedicationService
+public class MedicationService : IMedicationService
 {
-    public class MedicationService : IMedicationService
+    private readonly IMedicationRepository _medicationRepository;
+
+    public MedicationService(IMedicationRepository medicationRepository)
     {
-        private readonly AppDbContext _context;
+        _medicationRepository = medicationRepository;
+    }
 
-        public MedicationService(AppDbContext context)
+    public void CreateRequest(MedicationRequestDTO dto, int parentUserId)
+    {
+        var request = new MedicationRequests
         {
-            _context = context;
-        }
+            StudentId = dto.StudentId,
+            MedicineName = dto.MedicineName,
+            PrescriptionImage = dto.PrescriptionImage,
+            CreatedBy = parentUserId,
+            Status = "Pending"
+        };
 
-        public void CreateRequest(MedicationRequestDTO dto, int parentUserId)
+        _medicationRepository.Add(request);
+    }
+
+    public List<MedicationRequestResponseDTO> GetRequestsByParent(int parentUserId)
+    {
+        var data = _medicationRepository.GetRequestsByParent(parentUserId);
+
+        return data.Select(r => new MedicationRequestResponseDTO
         {
-            var request = new MedicationRequests
-            {
-                StudentId = dto.StudentId,
-                MedicineName = dto.MedicineName,
-                PrescriptionImage = dto.PrescriptionImage,
-                CreatedBy = parentUserId,
-                Status = "Pending"
-            };
-
-            _context.MedicationRequests.Add(request);
-            _context.SaveChanges();
-        }
-        public List<MedicationRequestResponseDTO> GetRequestsByParent(int parentUserId)
-        {
-            var result = _context.MedicationRequests
-                .Where(r => r.CreatedBy == parentUserId)
-                .Include(r => r.Student)
-                .Select(r => new MedicationRequestResponseDTO
-                {
-                    RequestId = r.RequestId,
-                    StudentId = r.StudentId,
-                    StudentName = r.Student.FullName,
-                    MedicineName = r.MedicineName,
-                    PrescriptionImage = r.PrescriptionImage,
-                    Status = r.Status,
-                    CreatedAt = r.CreatedAt
-                })
-                .ToList();
-
-            return result;
-        }
-
+            RequestId = r.RequestId,
+            StudentId = r.StudentId,
+            StudentName = r.Student?.FullName ?? "(Unknown)",
+            MedicineName = r.MedicineName,
+            PrescriptionImage = r.PrescriptionImage,
+            Status = r.Status,
+            CreatedAt = r.CreatedAt
+        }).ToList();
     }
 }
