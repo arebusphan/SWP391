@@ -10,7 +10,7 @@ using BLL.OtpService;
 using BLL.StudentService;
 using BLL.HealthCheckService;
 using BLL.MedicationService;
-
+using BLL.UserService;
 namespace WebApplication6
 {
     public class Program
@@ -67,6 +67,8 @@ namespace WebApplication6
             builder.Services.AddScoped<IStudentService, StudentService>();
             builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
             builder.Services.AddScoped<IMedicationService, MedicationService>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
 
             builder.Services.AddAuthentication(options =>
