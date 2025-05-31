@@ -28,48 +28,48 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
-    public async Task<(bool Success, string Message, Users user)> LoginUserAsync(LoginDTO loginDTO)
-    {
-        if (loginDTO == null || string.IsNullOrWhiteSpace(loginDTO.PhoneNumber))
+        public async Task<(bool Success, string Message, Users user)> LoginUserAsync(LoginDTO loginDTO)
         {
-            return (false, "Phone number can not empty", null);
-        }
-        var user = await _context.Users.Include(u=>u.Role).FirstOrDefaultAsync(u => u.PhoneNumber == loginDTO.PhoneNumber);
-        if (user == null)
-        {
-            return (false, "No user found with this number", null);
-        }
-        string token = CreateToken(user);
-        return (true, "Login success", user);
+            if (loginDTO == null || string.IsNullOrWhiteSpace(loginDTO.PhoneNumber))
+            {
+                return (false, "Phone number can not empty", null);
+            }
+            var user = await _context.Users.Include(u=>u.Role).FirstOrDefaultAsync(u => u.PhoneNumber == loginDTO.PhoneNumber);
+            if (user == null)
+            {
+                return (false, "No user found with this number", null);
+            }
+            string token = CreateToken(user);
+            return (true, "Login success", user);
         
-    }
+        }
     
-    public string CreateToken(Users user)
-    {
-        var roleName = user.Role.RoleName;
-        var claims = new List<Claim>
+        public string CreateToken(Users user)
         {
-            new Claim("Name", user.FullName),
-            new Claim("Phone", user.PhoneNumber),
-            new Claim("Email", user.Email),
-            new Claim("Role", roleName),
+            var roleName = user.Role?.RoleName ?? "Unknown";
+            var claims = new List<Claim>
+            {
+                new Claim("Name", user.FullName),
+                new Claim("Phone", user.PhoneNumber),
+                new Claim("Email", user.Email),
+                new Claim("Role", roleName),
 
-        };
+            };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AppSettings:Token"]));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AppSettings:Token"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
-        var tokenDescriptor = new JwtSecurityToken(
-            issuer: _configuration["AppSettings:Issuer"],
-            audience: _configuration["AppSettings:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddDays(1),
-            signingCredentials: creds
-        );
+            var tokenDescriptor = new JwtSecurityToken(
+                issuer: _configuration["AppSettings:Issuer"],
+                audience: _configuration["AppSettings:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddDays(1),
+                signingCredentials: creds
+            );
 
-        return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+            return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+        }
     }
-}
 
 
 

@@ -96,7 +96,7 @@ namespace BLL.OtpService
         public string VerifyOtpAndReturnToken(string email, string otpcode)
         {
             var otpRecord = _context.Otps
-    .Include(o => o.User) // <-- để truy cập User.Email
+    .Include(o => o.User) 
     .OrderByDescending(o => o.UserId)
     .FirstOrDefault(o =>
         o.User.Email.ToLower() == email.ToLower() &&
@@ -112,7 +112,7 @@ namespace BLL.OtpService
                 return null;
             }
 
-            var user = _context.Users.FirstOrDefault(u => u.UserId == otpRecord.UserId);
+            var user = _context.Users.Include(u=>u.Role).FirstOrDefault(u => u.UserId == otpRecord.UserId);
             if (user == null)
             {
                 Console.WriteLine("User not exist this.");
