@@ -10,9 +10,15 @@ using BLL.OtpService;
 using BLL.StudentService;
 using BLL.HealthCheckService;
 using BLL.MedicationService;
+<<<<<<< HEAD
 namespace WebApplication6;
 
 public class Program
+=======
+using BLL.UserService;
+using DAL.Repositories;
+namespace WebApplication6
+>>>>>>> 541c43a5f455121f9d7adff28c98d354da67a83b
 {
     public static void Main(string[] args)
     {
@@ -61,12 +67,30 @@ public class Program
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+<<<<<<< HEAD
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<OtpService>();
         builder.Services.AddScoped<IStudentService, StudentService>();
         builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
         builder.Services.AddScoped<IMedicationService, MedicationService>();
        
+=======
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<OtpService>();
+            
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IUserService, UserService>();
+
+            builder.Services.AddScoped<IMedicationRepository, MedicationRepository>();
+            builder.Services.AddScoped<IMedicationService, MedicationService>();
+>>>>>>> 541c43a5f455121f9d7adff28c98d354da67a83b
+
+            builder.Services.AddScoped<IStudentService, StudentService>();
+            builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+
+            builder.Services.AddScoped<IHealthCheckRepository, HealthCheckRepository>();
+            builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
+
 
 
 
