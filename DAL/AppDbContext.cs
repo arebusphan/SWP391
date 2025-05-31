@@ -16,5 +16,11 @@ namespace DAL
         public DbSet<Users> Users { get; set; }
         public DbSet<Otps> Otps { get; set; }
         public DbSet<Roles> Roles { get; set; }
+        public DbSet<Students> Students { get; set; }
+        public DbSet<HealthChecks> HealthChecks { get; set; }
+        public DbSet<MedicationRequests> MedicationRequests { get; set; }
+
+
+
     }
 }
