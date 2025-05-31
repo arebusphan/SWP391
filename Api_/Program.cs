@@ -10,80 +10,67 @@ using BLL.OtpService;
 using BLL.StudentService;
 using BLL.HealthCheckService;
 using BLL.MedicationService;
-<<<<<<< HEAD
-namespace WebApplication6;
-
-public class Program
-=======
 using BLL.UserService;
 using DAL.Repositories;
 namespace WebApplication6
->>>>>>> 541c43a5f455121f9d7adff28c98d354da67a83b
 {
-    public static void Main(string[] args)
+    public class Program
     {
-        var builder = WebApplication.CreateBuilder(args);
-
-        
-        builder.Services.AddControllers();
-        builder.Services.AddAuthorization();
-        builder.Services.AddEndpointsApiExplorer();
-
-        
-        builder.Services.AddSwaggerGen(options =>
+        public static void Main(string[] args)
         {
-            options.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Title = "School Medical API",
-                Version = "v1"
-            });
+            var builder = WebApplication.CreateBuilder(args);
 
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                Name = "Authorization",
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = "Bearer",
-                BearerFormat = "JWT",
-                In = ParameterLocation.Header,
-                Description = "Nhập token dạng: Bearer <token>"
-            });
 
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            builder.Services.AddControllers();
+            builder.Services.AddAuthorization();
+            builder.Services.AddEndpointsApiExplorer();
+
+
+            builder.Services.AddSwaggerGen(options =>
             {
+                options.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    new OpenApiSecurityScheme
+                    Title = "School Medical API",
+                    Version = "v1"
+                });
+
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Nhập token dạng: Bearer <token>"
+                });
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
                     {
-                        Reference = new OpenApiReference
+                        new OpenApiSecurityScheme
                         {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    new string[] {}
-                }
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
             });
-        });
 
-        builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-<<<<<<< HEAD
-        builder.Services.AddScoped<IAuthService, AuthService>();
-        builder.Services.AddScoped<OtpService>();
-        builder.Services.AddScoped<IStudentService, StudentService>();
-        builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
-        builder.Services.AddScoped<IMedicationService, MedicationService>();
-       
-=======
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<OtpService>();
-            
+
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUserService, UserService>();
 
             builder.Services.AddScoped<IMedicationRepository, MedicationRepository>();
             builder.Services.AddScoped<IMedicationService, MedicationService>();
->>>>>>> 541c43a5f455121f9d7adff28c98d354da67a83b
 
             builder.Services.AddScoped<IStudentService, StudentService>();
             builder.Services.AddScoped<IStudentRepository, StudentRepository>();
@@ -93,57 +80,55 @@ namespace WebApplication6
 
 
 
-
-
-
-        builder.Services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
+            builder.Services.AddAuthentication(options =>
             {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = builder.Configuration["AppSettings:Issuer"],
-                ValidAudience = builder.Configuration["AppSettings:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]))
-            };
-        });
-
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("AllowFrontend",
-                policy =>
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    policy.WithOrigins("http://localhost:5678")
-                          .AllowAnyHeader()
-                          .AllowAnyMethod()
-                          .AllowCredentials();
-                });
-        });
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["AppSettings:Issuer"],
+                    ValidAudience = builder.Configuration["AppSettings:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]))
+                };
+            });
 
-        var app = builder.Build();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend",
+                    policy =>
+                    {
+                        policy.WithOrigins("http://localhost:5678")
+                              .AllowAnyHeader()
+                              .AllowAnyMethod()
+                              .AllowCredentials();
+                    });
+            });
 
-        
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            var app = builder.Build();
+
+
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            app.UseCors("AllowFrontend");
+
+            app.UseHttpsRedirection();
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.MapControllers();
+            app.Run();
         }
-
-        app.UseCors("AllowFrontend");
-
-        app.UseHttpsRedirection();
-        app.UseAuthentication();
-        app.UseAuthorization();
-
-        app.MapControllers();
-        app.Run();
     }
 }
