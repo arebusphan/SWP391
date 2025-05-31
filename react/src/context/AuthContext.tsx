@@ -1,16 +1,19 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
+
 type User = {
-    name: string;
-    email: string;
-    role: string;
+    Name: string;
+    Phone: string;
+    Email: string;
+    Role: string;
 };
 
 type AuthContextType = {
     user: User | null;
     login: (token: string) => void;
     logout: () => void;
+   
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,22 +22,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<User | null>(null);
 
     type DecodedToken = {
-        name?: string;
-        email?: string;
-        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"?: string;
+        Name?: string;
+        Phone?: string;
+        Email?: string;
+        Role?: string;
     };
 
     const decodeToken = (token: string): User => {
         try {
             const decoded = jwtDecode<DecodedToken>(token);
             return {
-                name: decoded.name ?? "",
-                email: decoded.email ?? "",
-                role: decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ?? "user",
+                Name: decoded.Name ?? "",
+                Phone: decoded.Phone ?? "",
+                Email: decoded.Email ?? "",
+                Role: decoded.Role ?? "",
             };
         } catch (err) {
             console.error("Failed to decode JWT:", err);
-            return { name: "", email: "", role: "user" };
+            return { Name: "", Phone:"", Email: "", Role: "" };
         }
     };
 
@@ -58,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout  }}>
             {children}
         </AuthContext.Provider>
     );

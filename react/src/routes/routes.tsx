@@ -33,7 +33,6 @@ const AppRoutes = () => {
                     <Route path="/MedicalStaffPage" element={<MedicalStaff />} />
                 </Route>
 
-
                 <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
                     <Route path="/AdminPage" element={<AdminPage />} />
                 </Route>

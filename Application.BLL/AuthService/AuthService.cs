@@ -34,22 +34,25 @@ public class AuthService : IAuthService
         {
             return (false, "Phone number can not empty", null);
         }
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.PhoneNumber == loginDTO.PhoneNumber);
+        var user = await _context.Users.Include(u=>u.Role).FirstOrDefaultAsync(u => u.PhoneNumber == loginDTO.PhoneNumber);
         if (user == null)
         {
             return (false, "No user found with this number", null);
         }
         string token = CreateToken(user);
         return (true, "Login success", user);
+        
     }
+    
     public string CreateToken(Users user)
     {
+        var roleName = user.Role.RoleName;
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, user.FullName),
-            new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.RoleName),
+            new Claim("Name", user.FullName),
+            new Claim("Phone", user.PhoneNumber),
+            new Claim("Email", user.Email),
+            new Claim("Role", roleName),
 
         };
 

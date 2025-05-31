@@ -12,7 +12,7 @@ const DashboardRedirect = () => {
             return;
         }
 
-        switch (user.role) {
+        switch (user.Role) {
             case "Admin":
                 navigate("/AdminPage");
                 break;

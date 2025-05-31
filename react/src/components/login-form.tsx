@@ -71,7 +71,6 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
             return null;
         }
     }
-
     async function handleVerifyOtp() {
         if (otp.length !== 6) return;
         if (!gmail) {
@@ -85,13 +84,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 
             if (res?.data?.token) {
                 const token = res.data.token;
-
                 console.log(token);
                 login(token);
-
-
                 const userInfo = parseJwt(token);
-                const role = userInfo?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+                console.log("userInfo:", userInfo);
+                const role = userInfo?.Role;
+                console.log("role:", role);
 
                 if (role === "Admin") {
                     navigate("/AdminPage");

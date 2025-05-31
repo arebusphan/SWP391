@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using DAL.Models;
 using static System.Net.WebRequestMethods;
+using System.Data;
 namespace DAL
 {
     public class AppDbContext : DbContext
@@ -14,5 +15,6 @@ namespace DAL
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public DbSet<Users> Users { get; set; }
         public DbSet<Otps> Otps { get; set; }
+        public DbSet<Roles> Roles { get; set; }
     }
 }
