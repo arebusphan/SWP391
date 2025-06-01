@@ -30,11 +30,11 @@ const AppRoutes = () => {
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={["MedicalStaff"]} />}>
-                    <Route path="/MedicalStaffPage" element={<MedicalStaff />} />
+                    <Route path="/MedicalStaffPage/*" element={<MedicalStaff />} />
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
-                    <Route path="/AdminPage" element={<AdminPage />} />
+                    <Route path="/AdminPage/*" element={<AdminPage />} />
                 </Route>
             </Route>
         </Routes>

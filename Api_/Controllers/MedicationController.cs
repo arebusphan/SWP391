@@ -36,6 +36,7 @@ namespace API.Controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
+
         [HttpGet("request-history")]
         public IActionResult GetMyMedicationRequests()
         {

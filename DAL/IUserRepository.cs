@@ -10,5 +10,6 @@ namespace DAL
     public interface IUserRepository
     {
         Task AddAsync(Users user);
+        Task<List<Users>> GetAllAsync();
     }
 }
