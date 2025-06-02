@@ -20,6 +20,10 @@ namespace BLL.UserService
 
         public async Task CreateUserAsync(UserDTO dto)
         {
+            if (await _repo.ExistsByEmailOrPhoneAsync(dto.Email, dto.PhoneNumber))
+            {
+                throw new Exception("email or phone number is exists");
+            }
             var user = new Users
             {
                 FullName = dto.FullName,
@@ -34,22 +38,35 @@ namespace BLL.UserService
         }
         public async Task<List<UserDTO>> GetAllAsync()
         {
-           
+
             var users = await _repo.GetAllAsync();
             var userDtos = users.Select(u => new UserDTO
             {
-               
+
                 FullName = u.FullName,
                 IsActive = u.IsActive,
                 PhoneNumber = u.PhoneNumber,
                 Email = u.Email,
                 Role = u.Role.RoleName,
-                
+
             }).ToList();
 
             return userDtos;
         }
+        public async Task<bool> UpdateAsync(UserUpdateDTO dto)
+        {
+            if (string.IsNullOrEmpty(dto.FullName) || string.IsNullOrEmpty(dto.PhoneNumber) || string.IsNullOrEmpty(dto.Email))
+            {
+                return false;
+            }
+
+            return await _repo.UpdateAsync(dto);
+        }
+        public async Task<bool> DeleteAsync(int Id)
+        {
+            return await _repo.DeleteAsyns(Id);
+        }
     }
-       
-    }
+
+}
 

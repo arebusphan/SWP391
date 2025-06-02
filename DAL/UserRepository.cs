@@ -19,11 +19,38 @@ namespace DAL
         public async Task AddAsync(Users user)
         {
             await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync(); 
+            await _context.SaveChangesAsync();
         }
         public async Task<List<Users>> GetAllAsync()
         {
-            return await _context.Users.Include(u=>u.Role).ToListAsync();
+            return await _context.Users.Include(u => u.Role).ToListAsync();
+        }
+        public async Task<bool> ExistsByEmailOrPhoneAsync(string email, string phone)
+        {
+            return await _context.Users.AnyAsync(u => u.Email == email || u.PhoneNumber == phone);
+        }
+        public async Task<bool> UpdateAsync(UserUpdateDTO user)
+        {
+            var finduser = await _context.Users.FindAsync(user.UserId);
+            if (finduser == null)
+            {
+                return false;
+            }
+            finduser.FullName = user.FullName;
+            finduser.Email = user.Email;
+            finduser.PhoneNumber = user.PhoneNumber;
+            finduser.UpdatedAt = DateTime.Now;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> DeleteAsyns(int Id)
+        {
+            var finduser = await _context.Users.FindAsync(Id);
+            if (finduser == null) { return false; }
+            finduser.IsActive = false;
+            finduser.UpdatedAt = DateTime.Now;
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

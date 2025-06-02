@@ -19,14 +19,35 @@ namespace API_.Controllers
         [HttpPost("add")]
         public async Task<IActionResult> AddUser([FromBody] UserDTO dto)
         {
-            await _service.CreateUserAsync(dto);
-            return Ok(new { message = "User added successfully." });
+            try
+            {
+                await _service.CreateUserAsync(dto);
+                return Ok(new { message = "User added successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         [HttpGet("get")]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _service.GetAllAsync();
             return Ok(users);
+        }
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDTO user)
+        {
+            var result = await _service.UpdateAsync(user);
+            if (!result) return BadRequest(new { message = "update fail" });
+            return Ok(new { message = "update successful" });
+        }
+        [HttpPut("Delete")]
+        public async Task<IActionResult> DeleteUser([FromBody] int id)
+        {
+            var result = await _service.DeleteAsync(id);
+            if (!result) return BadRequest(new { message = "delete fail" });
+            return Ok(new { message = "delete successful" });
         }
     }
 }
