@@ -1,8 +1,7 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-
 
 type Account = {
   
@@ -14,19 +13,12 @@ type Account = {
 };
 
 interface EditUserFormProps {
-    user?: Account; // optional
-    onSubmit: (user: Account) => void;
-
-};
+    user: Account;
+    onSubmit: (updatedUser: Account) => void;
+}
 
 export default function EditUserForm({ user, onSubmit }: EditUserFormProps) {
-    const [formData, setFormData] = useState<Account>({
-        fullName: user?.fullName ?? "",
-        email: user?.email ?? "",
-        phoneNumber: user?.phoneNumber ?? "",
-        role: user?.role ?? "",
-        isActive: user?.isActive ?? true,
-    });
+    const [formData, setFormData] = useState<Account>({ ...user });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -34,7 +26,8 @@ export default function EditUserForm({ user, onSubmit }: EditUserFormProps) {
     };
 
     const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData(prev => ({ ...prev, isActive: e.target.checked }));
+        const { checked } = e.target;
+        setFormData(prev => ({ ...prev, isActive: checked }));
     };
 
     const handleSubmit = (e: React.FormEvent) => {

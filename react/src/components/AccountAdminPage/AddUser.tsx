@@ -1,5 +1,4 @@
 ﻿import { useEffect, useState } from "react";
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -8,24 +7,22 @@ import { getuser } from "../../service/serviceauth";
 import { Dialog, DialogContent, DialogDescription, DialogTrigger } from "../ui/dialog";
 
 import AddUserForm from "./AddUserForm";
+import EditUserForm from "./EditUserForm";
 
-interface Account {
-    id: number
+
+export type Account = {
+    
     fullName: string;
     email: string;
     phoneNumber?: string;
     role?: string;
-    isActive: boolean
-}
-
-
+    isActive: boolean;
+};
 
 export default function AccountManager() {
-   
     const [users, setUsers] = useState<Account[]>([]);
-    const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
-  
+    const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
 
     useEffect(() => {
         async function fetchUsers() {
@@ -36,7 +33,6 @@ export default function AccountManager() {
                 console.error("Fail when get user:", error);
             }
         }
-
         fetchUsers();
     }, []);
 
@@ -44,6 +40,13 @@ export default function AccountManager() {
         account.fullName.toLowerCase().includes(search.toLowerCase()) ||
         account.email.toLowerCase().includes(search.toLowerCase())
     );
+
+    const handleUpdate = (updatedUser: Account) => {
+        setUsers(prevUsers =>
+            prevUsers.map(user => (user.fullName === updatedUser.fullName ? updatedUser : user))
+        );
+        setSelectedAccount(null);
+    };
 
     return (
         <div className="p-5">
@@ -54,22 +57,20 @@ export default function AccountManager() {
                     onChange={e => setSearch(e.target.value)}
                     className="w-1/2"
                 />
-                <Dialog open={open} onOpenChange={setOpen}>
+
+                <Dialog>
                     <DialogTrigger>
-                        <div className="flex items-center">
-                            <Plus className="w-4 h-10 mr-2" />
+                        <Button className="flex items-center">
+                            <Plus className="w-4 h-4 mr-2" />
                             Add Account
-                        </div>
+                        </Button>
                     </DialogTrigger>
+
                     <DialogContent>
-                        
-                        <DialogDescription>
-                        
-                        </DialogDescription>
-                        <AddUserForm/>
+                        <DialogDescription>Add a new account</DialogDescription>
+                        <AddUserForm onSubmit={(newUser) => setUsers([...users, newUser])} />
                     </DialogContent>
                 </Dialog>
-                
             </div>
 
             <div className="border rounded-md overflow-hidden">
@@ -85,34 +86,50 @@ export default function AccountManager() {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredAccounts.map((account, index) => (
-                            <tr key={index} className="border-t hover:bg-gray-50">
-                                <td className="p-3">{account.fullName}</td>
-                                <td className="p-3">{account.email}</td>
-                                <td className="p-3">{account.phoneNumber}</td>
-                                <td className="p-3">{account.role}</td>
-                                <td className="p-3">
-                                    {account.isActive ? (
-                                        <span className="text-green-600 font-semibold">✔</span>
-                                    ) : (
-                                        <span className="text-red-500 font-semibold">✖</span>
-                                    )}
-                                </td>
-                                <td className="p-3 text-right">
-                                    <Button variant="outline" size="sm">Edit</Button>
-                                </td>
-                            </tr>
-                        ))}
-                        {filteredAccounts.length === 0 && (
+                        {filteredAccounts.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="text-center p-5">
-                                    Have not user.
+                                <td colSpan={6} className="text-center p-5">
+                                    No users found.
                                 </td>
                             </tr>
+                        ) : (
+                                filteredAccounts.map(account => (
+                                    <tr key={account.email} className="border-t hover:bg-gray-50">
+                                    <td className="p-3">{account.fullName}</td>
+                                    <td className="p-3">{account.email}</td>
+                                    <td className="p-3">{account.phoneNumber}</td>
+                                    <td className="p-3">{account.role}</td>
+                                    <td className="p-3">
+                                        {account.isActive ? (
+                                            <span className="text-green-600 font-semibold">✔</span>
+                                        ) : (
+                                            <span className="text-red-500 font-semibold">✖</span>
+                                        )}
+                                    </td>
+                                    <td className="p-3 text-right">
+                                        <Button
+                                            className="flex items-center"
+                                            onClick={() => setSelectedAccount(account)}
+                                        >
+                                            <Plus className="w-4 h-4 mr-2" />
+                                            Edit
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))
                         )}
                     </tbody>
                 </table>
             </div>
+
+            <Dialog open={!!selectedAccount} onOpenChange={() => setSelectedAccount(null)}>
+                <DialogContent>
+                    <DialogDescription>Edit user information</DialogDescription>
+                    {selectedAccount && (
+                        <EditUserForm user={selectedAccount} onSubmit={handleUpdate} />
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
