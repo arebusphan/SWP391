@@ -18,7 +18,7 @@ namespace BLL.UserService
             _repo = repo;
         }
 
-        public async Task CreateUserAsync(UserCreateDTO dto)
+        public async Task CreateUserAsync(UserDTO dto)
         {
             var user = new Users
             {
@@ -26,10 +26,30 @@ namespace BLL.UserService
                 PhoneNumber = dto.PhoneNumber,
                 Email = dto.Email,
                 RoleId = dto.RoleId,
+                IsActive = dto.IsActive,
                 CreatedAt = DateTime.Now
             };
 
             await _repo.AddAsync(user);
         }
+        public async Task<List<UserDTO>> GetAllAsync()
+        {
+           
+            var users = await _repo.GetAllAsync();
+            var userDtos = users.Select(u => new UserDTO
+            {
+               
+                FullName = u.FullName,
+                IsActive = u.IsActive,
+                PhoneNumber = u.PhoneNumber,
+                Email = u.Email,
+                Role = u.Role.RoleName,
+                
+            }).ToList();
+
+            return userDtos;
+        }
     }
-}
+       
+    }
+

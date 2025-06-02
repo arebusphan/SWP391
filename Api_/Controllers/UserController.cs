@@ -1,4 +1,5 @@
 ﻿using BLL.UserService;
+using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 using static DAL.Models.UserDTO;
 
@@ -16,10 +17,16 @@ namespace API_.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddUser([FromBody] UserCreateDTO dto)
+        public async Task<IActionResult> AddUser([FromBody] UserDTO dto)
         {
             await _service.CreateUserAsync(dto);
             return Ok(new { message = "User added successfully." });
+        }
+        [HttpGet("get")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _service.GetAllAsync();
+            return Ok(users);
         }
     }
 }

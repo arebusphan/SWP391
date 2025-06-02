@@ -19,8 +19,11 @@ namespace DAL
         public async Task AddAsync(Users user)
         {
             await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();  // Thêm dòng này để commit dữ liệu
+            await _context.SaveChangesAsync(); 
         }
-
+        public async Task<List<Users>> GetAllAsync()
+        {
+            return await _context.Users.Include(u=>u.Role).ToListAsync();
+        }
     }
 }
