@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using DAL.Models;
 using static System.Net.WebRequestMethods;
 using System.Data;
+using System.Reflection.PortableExecutable;
 namespace DAL
 {
     public class AppDbContext : DbContext
@@ -21,6 +22,10 @@ namespace DAL
         public DbSet<MedicationRequests> MedicationRequests { get; set; }
 
         public DbSet<HealthEvent> HealthEvents { get; set; }
+
+        public DbSet<VaccinationRecord> VaccinationRecords { get; set; }
+        public DbSet<Vaccine> Vaccines { get; set; }
+        public DbSet<MedicalSupply> MedicalSupplies { get; set; }
 
 
     }
