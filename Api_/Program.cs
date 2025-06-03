@@ -12,6 +12,7 @@ using BLL.HealthCheckService;
 using BLL.MedicationService;
 using BLL.UserService;
 using DAL.Repositories;
+using BLL.HealthNotificationService;
 namespace WebApplication6
 {
     public class Program
@@ -86,6 +87,10 @@ namespace WebApplication6
 
             builder.Services.AddScoped<IMedicalSupplyRepository, MedicalSupplyRepository>();
             builder.Services.AddScoped<IMedicalSupplyService, MedicalSupplyService>();
+
+            builder.Services.AddScoped<IHealthNotificationRepository, HealthNotificationRepository>();
+            builder.Services.AddScoped<IHealthNotificationService, HealthNotificationService>();
+
 
 
             builder.Services.AddAuthentication(options =>
