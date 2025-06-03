@@ -9,6 +9,7 @@ using DAL.Models;
 using static System.Net.WebRequestMethods;
 using System.Data;
 using System.Reflection.PortableExecutable;
+
 namespace DAL
 {
     public class AppDbContext : DbContext
@@ -26,6 +27,11 @@ namespace DAL
         public DbSet<VaccinationRecord> VaccinationRecords { get; set; }
         public DbSet<Vaccine> Vaccines { get; set; }
         public DbSet<MedicalSupply> MedicalSupplies { get; set; }
+
+        public DbSet<HealthNotifications> HealthNotifications { get; set; }
+        public DbSet<NotificationStudents> NotificationStudents { get; set; }
+
+
 
 
     }
