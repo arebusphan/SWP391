@@ -23,7 +23,7 @@ const AppRoutes = () => {
                         <div className="text-center py-10">
                             {/* Ảnh trang chào mừng */}
                             <img
-                                src="/meo-cam-bong-hoa-tren-tay-manh-me-len-23-09-00-15.jpg"
+                                src="/hinhnen.png"
                                 alt="Trang chào mừng"
                                 className="mx-auto max-w-xs rounded shadow"
                             />
