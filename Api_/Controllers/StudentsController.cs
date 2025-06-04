@@ -21,7 +21,7 @@ namespace API.Controllers
             _healthCheckService = healthCheckService;
         }
 
-        [HttpGet("list-child")]
+        [HttpGet("get-StuByGuardian")]
         public IActionResult GetMyStudents()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);

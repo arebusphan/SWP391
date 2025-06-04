@@ -17,6 +17,7 @@ namespace DAL.Repositories
         public List<Students> GetStudentsByGuardian(int guardianId)
         {
             return _context.Students
+                .Include(s => s.Guardian)
                 .Where(s => s.GuardianId == guardianId)
                 .ToList();
         }

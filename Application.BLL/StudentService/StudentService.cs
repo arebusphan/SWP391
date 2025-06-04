@@ -22,7 +22,13 @@ public class StudentService : IStudentService
             StudentId = s.StudentId,
             FullName = s.FullName,
             DateOfBirth = s.DateOfBirth,
-            Gender = s.Gender
+            Gender = s.Gender,
+
+
+            GuardianId = s.GuardianId,
+            GuardianName = s.Guardian?.FullName,
+            GuardianPhone = s.Guardian?.PhoneNumber
+
         }).ToList();
     }
 }
