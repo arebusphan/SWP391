@@ -13,6 +13,7 @@ using BLL.MedicationService;
 using BLL.UserService;
 using DAL.Repositories;
 using BLL.HealthNotificationService;
+
 namespace WebApplication6
 {
     public class Program
@@ -91,6 +92,9 @@ namespace WebApplication6
             builder.Services.AddScoped<IHealthNotificationRepository, HealthNotificationRepository>();
             builder.Services.AddScoped<IHealthNotificationService, HealthNotificationService>();
 
+            builder.Services.AddScoped<IStudentStatusService, StudentStatusService>();
+            builder.Services.AddScoped<IStudentStatusRepository, StudentStatusRepository>();
+            
 
 
             builder.Services.AddAuthentication(options =>

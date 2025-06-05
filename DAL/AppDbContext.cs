@@ -31,6 +31,7 @@ namespace DAL
         public DbSet<HealthNotifications> HealthNotifications { get; set; }
         public DbSet<NotificationStudents> NotificationStudents { get; set; }
 
+        public DbSet<ConsultationAppointments> ConsultationAppointments { get; set; }
 
 
 

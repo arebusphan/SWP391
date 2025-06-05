@@ -53,7 +53,8 @@ public class AuthService : IAuthService
                 new Claim("Name", user.FullName),
                 new Claim("Phone", user.PhoneNumber),
                 new Claim("Email", user.Email),
-                new Claim("Role", roleName),
+                new Claim(ClaimTypes.Role, roleName),
+
 
             };
 
