@@ -47,4 +47,13 @@ export const sendingmedicine = (studentId: number, medicineName: string, prescri
   })
 };
 
-
+export const update = (userId: number, fullName: string, email: string, phoneNumber: string)=>{
+    return axios.put("https://localhost:7195/api/User/Update", {
+        userId, fullName, email, phoneNumber
+    })
+}
+export const deletebyactive = (userId: number) => {
+    return axios.put("https://localhost:7195/api/User/Delete", {
+        userId
+    })
+}

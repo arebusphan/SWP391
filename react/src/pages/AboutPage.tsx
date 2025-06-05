@@ -3,7 +3,7 @@
 
         <div className="bg-background text-foreground min-h-screen flex flex-col items-center justify-center px-6 py-12">
             <div className="text-center max-w-3xl space-y-6">
-                {/* Nội dung tạm thời */}
+             
                 <h2 className="text-lg text-primary font-medium">About Us</h2>
                 <h1 className="text-4xl font-bold">Chào mừng bạn đến với hệ thống Y tế học đường</h1>
                 <p className="text-muted-foreground text-base">
@@ -14,7 +14,7 @@
                 </button>
             </div>
 
-            {/* Hình ảnh cần đổi nếu tìm ra hình phù hợp*/}
+        
             <div className="mt-10 w-full max-w-xl">
                 <img
                     src="/public/school-health-illustration.png" 

@@ -8,10 +8,11 @@ import { Dialog, DialogContent, DialogDescription, DialogTrigger } from "../ui/d
 
 import AddUserForm from "./AddUserForm";
 import EditUserForm from "./EditUserForm";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 
 export type Account = {
-    
+    userId?: number;
     fullName: string;
     email: string;
     phoneNumber?: string;
@@ -67,6 +68,7 @@ export default function AccountManager() {
                     </DialogTrigger>
 
                     <DialogContent>
+                        <DialogTitle></DialogTitle>
                         <DialogDescription>Add a new account</DialogDescription>
                         <AddUserForm onSubmit={(newUser) => setUsers([...users, newUser])} />
                     </DialogContent>
@@ -124,6 +126,7 @@ export default function AccountManager() {
 
             <Dialog open={!!selectedAccount} onOpenChange={() => setSelectedAccount(null)}>
                 <DialogContent>
+                    <DialogTitle></DialogTitle>
                     <DialogDescription>Edit user information</DialogDescription>
                     {selectedAccount && (
                         <EditUserForm user={selectedAccount} onSubmit={handleUpdate} />

@@ -53,9 +53,9 @@ namespace API_.Controllers
             return Ok(new { message = "update successful" });
         }
         [HttpPut("Delete")]
-        public async Task<IActionResult> DeleteUser([FromBody] int id)
+        public async Task<IActionResult> DeleteUser([FromBody] UserDeleteDTO dto)
         {
-            var result = await _service.DeleteAsync(id);
+            var result = await _service.DeleteAsync(dto);
             if (!result) return BadRequest(new { message = "delete fail" });
             return Ok(new { message = "delete successful" });
         }

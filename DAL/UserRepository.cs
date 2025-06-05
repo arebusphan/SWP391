@@ -43,9 +43,9 @@ namespace DAL
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task<bool> DeleteAsyns(int Id)
+        public async Task<bool> DeleteAsyns(UserDeleteDTO user)
         {
-            var finduser = await _context.Users.FindAsync(Id);
+            var finduser = await _context.Users.FindAsync(user.UserId);
             if (finduser == null) { return false; }
             finduser.IsActive = false;
             finduser.UpdatedAt = DateTime.Now;

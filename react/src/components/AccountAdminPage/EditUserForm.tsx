@@ -1,94 +1,47 @@
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
+﻿import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
-type Account = {
-  
-    fullName: string;
-    email: string;
-    phoneNumber?: string;
-    role?: string;
-    isActive: boolean;
-};
+import { deletebyactive, update } from "../../service/serviceauth"; // Gọi API update từ service
+import type { Account } from "./AddUser";
 
-interface EditUserFormProps {
+
+type Props = {
     user: Account;
     onSubmit: (updatedUser: Account) => void;
-}
+};
 
-export default function EditUserForm({ user, onSubmit }: EditUserFormProps) {
-    const [formData, setFormData] = useState<Account>({ ...user });
+export default function EditUserForm({ user, onSubmit }: Props) {
+    const [fullName, setFullName] = useState(user.fullName);
+    const [email, setEmail] = useState(user.email);
+    const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber ?? "");
+ 
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+    const handleUpdate = async () => {
+        try {
+            await update(user.userId!, fullName, email, phoneNumber);
+            onSubmit({ ...user, fullName, email, phoneNumber });
+        } catch (err) {
+            console.error("Update failed", err);
+        }
     };
-
-    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { checked } = e.target;
-        setFormData(prev => ({ ...prev, isActive: checked }));
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSubmit(formData);
-    };
-
+    const handleDeletebyactive = async () => {
+        try {
+            const res = await deletebyactive(user.userId!);
+            console.log("Delete success", res);
+            alert("Successful");
+        } 
+         catch (err) {
+            console.error("delete fail",err)
+        }
+    }
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                    id="fullName"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                />
-            </div>
-
-            <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                />
-            </div>
-
-            <div>
-                <Label htmlFor="phoneNumber">Phone Number</Label>
-                <Input
-                    id="phoneNumber"
-                    name="phoneNumber"
-                    value={formData.phoneNumber || ""}
-                    onChange={handleChange}
-                />
-            </div>
-
-            <div>
-                <Label htmlFor="role">Role</Label>
-                <Input
-                    id="role"
-                    name="role"
-                    value={formData.role || ""}
-                    onChange={handleChange}
-                />
-            </div>
-
-            <div className="flex items-center gap-2">
-                <input
-                    id="isActive"
-                    type="checkbox"
-                    checked={formData.isActive}
-                    onChange={handleCheckboxChange}
-                    className="w-4 h-4"
-                />
-                <Label htmlFor="isActive">Active</Label>
-            </div>
-
-            <Button type="submit">Save</Button>
-        </form>
+        <div className="space-y-4">
+            <Input value={fullName} onChange={e => setFullName(e.target.value)} />
+            <Input value={email} onChange={e => setEmail(e.target.value)} />
+            <Input value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
+            <Button onClick={handleDeletebyactive}>Delete </Button>
+            <Button onClick={handleUpdate}>Update</Button>
+        </div>
     );
 }

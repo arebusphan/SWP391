@@ -13,6 +13,6 @@ namespace BLL.UserService
         Task CreateUserAsync(UserDTO dto);
         Task<List<UserDTO>> GetAllAsync();
         Task<bool> UpdateAsync(UserUpdateDTO user);
-        Task<bool> DeleteAsync(int id);
+        Task<bool> DeleteAsync(UserDeleteDTO dto);
     }
 }
