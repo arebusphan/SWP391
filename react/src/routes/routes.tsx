@@ -43,17 +43,17 @@ const AppRoutes = () => {
 
                 {/* Khu vực dành riêng cho phụ huynh */}
                 <Route element={<ProtectedRoute allowedRoles={["Parent"]} />}>
-                    <Route path="/phu-huynh/*" element={<ParentPage />} />
+                    <Route path="/ParentPage/*" element={<ParentPage />} />
                 </Route>
 
                 {/* Khu vực dành cho nhân viên y tế */}
                 <Route element={<ProtectedRoute allowedRoles={["MedicalStaff"]} />}>
-                    <Route path="/nhan-vien-y-te/*" element={<MedicalStaffPage />} />
+                    <Route path="/MedicalStaffPage/*" element={<MedicalStaffPage />} />
                 </Route>
 
                 {/* Khu vực dành cho quản trị viên */}
                 <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
-                    <Route path="/quan-tri/*" element={<AdminPage />} />
+                    <Route path="/AdminPage/*" element={<AdminPage />} />
                 </Route>
 
             </Route>
