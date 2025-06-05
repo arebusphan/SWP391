@@ -57,3 +57,22 @@ export const deletebyactive = (userId: number) => {
         userId
     })
 }
+
+export const getstudentid = (params?: {
+    studentId: number;
+    fullName: string;
+    dateOfBirth: string;
+    gender: string;
+    guardianId: number;
+    guardianName: string;
+    guardianPhone: string;
+}) => {
+    const token = localStorage.getItem("token");
+
+    return axios.get("https://localhost:7195/api/students/get-StuByGuardian", {
+        params, 
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+};
