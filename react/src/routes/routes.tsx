@@ -32,26 +32,23 @@ const AppRoutes = () => {
                     }
                 />
 
-                {/* Giới thiệu hệ thống */}
+            
                 <Route path="/about" element={<AboutPage />} />
 
-                {/* Trang khi người dùng không đủ quyền */}
                 <Route path="/unauthorized" element={<Unauthorized />} />
 
-                {/* Tự động điều hướng đến dashboard tương ứng với role */}
+                
                 <Route path="/dashboard" element={<DashboardRedirect />} />
 
-                {/* Khu vực dành riêng cho phụ huynh */}
                 <Route element={<ProtectedRoute allowedRoles={["Parent"]} />}>
                     <Route path="/ParentPage/*" element={<ParentPage />} />
                 </Route>
 
-                {/* Khu vực dành cho nhân viên y tế */}
                 <Route element={<ProtectedRoute allowedRoles={["MedicalStaff"]} />}>
                     <Route path="/MedicalStaffPage/*" element={<MedicalStaffPage />} />
                 </Route>
 
-                {/* Khu vực dành cho quản trị viên */}
+        
                 <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
                     <Route path="/AdminPage/*" element={<AdminPage />} />
                 </Route>

@@ -1,6 +1,7 @@
 ﻿using BLL.UserService;
 using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using static DAL.Models.UserDTO;
 
 namespace API_.Controllers
@@ -24,9 +25,18 @@ namespace API_.Controllers
                 await _service.CreateUserAsync(dto);
                 return Ok(new { message = "User added successfully." });
             }
-            catch (Exception ex)
+            catch (DbUpdateException ex)
             {
-                return BadRequest(ex.Message);
+                var inner = ex.InnerException;
+                if (inner != null)
+                {
+                    Console.WriteLine("Inner exception message: " + inner.Message);
+                }
+                else
+                {
+                    Console.WriteLine("Exception message: " + ex.Message);
+                }
+                throw;
             }
         }
         [HttpGet("get")]

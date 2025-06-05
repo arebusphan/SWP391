@@ -1,11 +1,10 @@
-﻿import { useState } from "react";
+﻿import { useState, type ChangeEvent, type FormEvent } from "react";
+import { adduser } from "../../service/serviceauth";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
-
-type Account = {
-  
+export type Account = {
     fullName: string;
     email: string;
     phoneNumber?: string;
@@ -13,33 +12,74 @@ type Account = {
     isActive: boolean;
 };
 
-interface EditUserFormProps {
-    user?: Account; // optional
+type AddUserFormProps = {
     onSubmit: (user: Account) => void;
-
 };
 
-export default function EditUserForm({ user, onSubmit }: EditUserFormProps) {
+export default function AddUserForm({ onSubmit }: AddUserFormProps) {
     const [formData, setFormData] = useState<Account>({
-        fullName: user?.fullName ?? "",
-        email: user?.email ?? "",
-        phoneNumber: user?.phoneNumber ?? "",
-        role: user?.role ?? "",
-        isActive: user?.isActive ?? true,
+        fullName: "",
+        email: "",
+        phoneNumber: "",
+        role: "",
+        isActive: true,
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+    const [loading, setLoading] = useState(false);
+    const handleChange = (
+        e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    ) => {
+        const { name, type, value } = e.target;
+
+        if (type === "checkbox") {
+            const checked = (e.target as HTMLInputElement).checked;
+            setFormData((prev) => ({
+                ...prev,
+                [name]: checked,
+            }));
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value,
+            }));
+        }
     };
 
-    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData(prev => ({ ...prev, isActive: e.target.checked }));
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        onSubmit(formData);
+        setLoading(true);
+
+        const { fullName, email, phoneNumber, role, isActive } = formData;
+
+        const roleMap: Record<string, number> = {
+            Admin: 1,
+            Manager: 2,
+            Parent: 3,
+            MedicalStaff: 4,
+        };
+
+        const roleId = roleMap[role ?? ""] ?? 0;
+
+        try {
+            console.log({ fullName, phoneNumber, email, roleId, role, isActive });
+            await adduser(fullName, phoneNumber ?? "", email, roleId, role ?? "", isActive);
+            alert("Add user successful!");
+
+            onSubmit(formData); 
+
+            setFormData({
+                fullName: "",
+                email: "",
+                phoneNumber: "",
+                role: "",
+                isActive: true,
+            });
+        } catch (error) {
+            console.error("Add user failed:", error);
+            alert("Add user failed!");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -51,6 +91,7 @@ export default function EditUserForm({ user, onSubmit }: EditUserFormProps) {
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleChange}
+                    required
                 />
             </div>
 
@@ -59,8 +100,10 @@ export default function EditUserForm({ user, onSubmit }: EditUserFormProps) {
                 <Input
                     id="email"
                     name="email"
+                    type="email"
                     value={formData.email}
                     onChange={handleChange}
+                    required
                 />
             </div>
 
@@ -69,33 +112,43 @@ export default function EditUserForm({ user, onSubmit }: EditUserFormProps) {
                 <Input
                     id="phoneNumber"
                     name="phoneNumber"
-                    value={formData.phoneNumber || ""}
+                    value={formData.phoneNumber}
                     onChange={handleChange}
                 />
             </div>
 
             <div>
                 <Label htmlFor="role">Role</Label>
-                <Input
+                <select
                     id="role"
                     name="role"
-                    value={formData.role || ""}
+                    value={formData.role}
                     onChange={handleChange}
-                />
+                    required
+                    className="w-full border px-3 py-2 rounded text-sm"
+                >
+                    <option value="">-- Select Role --</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Parent">Parent</option>
+                    <option value="MedicalStaff">Medical Staff</option>
+                </select>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center space-x-2">
                 <input
                     id="isActive"
                     type="checkbox"
+                    name="isActive"
                     checked={formData.isActive}
-                    onChange={handleCheckboxChange}
-                    className="w-4 h-4"
+                    onChange={handleChange}
                 />
                 <Label htmlFor="isActive">Active</Label>
             </div>
 
-            <Button type="submit">Save</Button>
+            <Button type="submit" disabled={loading}>
+                {loading ? "Saving..." : "Add"}
+            </Button>
         </form>
     );
 }

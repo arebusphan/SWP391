@@ -18,8 +18,8 @@ namespace DAL.Models
         public Boolean IsActive { get; set; }
         public int? RoleId { get; set; }
 
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; } 
+        public DateTime? UpdatedAt { get; set; } 
         public ICollection<Otps> Otps { get; set; }
         public Roles? Role { get; set; }
     }

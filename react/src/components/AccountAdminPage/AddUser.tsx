@@ -59,11 +59,11 @@ export default function AccountManager() {
                 />
 
                 <Dialog>
-                    <DialogTrigger>
-                        <Button className="flex items-center">
+                    <DialogTrigger className="flex items-center">
+                       
                             <Plus className="w-4 h-4 mr-2" />
                             Add Account
-                        </Button>
+                       
                     </DialogTrigger>
 
                     <DialogContent>

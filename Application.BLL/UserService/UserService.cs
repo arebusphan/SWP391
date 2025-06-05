@@ -31,7 +31,9 @@ namespace BLL.UserService
                 Email = dto.Email,
                 RoleId = dto.RoleId,
                 IsActive = dto.IsActive,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
+
             };
 
             await _repo.AddAsync(user);
@@ -48,7 +50,7 @@ namespace BLL.UserService
                 PhoneNumber = u.PhoneNumber,
                 Email = u.Email,
                 Role = u.Role.RoleName,
-
+                UserId = u.UserId,
             }).ToList();
 
             return userDtos;
