@@ -17,7 +17,7 @@ namespace DAL.Repositories
         public void Add(MedicationRequests request)
         {
             _context.MedicationRequests.Add(request);
-            _context.SaveChanges();
+            _context.SaveChanges(); 
         }
 
         public List<MedicationRequests> GetRequestsByParent(int parentId)
@@ -27,5 +27,26 @@ namespace DAL.Repositories
                 .Include(r => r.Student)
                 .ToList();
         }
+        public List<MedicationRequests> GetPendingRequests()
+        {
+            return _context.MedicationRequests
+                .Where(r => r.Status == "Pending")
+                .Include(r => r.Student)
+                .Include(r => r.CreatedByUser)
+                .ToList();
+        }
+
+        public MedicationRequests GetById(int requestId)
+        {
+            return _context.MedicationRequests
+                .FirstOrDefault(r => r.RequestId == requestId);
+        }
+
+        public void Update(MedicationRequests request)
+        {
+            _context.MedicationRequests.Update(request);
+            _context.SaveChanges();
+        }
+
     }
 }

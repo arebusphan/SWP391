@@ -18,7 +18,7 @@ namespace API.Controllers
             _medicationService = medicationService;
         }
 
-        [HttpPost]
+        [HttpPost("parent-request")]
         public IActionResult SubmitMedicationRequest([FromBody] MedicationRequestDTO dto)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -47,6 +47,28 @@ namespace API.Controllers
 
             var list = _medicationService.GetRequestsByParent(parentId);
             return Ok(list);
+        }
+
+        [HttpGet("nurseGetRequest")]
+        public IActionResult GetPendingRequests()
+        {
+            var result = _medicationService.GetPendingRequests();
+            return Ok(result);
+        }
+
+        public class UpdateStatusDTO
+        {
+            public string Status { get; set; }
+            public int ReviewedBy { get; set; }
+        }
+
+        [HttpPut("{id}/updateStatus")]
+        public IActionResult UpdateRequestStatus(int id, [FromBody] UpdateStatusDTO dto)
+        {
+            var success = _medicationService.UpdateRequestStatus(id, dto.Status, dto.ReviewedBy);
+            if (!success) return BadRequest("Update failed.");
+
+            return Ok(new { message = "Status updated successfully" });
         }
 
     }

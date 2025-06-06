@@ -60,7 +60,7 @@ namespace API.Controllers
         }
 
         [HttpGet("stu-status")]
-        [Authorize(Roles = "Parent")]
+      
         public IActionResult GetMyChildrenStatus()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);

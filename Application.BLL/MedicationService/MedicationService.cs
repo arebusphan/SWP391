@@ -42,4 +42,32 @@ public class MedicationService : IMedicationService
             CreatedAt = r.CreatedAt
         }).ToList();
     }
+    public List<MedicationRequestResponseDTO> GetPendingRequests()
+    {
+        var data = _medicationRepository.GetPendingRequests();
+
+        return data.Select(r => new MedicationRequestResponseDTO
+        {
+            RequestId = r.RequestId,
+            StudentId = r.StudentId,
+            StudentName = r.Student?.FullName ?? "(Unknown)",
+            MedicineName = r.MedicineName,
+            PrescriptionImage = r.PrescriptionImage,
+            Status = r.Status,
+            CreatedAt = r.CreatedAt
+        }).ToList();
+    }
+
+    public bool UpdateRequestStatus(int requestId, string newStatus, int reviewedBy)
+    {
+        var request = _medicationRepository.GetById(requestId);
+        if (request == null || request.Status != "Pending") return false;
+
+        request.Status = newStatus;
+        request.ReviewedBy = reviewedBy;
+
+        _medicationRepository.Update(request);
+        return true;
+    }
+
 }

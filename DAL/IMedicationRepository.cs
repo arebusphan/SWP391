@@ -7,5 +7,8 @@ namespace DAL.Repositories
     {
         void Add(MedicationRequests request);
         List<MedicationRequests> GetRequestsByParent(int parentId);
+        List<MedicationRequests> GetPendingRequests();
+        MedicationRequests GetById(int requestId);
+        void Update(MedicationRequests request);
     }
 }
