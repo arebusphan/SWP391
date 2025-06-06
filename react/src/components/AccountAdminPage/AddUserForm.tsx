@@ -54,9 +54,9 @@ export default function AddUserForm({ onSubmit }: AddUserFormProps) {
 
         const roleMap: Record<string, number> = {
             Admin: 1,
-            Manager: 2,
-            Parent: 3,
-            MedicalStaff: 4,
+            Manager: 4,
+            Parent: 2,
+            MedicalStaff: 3,
         };
 
         const roleId = roleMap[role ?? ""] ?? 0;
