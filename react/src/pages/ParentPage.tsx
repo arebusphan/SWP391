@@ -16,7 +16,6 @@ const ParentPage = () => {
                 <Route index element={<RightSideParent />} />
                 <Route path="Info" element={<InfoofParent />} />
                 <Route path="SendingMedicine" element={<SendingMedicine />} />
-                
             </Route>
         </Routes>
 

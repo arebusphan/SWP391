@@ -1,6 +1,6 @@
 import { useAuth } from "../context/AuthContext";
 
-const RightSideParent = () => {
+const RightSideMedicalStaff = () => {
     const { user } = useAuth();
     return (
         <div>
@@ -11,4 +11,4 @@ const RightSideParent = () => {
         </div>
     )
 }
-export default RightSideParent;
+export default RightSideMedicalStaff;
