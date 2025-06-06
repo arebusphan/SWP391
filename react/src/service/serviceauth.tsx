@@ -47,4 +47,32 @@ export const sendingmedicine = (studentId: number, medicineName: string, prescri
   })
 };
 
+export const update = (userId: number, fullName: string, email: string, phoneNumber: string)=>{
+    return axios.put("https://localhost:7195/api/User/Update", {
+        userId, fullName, email, phoneNumber
+    })
+}
+export const deletebyactive = (userId: number) => {
+    return axios.put("https://localhost:7195/api/User/Delete", {
+        userId
+    })
+}
 
+export const getstudentid = (params?: {
+    studentId: number;
+    fullName: string;
+    dateOfBirth: string;
+    gender: string;
+    guardianId: number;
+    guardianName: string;
+    guardianPhone: string;
+}) => {
+    const token = localStorage.getItem("token");
+
+    return axios.get("https://localhost:7195/api/students/get-StuByGuardian", {
+        params, 
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+};

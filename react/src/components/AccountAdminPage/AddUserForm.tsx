@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
 export type Account = {
+
     fullName: string;
     email: string;
     phoneNumber?: string;

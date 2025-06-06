@@ -13,6 +13,6 @@ namespace DAL
         Task<List<Users>> GetAllAsync();
         Task<bool> ExistsByEmailOrPhoneAsync(string email, string phone);
         Task<bool> UpdateAsync(UserUpdateDTO user);
-        Task<bool> DeleteAsyns(int Id);
+        Task<bool> DeleteAsyns(UserDeleteDTO dto);
     }
 }

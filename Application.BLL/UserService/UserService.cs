@@ -64,9 +64,9 @@ namespace BLL.UserService
 
             return await _repo.UpdateAsync(dto);
         }
-        public async Task<bool> DeleteAsync(int Id)
+        public async Task<bool> DeleteAsync(UserDeleteDTO dto)
         {
-            return await _repo.DeleteAsyns(Id);
+            return await _repo.DeleteAsyns(dto);
         }
     }
 
