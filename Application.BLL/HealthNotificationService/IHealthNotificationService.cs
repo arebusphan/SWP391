@@ -7,4 +7,4 @@ namespace BLL.HealthNotificationService
     {
         List<HealthNotificationDTO> GetNotificationsForParent(int parentUserId);
     }
-}
+}     
