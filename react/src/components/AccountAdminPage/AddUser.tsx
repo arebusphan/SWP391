@@ -44,7 +44,7 @@ export default function AccountManager() {
 
     const handleUpdate = (updatedUser: Account) => {
         setUsers(prevUsers =>
-            prevUsers.map(user => (user.fullName === updatedUser.fullName ? updatedUser : user))
+            prevUsers.map(user => (user.userId === updatedUser.userId ? updatedUser : user))
         );
         setSelectedAccount(null);
     };
