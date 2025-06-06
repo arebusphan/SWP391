@@ -18,4 +18,4 @@ namespace BLL.HealthNotificationService
             return _repository.GetNotificationsForParent(parentUserId);
         }
     }
-}
+}    
