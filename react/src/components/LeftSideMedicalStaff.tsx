@@ -21,15 +21,17 @@ const LeftSideMedicalStaff = () => {
                     Request For Medication
                 </div>
 
+                {/* ✅ Updated Vaccin */}
                 <div
-                    onClick={() => navigate("#")}
+                    onClick={() => navigate("/MedicalStaffPage/Vaccination")}
                     className="hover:bg-blue-700 rounded-lg px-4 py-2 cursor-pointer"
                 >
                     Vaccin
                 </div>
 
+                {/* ✅ Updated Health Check */}
                 <div
-                    onClick={() => navigate("#")}
+                    onClick={() => navigate("/MedicalStaffPage/HealthCheck")}
                     className="hover:bg-blue-700 rounded-lg px-4 py-2 cursor-pointer"
                 >
                     Health Check
