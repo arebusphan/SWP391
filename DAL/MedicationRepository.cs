@@ -47,6 +47,17 @@ namespace DAL.Repositories
             _context.MedicationRequests.Update(request);
             _context.SaveChanges();
         }
+        public void Save()
+        {
+            _context.SaveChanges(); 
+        }
+        public List<MedicationRequests> GetAll()
+        {
+            return _context.MedicationRequests
+                .Include(r => r.Student)
+                .ThenInclude(s => s.Guardian)
+                .ToList();
+        }
 
     }
 }

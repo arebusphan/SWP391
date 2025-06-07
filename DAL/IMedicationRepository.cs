@@ -10,5 +10,8 @@ namespace DAL.Repositories
         List<MedicationRequests> GetPendingRequests();
         MedicationRequests GetById(int requestId);
         void Update(MedicationRequests request);
+        void Save();
+        List<MedicationRequests> GetAll(); 
+
     }
 }

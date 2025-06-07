@@ -27,11 +27,17 @@ public class MedicationService : IMedicationService
         _medicationRepository.Add(request);
     }
 
-    public List<MedicationRequestResponseDTO> GetRequestsByParent(int parentUserId)
+    public List<MedicationRequestResponseDTO> GetRequestsByParent(int parentId, string? status = null)
     {
-        var data = _medicationRepository.GetRequestsByParent(parentUserId);
+        var query = _medicationRepository.GetAll()
+            .Where(r => r.CreatedBy == parentId);
 
-        return data.Select(r => new MedicationRequestResponseDTO
+        if (!string.IsNullOrEmpty(status))
+        {
+            query = query.Where(r => r.Status == status);
+        }
+
+        return query.Select(r => new MedicationRequestResponseDTO
         {
             RequestId = r.RequestId,
             StudentId = r.StudentId,
@@ -42,6 +48,7 @@ public class MedicationService : IMedicationService
             CreatedAt = r.CreatedAt
         }).ToList();
     }
+
     public List<MedicationRequestResponseDTO> GetPendingRequests()
     {
         var data = _medicationRepository.GetPendingRequests();
@@ -67,7 +74,13 @@ public class MedicationService : IMedicationService
         request.ReviewedBy = reviewedBy;
 
         _medicationRepository.Update(request);
+        _medicationRepository.Save();
+
         return true;
     }
 
+    public List<MedicationRequests> GetAll()
+    {
+        return _medicationRepository.GetAll().ToList();
+    }
 }

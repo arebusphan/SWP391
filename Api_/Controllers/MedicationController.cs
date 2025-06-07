@@ -38,16 +38,19 @@ namespace API.Controllers
         }
 
         [HttpGet("request-history")]
-        public IActionResult GetMyMedicationRequests()
+        public IActionResult GetMyMedicationRequests([FromQuery] string? status)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null) return Unauthorized();
 
             int parentId = int.Parse(userIdClaim.Value);
 
-            var list = _medicationService.GetRequestsByParent(parentId);
+            // ✅ Gọi service kèm theo filter status
+            var list = _medicationService.GetRequestsByParent(parentId, status);
+
             return Ok(list);
         }
+
 
         [HttpGet("nurseGetRequest")]
         public IActionResult GetPendingRequests()
