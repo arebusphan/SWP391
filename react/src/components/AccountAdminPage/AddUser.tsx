@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
 import { getuser } from "../../service/serviceauth";
-import { Dialog, DialogContent, DialogDescription, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription } from "../ui/dialog";
 
 import AddUserForm from "./AddUserForm";
 import EditUserForm from "./EditUserForm";
 import { DialogTitle } from "@radix-ui/react-dialog";
-
+import AddFileForm from "./AddFileForm";
 
 export type Account = {
     userId?: number;
@@ -24,6 +24,24 @@ export default function AccountManager() {
     const [users, setUsers] = useState<Account[]>([]);
     const [search, setSearch] = useState("");
     const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+const [openAddUserDialog, setOpenAddUserDialog] = useState(false);
+const [openAddFileDialog, setOpenAddFileDialog] = useState(false);
+const [dropdownOpen, setDropdownOpen] = useState(false);
+
+// Định nghĩa refreshUsers để tải lại danh sách users
+    const refreshUsers = async () => {
+        try {
+            const response = await getuser();
+            setUsers(response.data);
+        } catch (error) {
+            console.error("Fail when get user:", error);
+        }
+    };
+
+    // Khi component mount thì gọi refreshUsers
+    useEffect(() => {
+        refreshUsers();
+    }, []);
 
     useEffect(() => {
         async function fetchUsers() {
@@ -59,20 +77,72 @@ export default function AccountManager() {
                     className="w-1/2"
                 />
 
-                <Dialog>
-                    <DialogTrigger className="flex items-center">
-                       
-                            <Plus className="w-4 h-4 mr-2" />
-                            Add Account
-                       
-                    </DialogTrigger>
+                <div className="relative inline-block text-left">
+  <button
+    className="flex items-center"
+    onClick={() => setDropdownOpen(!dropdownOpen)}
+  >
+    <Plus className="w-4 h-4 mr-2" />
+    Add Account
+  </button>
 
-                    <DialogContent>
-                        <DialogTitle></DialogTitle>
-                        <DialogDescription>Add a new account</DialogDescription>
-                        <AddUserForm onSubmit={(newUser) => setUsers([...users, newUser])} />
-                    </DialogContent>
-                </Dialog>
+  {dropdownOpen && (
+    <div
+      className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+      onMouseLeave={() => setDropdownOpen(false)}
+    >
+      <div className="py-1">
+        <button
+          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+          onClick={() => {
+            setOpenAddUserDialog(true);
+            setDropdownOpen(false);
+          }}
+        >
+          Add User
+        </button>
+        <button
+          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+          onClick={() => {
+            setOpenAddFileDialog(true);
+            setDropdownOpen(false);
+          }}
+        >
+          Add File
+        </button>
+      </div>
+    </div>
+  )}
+  <Dialog open={openAddUserDialog} onOpenChange={setOpenAddUserDialog}>
+  <DialogContent>
+    <DialogTitle>Add a new account</DialogTitle>
+    <DialogDescription>Add a new account</DialogDescription>
+    <AddUserForm
+      onSubmit={(newUser) => {
+        setUsers([...users, newUser]);
+        setOpenAddUserDialog(false);
+      }}
+    />
+  </DialogContent>
+</Dialog>
+
+{/* Dialog cho Add File */}
+ <Dialog open={openAddFileDialog} onOpenChange={setOpenAddFileDialog}>
+       
+        <DialogContent>
+          <DialogTitle>Add multiple accounts from file</DialogTitle>
+          <DialogDescription>Upload file to add multiple users</DialogDescription>
+
+          <AddFileForm
+            onSuccess={async () => {
+              await refreshUsers(); // tải lại danh sách user
+              setOpenAddFileDialog(false); // đóng dialog
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+</div>
+
             </div>
 
             <div className="border rounded-md overflow-hidden">
@@ -133,6 +203,7 @@ export default function AccountManager() {
                     )}
                 </DialogContent>
             </Dialog>
+            
         </div>
     );
 }

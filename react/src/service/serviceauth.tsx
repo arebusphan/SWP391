@@ -10,21 +10,24 @@ export const verifyOtp = (email: string, otpcode: string) => {
 };
 
 export const adduser = async (
-    fullName: string,
-    phoneNumber: string,
-    email: string,
-    roleId: number,
-    role: string,
-    isActive: boolean
+    parent: {
+      fullName: string;
+      phoneNumber: string;
+      email: string;
+      roleId: number;
+      isActive: boolean;
+      userId: number;
+      role: string;
+    },
+    student: {
+      fullName: string;
+      dateOfBirth: string;
+      gender: string;
+    } | null
 ) => {
-    const res = await axios.post("https://localhost:7195/api/User/add", {
-        fullName,
-        phoneNumber,
-        email,
-        roleId,
-        role,
-        isActive,
-    });
+    const payload = { parent, student };
+
+    const res = await axios.post("https://localhost:7195/api/User/add", payload);
     return res.data;
 };
 
@@ -103,4 +106,15 @@ export const getAllStudentHealthStatus = () => {
             Authorization: `Bearer ${token}`,
         },
     });
+    
+};
+export const uploadExcelFile = (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return axios.post("https://localhost:7195/api/User/upload-excel", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };
