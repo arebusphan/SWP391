@@ -10,7 +10,7 @@ namespace BLL.UserService
 {
     public interface IUserService
     {
-        Task CreateUserAsync(UserDTO dto);
+        Task CreateUserAsync(ParentWithStudentDTO dto);
         Task<List<UserDTO>> GetAllAsync();
         Task<bool> UpdateAsync(UserUpdateDTO user);
         Task<bool> DeleteAsync(UserDeleteDTO dto);

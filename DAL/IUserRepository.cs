@@ -9,7 +9,7 @@ namespace DAL
 {
     public interface IUserRepository
     {
-        Task AddAsync(Users user);
+        Task<Users> AddAsync(Users user);
         Task<List<Users>> GetAllAsync();
         Task<bool> ExistsByEmailOrPhoneAsync(string email, string phone);
         Task<bool> UpdateAsync(UserUpdateDTO user);

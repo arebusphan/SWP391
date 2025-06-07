@@ -6,37 +6,60 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static DAL.Models.UserDTO;
+using DAL.Repositories;
 
 namespace BLL.UserService
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _repo;
+        private readonly IStudentRepository _stud;
 
-        public UserService(IUserRepository repo)
+        public UserService(IUserRepository repo, IStudentRepository stud)
         {
             _repo = repo;
+            _stud = stud;
         }
 
-        public async Task CreateUserAsync(UserDTO dto)
+        public async Task CreateUserAsync(ParentWithStudentDTO dto)
         {
-            if (await _repo.ExistsByEmailOrPhoneAsync(dto.Email, dto.PhoneNumber))
+            if (await _repo.ExistsByEmailOrPhoneAsync(dto.Parent.Email, dto.Parent.PhoneNumber))
             {
                 throw new Exception("email or phone number is exists");
             }
             var user = new Users
             {
-                FullName = dto.FullName,
-                PhoneNumber = dto.PhoneNumber,
-                Email = dto.Email,
-                RoleId = dto.RoleId,
-                IsActive = dto.IsActive,
+                FullName = dto.Parent.FullName,
+                PhoneNumber = dto.Parent.PhoneNumber,
+                Email = dto.Parent.Email,
+                RoleId = dto.Parent.RoleId,
+                IsActive = dto.Parent.IsActive,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
 
             };
 
-            await _repo.AddAsync(user);
+            user = await _repo.AddAsync(user);
+
+            if (dto.Parent.Role.Equals("Parent"))
+            {
+                bool checkstud = string.IsNullOrEmpty(dto.Student.FullName)
+                    && dto.Student.DateOfBirth != default(DateTime)
+                              && !string.IsNullOrWhiteSpace(dto.Student.Gender);
+                if (!checkstud)
+                {
+                    var student = new Students
+                    {
+                        FullName = dto.Student.FullName,
+                        DateOfBirth = dto.Student.DateOfBirth,
+                        Gender = dto.Student.Gender,
+                        GuardianId = user.UserId,
+
+
+                    };
+                    await _stud.AddAsync(student);
+                }
+            }
         }
         public async Task<List<UserDTO>> GetAllAsync()
         {

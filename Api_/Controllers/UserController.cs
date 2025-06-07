@@ -18,25 +18,17 @@ namespace API_.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddUser([FromBody] UserDTO dto)
+        public async Task<IActionResult> AddUser([FromBody] ParentWithStudentDTO dto)
         {
             try
             {
                 await _service.CreateUserAsync(dto);
                 return Ok(new { message = "User added successfully." });
             }
-            catch (DbUpdateException ex)
+            catch (Exception ex)
             {
-                var inner = ex.InnerException;
-                if (inner != null)
-                {
-                    Console.WriteLine("Inner exception message: " + inner.Message);
-                }
-                else
-                {
-                    Console.WriteLine("Exception message: " + ex.Message);
-                }
-                throw;
+
+                return BadRequest(new { message = ex.Message });
             }
         }
         [HttpGet("get")]
