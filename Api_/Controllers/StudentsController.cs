@@ -27,17 +27,26 @@ namespace API.Controllers
         }
 
         [HttpGet("get-StuByGuardian")]
+        [Authorize(Roles = "Parent")]
         public IActionResult GetMyStudents()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-                return Unauthorized();
+            if (userIdClaim == null) return Unauthorized();
 
             int guardianId = int.Parse(userIdClaim.Value);
             var students = _studentService.GetStudentsByGuardian(guardianId);
 
             return Ok(students);
         }
+
+        [HttpGet("get-all-basic")]
+        [Authorize(Roles = "MedicalStaff")]
+        public IActionResult GetAllStudentsBasic()
+        {
+            var students = _studentService.GetAllBasicProfiles();
+            return Ok(students);
+        }
+
 
         [HttpPost("{id}/submit-health")]
         public IActionResult SubmitHealthProfile(int id, [FromBody] HealthProfileDTO dto)
@@ -60,7 +69,7 @@ namespace API.Controllers
         }
 
         [HttpGet("stu-status")]
-      
+        [Authorize(Roles = "Parent")]
         public IActionResult GetMyChildrenStatus()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -69,6 +78,14 @@ namespace API.Controllers
             int guardianId = int.Parse(userIdClaim.Value);
             var result = _studentStatusService.GetStatusForGuardian(guardianId);
 
+            return Ok(result);
+        }
+
+        [HttpGet("all-health-status")]
+        [Authorize(Roles = "MedicalStaff")]
+        public IActionResult GetAllStudentHealthStatus()
+        {
+            var result = _studentStatusService.GetAllStatusForMedicalStaff();
             return Ok(result);
         }
     }

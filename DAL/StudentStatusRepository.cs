@@ -44,5 +44,34 @@ namespace DAL.Repositories
 
             return result;
         }
+        public List<StudentHealthStatusDTO> GetAllStudentStatus()
+        {
+            var students = _context.Students
+                .Include(s => s.VaccinationRecords)
+                .Include(s => s.HealthChecks)
+                .Include(s => s.ConsultationAppointments)
+                .ToList();
+
+            var result = students.Select(s => new StudentHealthStatusDTO
+            {
+                StudentId = s.StudentId,
+                FullName = s.FullName,
+                Gender = s.Gender,
+                DateOfBirth = s.DateOfBirth,
+
+                LatestVaccinationDate = s.VaccinationRecords.OrderByDescending(v => v.VaccinationDate).FirstOrDefault()?.VaccinationDate,
+                TotalVaccinations = s.VaccinationRecords.Count,
+
+                LatestHealthCheckDate = s.HealthChecks.OrderByDescending(h => h.CheckDate).FirstOrDefault()?.CheckDate,
+                WeightKg = (float?)s.HealthChecks.OrderByDescending(h => h.CheckDate).FirstOrDefault()?.WeightKg,
+                HeightCm = (float?)s.HealthChecks.OrderByDescending(h => h.CheckDate).FirstOrDefault()?.HeightCm,
+
+                HasConsultation = s.ConsultationAppointments.Any(),
+                ConsultationDate = s.ConsultationAppointments.OrderByDescending(c => c.AppointmentDate).FirstOrDefault()?.AppointmentDate
+            }).ToList();
+
+            return result;
+        }
+
     }
 }

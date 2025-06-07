@@ -6,5 +6,7 @@ namespace BLL.StudentService
     public interface IStudentStatusService
     {
         List<StudentHealthStatusDTO> GetStatusForGuardian(int guardianId);
+        List<StudentHealthStatusDTO> GetAllStatusForMedicalStaff();
+
     }
 }

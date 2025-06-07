@@ -31,4 +31,14 @@ public class StudentService : IStudentService
 
         }).ToList();
     }
+
+    
+
+    public List<StudentBasicInfoDTO> GetAllBasicProfiles()
+    {
+        return _studentRepository.GetAllBasicProfiles();
+    }
+
+
+
 }

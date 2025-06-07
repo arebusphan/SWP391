@@ -10,5 +10,7 @@ namespace BLL.StudentService
     public interface IStudentService
     {
         List<StudentDTO> GetStudentsByGuardian(int guardianId);
+        List<StudentBasicInfoDTO> GetAllBasicProfiles();
+
     }
 }

@@ -17,5 +17,10 @@ namespace BLL.StudentService
         {
             return _repository.GetStudentStatusByGuardian(guardianId);
         }
+        public List<StudentHealthStatusDTO> GetAllStatusForMedicalStaff()
+        {
+            return _repository.GetAllStudentStatus();
+        }
+
     }
 }

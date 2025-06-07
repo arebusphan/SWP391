@@ -29,7 +29,6 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         if (otp.length === 6) {
             handleVerifyOtp();
         }
-
     }, [otp]);
 
     async function handleSendOtp(e: React.FormEvent) {
@@ -71,12 +70,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
             return null;
         }
     }
+
     async function handleVerifyOtp() {
-        if (otp.length !== 6) return;
-        if (!gmail) {
-            alert("Không có email để xác thực OTP.");
-            return;
-        }
+        if (otp.length !== 6 || !gmail) return;
 
         try {
             setLoading(true);
@@ -84,28 +80,32 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 
             if (res?.data?.token) {
                 const token = res.data.token;
-                console.log(token);
                 login(token);
-                const userInfo = parseJwt(token);
-                console.log("userInfo:", userInfo);
-                const role = userInfo?.Role;
-                console.log("role:", role);
+                localStorage.setItem("token", token); // ✅ lưu token
 
+                const userInfo = parseJwt(token);
+                const role =
+                    userInfo?.Role ||
+                    userInfo?.role ||
+                    userInfo?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+                console.log("🧠 Decoded role:", role);
+                localStorage.setItem("role", role); // ✅ lưu role
+
+                // ✅ Điều hướng theo role sau khi lưu xong
                 if (role === "Admin") {
                     navigate("/AdminPage");
                 } else if (role === "Parent") {
                     navigate("/ParentPage");
-                }
-                else if (role === "Manager") {
-                    navigate("/ManagerPage")
-                }
-                else if (role === "MedicalStaff") {
-                    navigate("/MedicalStaffPage")
-                }
-                else {
+                } else if (role === "Manager") {
+                    navigate("/ManagerPage");
+                } else if (role === "MedicalStaff") {
+                    navigate("/MedicalStaffPage");
+                } else {
                     navigate("/");
                 }
 
+                // ✅ Reset form
                 setShowOtpDialog(false);
                 setOtp("");
                 setPhone("");

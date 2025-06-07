@@ -6,5 +6,7 @@ namespace DAL.Repositories
     public interface IStudentRepository
     {
         List<Students> GetStudentsByGuardian(int guardianId);
+        List<StudentBasicInfoDTO> GetAllBasicProfiles();
+
     }
 }
