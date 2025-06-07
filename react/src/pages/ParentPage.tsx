@@ -12,7 +12,7 @@ const ParentPage = () => {
     return (
 
         <Routes>
-            <Route  element={<LeftSideParent />}>
+            <Route element={<LeftSideParent />}>
                 <Route index element={<RightSideParent />} />
                 <Route path="Info" element={<InfoofParent />} />
                 <Route path="SendingMedicine" element={<SendingMedicine />} />
@@ -23,4 +23,3 @@ const ParentPage = () => {
     )
 }
 export default ParentPage;
-

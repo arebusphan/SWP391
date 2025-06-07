@@ -1,4 +1,4 @@
-import axios from "axios";
+﻿import axios from "axios";
 
 export const sendOtp = (phone: string) => {
     return axios.post("https://localhost:7195/api/Otp/send", { phone });
@@ -40,14 +40,14 @@ export const getuser = (params?: {
 export const sendingmedicine = (studentId: number, medicineName: string, prescriptionImage: string) => {
     const token = localStorage.getItem("token");
     return axios.post("https://localhost:7195/api/medication-requests", { studentId, medicineName, prescriptionImage }, {
-    headers: {
-      
-      Authorization: `Bearer ${token}`,
-    },
-  })
+        headers: {
+
+            Authorization: `Bearer ${token}`,
+        },
+    })
 };
 
-export const update = (userId: number, fullName: string, email: string, phoneNumber: string)=>{
+export const update = (userId: number, fullName: string, email: string, phoneNumber: string) => {
     return axios.put("https://localhost:7195/api/User/Update", {
         userId, fullName, email, phoneNumber
     })
@@ -70,7 +70,35 @@ export const getstudentid = (params?: {
     const token = localStorage.getItem("token");
 
     return axios.get("https://localhost:7195/api/students/get-StuByGuardian", {
-        params, 
+        params,
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+};
+export const getMedicationRequestsForNurse = () => {
+    const token = localStorage.getItem("token");
+    return axios.get("https://localhost:7195/api/medication-requests/nurseGetRequest", {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+};
+
+export const updateMedicationStatus = (id: number, status: string, reviewedBy: number) => {
+    const token = localStorage.getItem("token");
+    return axios.put(`https://localhost:7195/api/medication-requests/${id}/updateStatus`, {
+        status,
+        reviewedBy,
+    }, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+};
+export const getAllStudentHealthStatus = () => {
+    const token = localStorage.getItem("token");
+    return axios.get("https://localhost:7195/api/students/all-health-status", {
         headers: {
             Authorization: `Bearer ${token}`,
         },
