@@ -18,4 +18,5 @@ public class HealthEvent
    
 
     public Students Student { get; set; }
+    public ICollection<HealthEventSupply> Supplies { get; set; }
 }

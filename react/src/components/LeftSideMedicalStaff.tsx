@@ -45,14 +45,14 @@ const LeftSideMedicalStaff = () => {
                 </div>
 
                 <div
-                    onClick={() => navigate("#")}
+                    onClick={() => navigate("/MedicalStaffPage/MedicalIncident")}
                     className="hover:bg-blue-700 rounded-lg px-4 py-2 cursor-pointer"
                 >
                     Medical Incident
                 </div>
 
                 <div
-                    onClick={() => navigate("#")}
+                    onClick={() => navigate("/MedicalStaffPage/MaterialManagement")}
                     className="hover:bg-blue-700 rounded-lg px-4 py-2 cursor-pointer"
                 >
                     Material Management

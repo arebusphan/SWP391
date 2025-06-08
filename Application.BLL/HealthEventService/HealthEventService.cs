@@ -7,7 +7,7 @@
         _repository = repository;
     }
 
-    public async Task RecordHealthEventAsync(HealthEventDto dto, int recordedBy)
+    public async Task RecordHealthEventAsync(HealthEventDto dto)
     {
         var entity = new HealthEvent
         {
@@ -22,6 +22,7 @@
         await _repository.AddHealthEventAsync(entity);
     }
 
+    
     public async Task<IEnumerable<HealthEventDto>> GetStudentEventsAsync(int studentId)
     {
         var events = await _repository.GetEventsByStudentIdAsync(studentId);
@@ -33,5 +34,39 @@
             Execution = e.Execution,
             EventDate = e.EventDate
         });
+    }
+
+    public async Task<IEnumerable<HealthEventDto>> GetAllEventsAsync()
+    {
+        var events = await _repository.GetAllEventsAsync();
+        return events.Select(e => new HealthEventDto
+        {
+            EventId = e.EventId,
+            StudentId = e.StudentId,
+            EventType = e.EventType,
+            Description = e.Description,
+            Execution = e.Execution,
+            EventDate = e.EventDate
+        });
+    }
+
+    public async Task DeleteHealthEventAsync(int eventId)
+    {
+        await _repository.DeleteHealthEventAsync(eventId);
+    }
+
+    public async Task UpdateHealthEventAsync(HealthEventDto dto)
+    {
+        var entity = new HealthEvent
+        {
+            EventId = dto.EventId,
+            StudentId = dto.StudentId,
+            EventType = dto.EventType,
+            Description = dto.Description,
+            Execution = dto.Execution,
+            EventDate = dto.EventDate
+        };
+
+        await _repository.UpdateHealthEventAsync(entity);
     }
 }

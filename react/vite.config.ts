@@ -1,4 +1,4 @@
-import path from "path"
+﻿import path from "path"
 import tailwindcss from "@tailwindcss/vite"
 import { defineConfig } from 'vite';
 import plugin from '@vitejs/plugin-react';
@@ -14,5 +14,12 @@ export default defineConfig({
     },
     server: {
         port: 5678,
+        proxy: {
+            '/api': {
+                target: 'https://localhost:7195',
+                changeOrigin: true,
+                secure: false, // ⛔ bỏ xác minh SSL ở môi trường local dev
+            },
+        },
     }
 })

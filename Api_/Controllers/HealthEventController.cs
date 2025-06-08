@@ -12,20 +12,11 @@ public class HealthEventController : ControllerBase
         _service = service;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> RecordEvent([FromBody] HealthEventDto dto)
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllEvents()
     {
-        if (dto == null)
-            return BadRequest(new { message = "Request body is missing or invalid." });
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        // ⚠️ Sau này thay bằng: var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-        var userId = 1;
-
-        await _service.RecordHealthEventAsync(dto, userId);
-        return Ok(new { message = "Health event recorded successfully." });
+        var events = await _service.GetAllEventsAsync();
+        return Ok(events);
     }
 
     [HttpGet("student/{studentId}")]
@@ -33,5 +24,27 @@ public class HealthEventController : ControllerBase
     {
         var events = await _service.GetStudentEventsAsync(studentId);
         return Ok(events);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] HealthEventDto dto)
+    {
+        await _service.RecordHealthEventAsync(dto);
+        return Ok(new { message = "Health event added." });
+    }
+
+    [HttpPut("{eventId}")]
+    public async Task<IActionResult> Update(int eventId, [FromBody] HealthEventDto dto)
+    {
+        dto.EventId = eventId;
+        await _service.UpdateHealthEventAsync(dto);
+        return Ok(new { message = "Health event updated." });
+    }
+
+    [HttpDelete("{eventId}")]
+    public async Task<IActionResult> Delete(int eventId)
+    {
+        await _service.DeleteHealthEventAsync(eventId);
+        return Ok(new { message = "Deleted successfully." });
     }
 }
