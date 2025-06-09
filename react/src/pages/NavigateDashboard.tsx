@@ -22,6 +22,9 @@ const DashboardRedirect = () => {
             case "MedicalStaff":
                 navigate("/MedicalStaffPage");
                 break;
+            case "Manager":
+                navigate("/ManagerPage");
+                break;
             default:
                 navigate("/");
         }

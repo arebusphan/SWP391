@@ -118,3 +118,10 @@ export const uploadExcelFile = (file: File) => {
     },
   });
 };
+export const postBanner = async (title: string, imageUrl: string) => {
+    return await axios.post("https://localhost:7195/api/Banners/post", { title, imageUrl })
+}
+export const getBanners = async () => {
+    const res = await axios.get("https://localhost:7195/api/Banners/getall");
+    return res.data;
+};

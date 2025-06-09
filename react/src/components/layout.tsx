@@ -3,9 +3,9 @@ import { Outlet } from 'react-router-dom';
 import Footer from './footer';
 const Layout = () => {
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: "150vh" }}>
+        <div>
             <Navbar />
-            <main style={{ flex: "1" }}>
+            <main>
                 <Outlet />
             </main>
             <Footer />

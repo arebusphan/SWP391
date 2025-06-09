@@ -33,7 +33,7 @@ namespace DAL
         public DbSet<NotificationStudents> NotificationStudents { get; set; }
 
         public DbSet<ConsultationAppointments> ConsultationAppointments { get; set; }
-
+        public DbSet<Banners> Banners { get; set; }
 
 
     }

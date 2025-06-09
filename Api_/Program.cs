@@ -67,6 +67,7 @@ namespace WebApplication6
 
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<OtpService>();
+            builder.Services.AddScoped<IBannerService, BannerService>();
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUserService, UserService>();
