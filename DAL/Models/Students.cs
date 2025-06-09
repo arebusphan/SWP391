@@ -17,7 +17,7 @@ namespace DAL.Models
 
         public int GuardianId { get; set; }
 
-        public Users Guardian { get; set; } = new Users();
+        public Users Guardian { get; set; }
 
         public ICollection<VaccinationRecord> VaccinationRecords { get; set; } = new List<VaccinationRecord>();
 

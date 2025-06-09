@@ -9,6 +9,17 @@ export const verifyOtp = (email: string, otpcode: string) => {
     return axios.post("https://localhost:7195/api/Otp/verify-otp", { email, otpcode });
 };
 
+const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dhuoon51m/image/upload";
+const CLOUDINARY_UPLOAD_PRESET = "SendMedicineImg";
+export const uploadToCloudinary = async (file: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+  const response = await axios.post(CLOUDINARY_URL, formData);
+  return response.data.secure_url;
+};
+
 export const adduser = async (
     parent: {
       fullName: string;
@@ -40,15 +51,28 @@ export const getuser = (params?: {
 }) => {
     return axios.get("https://localhost:7195/api/User/get", { params });
 };
-export const sendingmedicine = (studentId: number, medicineName: string, prescriptionImage: string) => {
-    const token = localStorage.getItem("token");
-    return axios.post("https://localhost:7195/api/medication-requests", { studentId, medicineName, prescriptionImage }, {
-        headers: {
 
-            Authorization: `Bearer ${token}`,
-        },
-    })
+export const sendingmedicine = (studentId: number, medicineName: string, prescriptionImageUrl: string) => {
+  const token = localStorage.getItem("token");
+  const payload = {
+    studentId,
+    medicineName,
+    prescriptionImage: prescriptionImageUrl,
+  };
+  console.log("Sending medicine payload:", payload);
+
+  return axios.post(
+    "https://localhost:7195/api/medication-requests/parent-request",
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 };
+
 
 export const update = (userId: number, fullName: string, email: string, phoneNumber: string) => {
     return axios.put("https://localhost:7195/api/User/Update", {
