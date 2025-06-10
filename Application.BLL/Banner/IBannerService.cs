@@ -8,4 +8,4 @@ public interface IBannerService
     Task<bool> UpdateAsync(int id, Banners banner);
     Task<bool> DeleteAsync(int id);
 }
-    
+      
