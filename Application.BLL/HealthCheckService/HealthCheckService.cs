@@ -1,5 +1,6 @@
 ﻿using DAL.Models;
 using DAL.Repositories;
+using DTOs;
 
 namespace BLL.HealthCheckService
 {
@@ -12,15 +13,17 @@ namespace BLL.HealthCheckService
             _healthRepo = healthRepo;
         }
 
-        public void SubmitHealthProfile(int studentId, HealthProfileDTO dto, int recordedBy)
+        public void SubmitHealthCheck(HealthCheckDto dto)
         {
-            if (!_healthRepo.StudentExists(studentId))
+            if (!_healthRepo.StudentExists(dto.StudentId))
                 throw new Exception("Student not found");
 
-            var profile = new HealthChecks
+            var check = new HealthChecks
             {
-                StudentId = studentId,
-                CheckDate = DateTime.Now,
+                StudentId = dto.StudentId,
+                CheckDate = dto.CheckDate,
+                WeightKg = dto.WeightKg,
+                HeightCm = dto.HeightCm,
                 LeftEyeVision = dto.LeftEyeVision,
                 RightEyeVision = dto.RightEyeVision,
                 LeftEarHearing = dto.LeftEarHearing,
@@ -29,10 +32,33 @@ namespace BLL.HealthCheckService
                 SkinStatus = dto.SkinStatus,
                 OralHealth = dto.OralHealth,
                 OtherNotes = dto.OtherNotes,
-                RecordedBy = recordedBy
+                RecordedBy = dto.RecordedBy
             };
 
-            _healthRepo.AddHealthCheck(profile);
+            _healthRepo.AddHealthCheck(check);
         }
+        public List<HealthCheckDto> GetHealthChecksByGuardian(int guardianId)
+        {
+            var studentIds = _healthRepo.GetStudentIdsByGuardian(guardianId);
+            var records = _healthRepo.GetByStudentIds(studentIds);
+
+            return records.Select(h => new HealthCheckDto
+            {
+                StudentId = h.StudentId,
+                CheckDate = h.CheckDate,
+                WeightKg = h.WeightKg,
+                HeightCm = h.HeightCm,
+                LeftEyeVision = h.LeftEyeVision,
+                RightEyeVision = h.RightEyeVision,
+                LeftEarHearing = h.LeftEarHearing,
+                RightEarHearing = h.RightEarHearing,
+                SpineStatus = h.SpineStatus,
+                SkinStatus = h.SkinStatus,
+                OralHealth = h.OralHealth,
+                OtherNotes = h.OtherNotes,
+                RecordedBy = h.RecordedBy
+            }).ToList();
+        }
+
     }
 }
