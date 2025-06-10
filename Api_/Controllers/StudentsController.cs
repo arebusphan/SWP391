@@ -91,5 +91,26 @@ namespace API.Controllers
             var result = _studentStatusService.GetAllStatusForMedicalStaff();
             return Ok(result);
         }
+        [HttpGet("my-health-checks")]
+        [Authorize(Roles = "Parent")]
+        public IActionResult GetMyChildrenHealthChecks()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            int guardianId = int.Parse(userIdClaim.Value);
+
+            try
+            {
+                var healthChecks = _healthCheckService.GetHealthChecksByGuardian(guardianId);
+                return Ok(healthChecks);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
     }
 }

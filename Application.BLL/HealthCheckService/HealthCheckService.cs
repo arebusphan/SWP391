@@ -37,5 +37,28 @@ namespace BLL.HealthCheckService
 
             _healthRepo.AddHealthCheck(check);
         }
+        public List<HealthCheckDto> GetHealthChecksByGuardian(int guardianId)
+        {
+            var studentIds = _healthRepo.GetStudentIdsByGuardian(guardianId);
+            var records = _healthRepo.GetByStudentIds(studentIds);
+
+            return records.Select(h => new HealthCheckDto
+            {
+                StudentId = h.StudentId,
+                CheckDate = h.CheckDate,
+                WeightKg = h.WeightKg,
+                HeightCm = h.HeightCm,
+                LeftEyeVision = h.LeftEyeVision,
+                RightEyeVision = h.RightEyeVision,
+                LeftEarHearing = h.LeftEarHearing,
+                RightEarHearing = h.RightEarHearing,
+                SpineStatus = h.SpineStatus,
+                SkinStatus = h.SkinStatus,
+                OralHealth = h.OralHealth,
+                OtherNotes = h.OtherNotes,
+                RecordedBy = h.RecordedBy
+            }).ToList();
+        }
+
     }
 }
