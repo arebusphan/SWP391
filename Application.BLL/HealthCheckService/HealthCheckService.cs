@@ -1,5 +1,6 @@
 ﻿using DAL.Models;
 using DAL.Repositories;
+using DTOs;
 
 namespace BLL.HealthCheckService
 {
@@ -12,15 +13,17 @@ namespace BLL.HealthCheckService
             _healthRepo = healthRepo;
         }
 
-        public void SubmitHealthProfile(int studentId, HealthProfileDTO dto, int recordedBy)
+        public void SubmitHealthCheck(HealthCheckDto dto)
         {
-            if (!_healthRepo.StudentExists(studentId))
+            if (!_healthRepo.StudentExists(dto.StudentId))
                 throw new Exception("Student not found");
 
-            var profile = new HealthChecks
+            var check = new HealthChecks
             {
-                StudentId = studentId,
-                CheckDate = DateTime.Now,
+                StudentId = dto.StudentId,
+                CheckDate = dto.CheckDate,
+                WeightKg = dto.WeightKg,
+                HeightCm = dto.HeightCm,
                 LeftEyeVision = dto.LeftEyeVision,
                 RightEyeVision = dto.RightEyeVision,
                 LeftEarHearing = dto.LeftEarHearing,
@@ -29,10 +32,10 @@ namespace BLL.HealthCheckService
                 SkinStatus = dto.SkinStatus,
                 OralHealth = dto.OralHealth,
                 OtherNotes = dto.OtherNotes,
-                RecordedBy = recordedBy
+                RecordedBy = dto.RecordedBy
             };
 
-            _healthRepo.AddHealthCheck(profile);
+            _healthRepo.AddHealthCheck(check);
         }
     }
 }

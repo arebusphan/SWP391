@@ -12,9 +12,18 @@ public class VaccinationRecordRepository : IVaccinationRecordRepository
 
     public async Task AddRecordAsync(VaccinationRecord record)
     {
-        _context.VaccinationRecords.Add(record);
-        await _context.SaveChangesAsync();
+        try
+        {
+            _context.VaccinationRecords.Add(record);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ Error when saving record: " + ex.Message);
+            throw;
+        }
     }
+
 
     public async Task<List<VaccinationRecord>> GetRecordsByStudentIdAsync(int studentId)
     {

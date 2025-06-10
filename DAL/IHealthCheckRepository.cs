@@ -1,10 +1,7 @@
 ﻿using DAL.Models;
 
-namespace DAL.Repositories
+public interface IHealthCheckRepository
 {
-    public interface IHealthCheckRepository
-    {
-        void AddHealthCheck(HealthChecks profile);
-        bool StudentExists(int studentId);
-    }
+    void AddHealthCheck(HealthChecks check);
+    bool StudentExists(int studentId);
 }

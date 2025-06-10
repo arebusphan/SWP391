@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using BLL.StudentService;
 using BLL.HealthCheckService;
+using DTOs;
 using System.Security.Claims;
-using DAL.Models;
 
 namespace API.Controllers
 {
@@ -47,20 +47,23 @@ namespace API.Controllers
             return Ok(students);
         }
 
-
-        [HttpPost("{id}/submit-health")]
-        public IActionResult SubmitHealthProfile(int id, [FromBody] HealthProfileDTO dto)
+        // ✅ Sửa phần này
+        [HttpPost("{id}/healthCheck")]
+        [Authorize(Roles = "MedicalStaff")]
+        public IActionResult SubmitHealthCheck(int id, [FromBody] HealthCheckDto dto)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
                 return Unauthorized();
 
-            int userId = int.Parse(userIdClaim.Value);
+            dto.StudentId = id;
+            dto.RecordedBy = int.Parse(userIdClaim.Value);
+            dto.CheckDate = DateTime.Now;
 
             try
             {
-                _healthCheckService.SubmitHealthProfile(id, dto, userId);
-                return Ok(new { message = "Health profile submitted successfully" });
+                _healthCheckService.SubmitHealthCheck(dto);
+                return Ok(new { message = "Health check submitted successfully" });
             }
             catch (Exception ex)
             {
