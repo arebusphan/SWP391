@@ -36,7 +36,7 @@ const LeftSideParent = () => {
                             isOpen ? "opacity-100 w-auto" : "opacity-0 w-0"
                         }`}
                     >
-                        Menu
+                        {/* Menu */}
                     </span>
                 </div>
 
