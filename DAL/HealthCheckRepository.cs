@@ -23,5 +23,21 @@ namespace DAL.Repositories
             _context.HealthChecks.Add(profile);
             _context.SaveChanges();
         }
+        public List<int> GetStudentIdsByGuardian(int guardianId)
+        {
+            return _context.Students
+                .Where(s => s.GuardianId == guardianId)
+                .Select(s => s.StudentId)
+                .ToList();
+        }
+
+        public List<HealthChecks> GetByStudentIds(List<int> studentIds)
+        {
+            return _context.HealthChecks
+                .Where(h => studentIds.Contains(h.StudentId))
+                .OrderByDescending(h => h.CheckDate)
+                .ToList();
+        }
+
     }
 }

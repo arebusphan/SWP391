@@ -1,9 +1,11 @@
-﻿using DAL.Models;
+﻿using DTOs;
 
 namespace BLL.HealthCheckService
 {
     public interface IHealthCheckService
     {
-        void SubmitHealthProfile(int studentId, HealthProfileDTO dto, int recordedBy);
+        void SubmitHealthCheck(HealthCheckDto dto);
+        List<HealthCheckDto> GetHealthChecksByGuardian(int guardianId);
+
     }
 }

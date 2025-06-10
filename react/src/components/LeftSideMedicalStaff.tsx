@@ -31,7 +31,7 @@ const LeftSideMedicalStaff = () => {
 
                 {/* ✅ Updated Health Check */}
                 <div
-                    onClick={() => navigate("/MedicalStaffPage/HealthCheck")}
+                    onClick={() => navigate("/MedicalStaffPage/healthCheck")}
                     className="hover:bg-blue-700 rounded-lg px-4 py-2 cursor-pointer"
                 >
                     Health Check
