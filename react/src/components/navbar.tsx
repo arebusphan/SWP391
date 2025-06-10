@@ -68,7 +68,7 @@ const Navbar = () => {
                         onClick={handleLogout}
                         className="bg-red-100 text-red-700 hover:bg-red-200 px-4 py-2 rounded-lg font-semibold transition"
                     >
-                        Đăng xuất
+                        Logout
                     </button>
                 ) : (
                     <Dialog open={open} onOpenChange={setOpen}>
@@ -78,9 +78,9 @@ const Navbar = () => {
                             Login
                         </DialogTrigger>
                         <DialogContent>
-                            <DialogTitle>Đăng nhập</DialogTitle>
+                            <DialogTitle></DialogTitle>
                             <DialogDescription>
-                                Vui lòng nhập thông tin đăng nhập của bạn.
+                                
                             </DialogDescription>
                             <LoginForm />
                         </DialogContent>
