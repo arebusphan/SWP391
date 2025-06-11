@@ -4,7 +4,7 @@ const RightSideMedicalStaff = () => {
     const { user } = useAuth();
     return (
         <div>
-            <div style={{ color: "blue" }} >sadsadsadsadsaddsa {user?.Name}</div>
+            <div style={{ color: "blue" }} >e xin chao {user?.Name} a</div>
             <div>
 
             </div>
