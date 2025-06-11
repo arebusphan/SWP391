@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // ✅ thêm
 
 type StudentProfile = {
     studentId: number;
@@ -13,6 +14,7 @@ type StudentProfile = {
 const StudentProfileList = () => {
     const [students, setStudents] = useState<StudentProfile[]>([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate(); // ✅ thêm
 
     useEffect(() => {
         async function fetchStudents() {
@@ -27,10 +29,9 @@ const StudentProfileList = () => {
                 return;
             }
 
-            // Nếu role bị sai định dạng trong JWT → fallback
             if (!["Parent", "MedicalStaff"].includes(role)) {
                 console.warn("⚠️ Role không hợp lệ:", role);
-                role = "Parent"; // fallback an toàn
+                role = "Parent";
             }
 
             const url =
@@ -79,6 +80,7 @@ const StudentProfileList = () => {
                                 <th className="p-3 border-b">Date of Birth</th>
                                 <th className="p-3 border-b">Guardian Name</th>
                                 <th className="p-3 border-b">Guardian Phone</th>
+                                <th className="p-3 border-b">Actions</th> {/* ✅ thêm cột */}
                             </tr>
                         </thead>
                         <tbody>
@@ -89,6 +91,14 @@ const StudentProfileList = () => {
                                     <td className="p-3 border-b">{formatDate(s.dateOfBirth)}</td>
                                     <td className="p-3 border-b">{s.guardianName}</td>
                                     <td className="p-3 border-b">{s.guardianPhone}</td>
+                                    <td className="p-3 border-b">
+                                        <button
+                                            onClick={() => navigate(`/MedicalStaffPage/student-detail/${s.studentId}`)}
+                                            className="text-blue-600 hover:underline"
+                                        >
+                                            View
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
