@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using BLL.StudentService;
 using BLL.HealthCheckService;
+using BLL.StudentDetailService;
 using DTOs;
-using System.Security.Claims;
 
 namespace API.Controllers
 {
@@ -15,15 +16,18 @@ namespace API.Controllers
         private readonly IStudentService _studentService;
         private readonly IHealthCheckService _healthCheckService;
         private readonly IStudentStatusService _studentStatusService;
+        private readonly IStudentDetailService _studentDetailService;
 
         public StudentsController(
             IStudentService studentService,
             IHealthCheckService healthCheckService,
-            IStudentStatusService studentStatusService)
+            IStudentStatusService studentStatusService,
+            IStudentDetailService studentDetailService)
         {
             _studentService = studentService;
             _healthCheckService = healthCheckService;
             _studentStatusService = studentStatusService;
+            _studentDetailService = studentDetailService;
         }
 
         [HttpGet("get-StuByGuardian")]
@@ -35,7 +39,6 @@ namespace API.Controllers
 
             int guardianId = int.Parse(userIdClaim.Value);
             var students = _studentService.GetStudentsByGuardian(guardianId);
-
             return Ok(students);
         }
 
@@ -47,7 +50,6 @@ namespace API.Controllers
             return Ok(students);
         }
 
-        // ✅ Sửa phần này
         [HttpPost("{id}/healthCheck")]
         [Authorize(Roles = "MedicalStaff")]
         public IActionResult SubmitHealthCheck(int id, [FromBody] HealthCheckDto dto)
@@ -80,7 +82,6 @@ namespace API.Controllers
 
             int guardianId = int.Parse(userIdClaim.Value);
             var result = _studentStatusService.GetStatusForGuardian(guardianId);
-
             return Ok(result);
         }
 
@@ -91,6 +92,7 @@ namespace API.Controllers
             var result = _studentStatusService.GetAllStatusForMedicalStaff();
             return Ok(result);
         }
+
         [HttpGet("my-health-checks")]
         [Authorize(Roles = "Parent")]
         public IActionResult GetMyChildrenHealthChecks()
@@ -112,5 +114,15 @@ namespace API.Controllers
             }
         }
 
+        [HttpGet("get-detail/{studentId}")]
+        [Authorize(Roles = "MedicalStaff,Parent")]
+        public IActionResult GetStudentDetail(int studentId)
+        {
+            var detail = _studentDetailService.GetStudentDetail(studentId);
+            if (detail == null)
+                return NotFound("Student not found.");
+
+            return Ok(detail);
+        }
     }
 }

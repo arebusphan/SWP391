@@ -6,9 +6,9 @@ namespace DAL.Models
     {
         [Key]
         public int VaccineId { get; set; }
-        public string VaccineName { get; set; }
+        public string VaccineName { get; set; } = string.Empty;
 
-        // Navigation property (optional)
-        public ICollection<VaccinationRecord> VaccinationRecords { get; set; }
+        // ✅ Navigation property để EF hiểu mối quan hệ
+        public ICollection<VaccinationRecord> VaccinationRecords { get; set; } = new List<VaccinationRecord>();
     }
 }
