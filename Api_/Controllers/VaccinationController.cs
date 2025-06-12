@@ -12,13 +12,15 @@ public class VaccinationController : ControllerBase
         _service = service;
     }
 
+    // ✅ Thêm bản ghi tiêm chủng bằng tên vaccine (VaccineName)
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] VaccinationRecordDto dto)
     {
-        await _service.AddVaccinationAsync(dto);
-        return Ok(new { message = "Vaccination record added." });
+        await _service.AddVaccinationByNameAsync(dto);
+        return Ok(new { message = "Vaccination record added (by VaccineName)." });
     }
 
+    // ✅ Lấy danh sách tiêm chủng theo StudentId
     [HttpGet("student/{studentId}")]
     public async Task<IActionResult> GetByStudent(int studentId)
     {

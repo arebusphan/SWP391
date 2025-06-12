@@ -6,5 +6,7 @@
         public int VaccineId { get; set; }
         public DateTime VaccinationDate { get; set; }
         public string Notes { get; set; }
+        public string VaccineName { get; set; }
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using DAL;
+using DAL.Models;
 using Microsoft.EntityFrameworkCore;
 
 public class VaccinationRecordRepository : IVaccinationRecordRepository
@@ -32,4 +33,9 @@ public class VaccinationRecordRepository : IVaccinationRecordRepository
             .Include(r => r.Vaccine) // nếu muốn lấy tên vaccine
             .ToListAsync();
     }
+    public async Task<Vaccine> GetVaccineByNameAsync(string vaccineName)
+    {
+        return await _context.Vaccines.FirstOrDefaultAsync(v => v.VaccineName == vaccineName);
+    }
+
 }
