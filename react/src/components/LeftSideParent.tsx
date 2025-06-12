@@ -10,8 +10,8 @@ const LeftSideParent = () => {
     const menuItems = [
         { label: "Profile", path: "/ParentPage/Info", icon: <MdPerson size={20} /> },
         { label: "Sending Medicine", path: "/ParentPage/SendingMedicine", icon: <MdLocalPharmacy size={20} /> },
-        { label: "Notification", path: "/ParentPage/Notification", icon: <MdNotifications size={20} /> },
-        { label: "History", path: "/ParentPage/History", icon: <MdHistory size={20} /> },
+        { label: "Notification", path: "/ParentPage/Notificationview", icon: <MdNotifications size={20} /> },
+        { label: "History", path: "/ParentPage/Historyview", icon: <MdHistory size={20} /> },
     ];
 
     return (

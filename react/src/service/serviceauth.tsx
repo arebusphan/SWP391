@@ -149,3 +149,17 @@ export const getBanners = async () => {
     const res = await axios.get("https://localhost:7195/api/Banners/getall");
     return res.data;
 };
+export const getMedicationRequestHistory = (params?: {
+  studentName?: string;
+  status?: string;
+  createdAt?: string;
+}) => {
+  const token = localStorage.getItem("token");
+
+  return axios.get("https://localhost:7195/api/medication-requests/request-history", {
+    params,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
