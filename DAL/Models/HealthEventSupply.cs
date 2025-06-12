@@ -22,4 +22,5 @@ public class HealthEventSupply
 
     [ForeignKey(nameof(SupplyId))]
     public MedicalSupply Supply { get; set; }
+
 }

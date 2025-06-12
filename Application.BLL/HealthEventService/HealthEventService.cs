@@ -17,6 +17,9 @@
             Execution = dto.Execution,
             EventDate = DateTime.Now,
             // Set RecordedBy from param
+            // Set thêm SupplyId và QuantityUsed
+            SupplyId = dto.SupplyId,
+            QuantityUsed = dto.QuantityUsed
         };
 
         await _repository.AddHealthEventAsync(entity);
@@ -32,7 +35,10 @@
             EventType = e.EventType,
             Description = e.Description,
             Execution = e.Execution,
-            EventDate = e.EventDate
+            EventDate = e.EventDate,
+            // Lấy thêm SupplyId và QuantityUsed
+            SupplyId = e.SupplyId,
+            QuantityUsed = e.QuantityUsed
         });
     }
 
@@ -46,7 +52,10 @@
             EventType = e.EventType,
             Description = e.Description,
             Execution = e.Execution,
-            EventDate = e.EventDate
+            EventDate = e.EventDate,
+            // Lấy thêm SupplyId và QuantityUsed
+            SupplyId = e.SupplyId,
+            QuantityUsed = e.QuantityUsed,
         });
     }
 
@@ -64,7 +73,10 @@
             EventType = dto.EventType,
             Description = dto.Description,
             Execution = dto.Execution,
-            EventDate = dto.EventDate
+            EventDate = dto.EventDate,
+            // Cập nhật SupplyId và QuantityUsed
+            SupplyId = dto.SupplyId,
+            QuantityUsed = dto.QuantityUsed
         };
 
         await _repository.UpdateHealthEventAsync(entity);

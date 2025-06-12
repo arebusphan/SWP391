@@ -28,12 +28,14 @@ public class HealthEventRepository : IHealthEventRepository
     {
         return await _context.HealthEvents
             .Where(e => e.StudentId == studentId)
+            .Include(e => e.Supplies)
             .ToListAsync();
     }
     public async Task<IEnumerable<HealthEvent>> GetAllEventsAsync()
     {
         return await _context.HealthEvents
             .Include(e => e.Student)
+            .Include(e => e.Supplies)
             .ToListAsync();
     }
     public async Task DeleteHealthEventAsync(int eventId)
