@@ -29,14 +29,16 @@ namespace DAL
        
         public DbSet<MedicalSupply> MedicalSupplies { get; set; }
 
-        public DbSet<HealthNotifications> HealthNotifications { get; set; }
-        public DbSet<NotificationStudents> NotificationStudents { get; set; }
+        
+       
 
         public DbSet<ConsultationAppointments> ConsultationAppointments { get; set; }
         public DbSet<Banners> Banners { get; set; }
         public DbSet<HealthProfile> HealthProfiles { get; set; }
 
-       
+        public DbSet<HealthNotification> HealthNotifications { get; set; }
+        public DbSet<NotificationClass> NotificationClasses { get; set; }
+
 
 
     }

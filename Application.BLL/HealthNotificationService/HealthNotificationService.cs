@@ -1,21 +1,8 @@
-﻿using DAL.Models;
-using DAL.Repositories;
-using System.Collections.Generic;
-
-namespace BLL.HealthNotificationService
+﻿public class HealthNotificationService : IHealthNotificationService
 {
-    public class HealthNotificationService : IHealthNotificationService
-    {
-        private readonly IHealthNotificationRepository _repository;
+    private readonly IHealthNotificationRepository _repo;
+    public HealthNotificationService(IHealthNotificationRepository repo) => _repo = repo;
 
-        public HealthNotificationService(IHealthNotificationRepository repository)
-        {
-            _repository = repository;
-        }
-
-        public List<HealthNotificationDTO> GetNotificationsForParent(int parentUserId)
-        {
-            return _repository.GetNotificationsForParent(parentUserId);
-        }
-    }
-}    
+    public Task<int> CreateNotificationAsync(HealthNotification notification, List<int> classIds)
+        => _repo.CreateAsync(notification, classIds);
+}

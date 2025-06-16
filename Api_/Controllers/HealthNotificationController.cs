@@ -1,32 +1,30 @@
-﻿using BLL.HealthNotificationService;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers
+[Route("api/notifications")]
+[ApiController]
+public class HealthNotificationController : ControllerBase
 {
-    [ApiController]
-    [Route("api/health-notifications")]
-    [Authorize]
-    public class HealthNotificationController : ControllerBase
+    private readonly IHealthNotificationService _service;
+
+    public HealthNotificationController(IHealthNotificationService service)
     {
-        private readonly IHealthNotificationService _service;
+        _service = service;
+    }
 
-        public HealthNotificationController(IHealthNotificationService service)
+    [HttpPost("create")]
+    public async Task<IActionResult> Create([FromBody] CreateNotificationDTO dto)
+    {
+        var model = new HealthNotification
         {
-            _service = service;
-        }
+            EventName = dto.EventName,
+            EventType = dto.EventType,
+            EventImage = dto.EventImage,
+            EventDate = dto.EventDate,
+            CreatedBy = dto.CreatedBy,
+            CreatedAt = DateTime.Now
+        };
 
-        [HttpGet]
-        public IActionResult Get()
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null) return Unauthorized();
-
-            int parentId = int.Parse(userIdClaim.Value);
-            var list = _service.GetNotificationsForParent(parentId);
-
-            return Ok(list);
-        }
+        var id = await _service.CreateNotificationAsync(model, dto.ClassIds);
+        return Ok(new { NotificationId = id });
     }
 }

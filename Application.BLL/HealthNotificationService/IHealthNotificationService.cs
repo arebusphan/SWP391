@@ -1,10 +1,4 @@
-﻿using DAL.Models;
-using System.Collections.Generic;
-
-namespace BLL.HealthNotificationService
+﻿public interface IHealthNotificationService
 {
-    public interface IHealthNotificationService
-    {
-        List<HealthNotificationDTO> GetNotificationsForParent(int parentUserId);
-    }
-}           
+    Task<int> CreateNotificationAsync(HealthNotification notification, List<int> classIds);
+}
