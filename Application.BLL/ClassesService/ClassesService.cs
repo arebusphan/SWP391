@@ -17,5 +17,14 @@ namespace BLL.Services
         {
             return await _repo.GetAllAsync();
         }
+        public async Task<List<ClassDTO>> GetAllClassesAsync()
+        {
+            var classes = await _repo.GetAllAsync();
+            return classes.Select(c => new ClassDTO
+            {
+                ClassId = c.ClassId,
+                ClassName = c.ClassName
+            }).ToList();
+        }
     }
 }

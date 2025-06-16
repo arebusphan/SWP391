@@ -39,6 +39,25 @@ public class StudentService : IStudentService
         return _studentRepository.GetAllBasicProfiles();
     }
 
+    public async Task AddStudentsAsync(List<StudentAddDTO> studentDtos, int guardianId)
+    {
+        var validStudents = studentDtos
+            .Where(s => !string.IsNullOrWhiteSpace(s.FullName)
+                     && s.DateOfBirth != default
+                     && !string.IsNullOrWhiteSpace(s.Gender))
+            .Select(s => new Students
+            {
+                FullName = s.FullName,
+                DateOfBirth = s.DateOfBirth,
+                Gender = s.Gender,
+                GuardianId = guardianId,
+                ClassId = s.ClassId,
+            }).ToList();
 
+        if (validStudents.Any())
+        {
+            await _studentRepository.AddAsync(validStudents);
+        }
+    }
 
 }

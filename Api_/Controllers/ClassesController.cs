@@ -21,5 +21,11 @@ namespace API.Controllers
             var result = await _service.GetAllAsync();
             return Ok(result);
         }
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _service.GetAllClassesAsync();
+            return Ok(result);
+        }
     }
 }

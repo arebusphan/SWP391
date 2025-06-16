@@ -7,6 +7,7 @@ namespace DAL.Repositories
     {
         List<Students> GetStudentsByGuardian(int guardianId);
         List<StudentBasicInfoDTO> GetAllBasicProfiles();
-        Task AddAsync(Students student);
+        Task AddAsync(List<Students> students);
+
     }
 }

@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace DAL.Models
 {
-    public class ParentWithStudentDTO
+    public class ClassDTO
     {
-        public UserDTO Parent { get; set; }
-        public List<StudentAddDTO>? Students { get; set; }
+        public int ClassId { get; set; }
+        public string ClassName { get; set; } = string.Empty;
     }
-
 }

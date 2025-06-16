@@ -1,26 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using DAL.Models;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
-namespace DAL.Models
+public class Users
 {
-    public class Users
-    {
-        [Key]
-        public int UserId { get; set; }
-        public string FullName { get; set; } = string.Empty;
-        public string PhoneNumber { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public Boolean IsActive { get; set; }
-        public int? RoleId { get; set; }
+    [Key]
+    public int UserId { get; set; }
 
-        public DateTime? CreatedAt { get; set; } 
-        public DateTime? UpdatedAt { get; set; } 
-        public ICollection<Otps> Otps { get; set; }
-        public Roles? Role { get; set; }
-    }
+    [Required]
+    [MaxLength(100)]
+    public string FullName { get; set; } = string.Empty;
+
+    [MaxLength(20)]
+    public string PhoneNumber { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(100)]
+    public string Email { get; set; } = string.Empty;
+
+    public bool IsActive { get; set; } = true;
+
+    public int? RoleId { get; set; }
+
+    public DateTime? CreatedAt { get; set; } = DateTime.Now;
+
+    public DateTime? UpdatedAt { get; set; }
+
+    public ICollection<Otps>? Otps { get; set; }
+
+    [ForeignKey("RoleId")]
+    public Roles? Role { get; set; }
+
+    public ICollection<Students>? Students { get; set; }
 }

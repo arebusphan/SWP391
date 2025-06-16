@@ -15,5 +15,6 @@ namespace DAL.Models
         public string Gender { get; set; } = string.Empty;
 
         public int GuardianId { get; set; }
+        public int ClassId { get; set; }
     }
 }

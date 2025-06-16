@@ -36,9 +36,9 @@ namespace DAL.Repositories
                 })
                 .ToList();
         }
-        public async Task AddAsync(Students student)
+        public async Task AddAsync(List<Students> students)
         {
-            await _context.Students.AddAsync(student);
+            await _context.Students.AddRangeAsync(students);
             await _context.SaveChangesAsync();
         }
     }

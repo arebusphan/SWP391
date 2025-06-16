@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DAL.Models
 {
@@ -17,15 +18,18 @@ namespace DAL.Models
 
         public int GuardianId { get; set; }
 
-        public Users Guardian { get; set; }
+        [ForeignKey("GuardianId")]
+        public Users Guardian { get; set; } = null!;
 
-       
+        public int ClassId { get; set; }
+
+        [ForeignKey("ClassId")]
+        public Classes Class { get; set; } = null!;
+
+        public virtual HealthProfile? HealthProfile { get; set; }
 
         public ICollection<HealthChecks> HealthChecks { get; set; } = new List<HealthChecks>();
 
         public ICollection<ConsultationAppointments> ConsultationAppointments { get; set; } = new List<ConsultationAppointments>();
-
-        // ✅ Thêm vào đây:
-        public virtual HealthProfile? HealthProfile { get; set; }
     }
 }

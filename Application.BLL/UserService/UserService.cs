@@ -7,67 +7,53 @@ using System.Text;
 using System.Threading.Tasks;
 using static DAL.Models.UserDTO;
 using DAL.Repositories;
+using BLL.StudentService;
 
 namespace BLL.UserService
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _repo;
-        private readonly IStudentRepository _stud;
+        private readonly IStudentService _studentService;
 
-        public UserService(IUserRepository repo, IStudentRepository stud)
+        public UserService(IUserRepository repo, IStudentService studentService)
         {
             _repo = repo;
-            _stud = stud;
+            _studentService = studentService;
         }
 
         public async Task CreateUserAsync(ParentWithStudentDTO dto)
         {
             if (await _repo.ExistsByEmailOrPhoneAsync(dto.Parent.Email, dto.Parent.PhoneNumber))
             {
-                throw new Exception("email or phone number is exists");
+                throw new Exception("Email or phone number already exists");
             }
+
             var user = new Users
             {
                 FullName = dto.Parent.FullName,
                 PhoneNumber = dto.Parent.PhoneNumber,
                 Email = dto.Parent.Email,
-                RoleId = dto.Parent.RoleId,
+                RoleId = dto.Parent.RoleId, // ✅ Dùng trực tiếp RoleId từ JSON
                 IsActive = dto.Parent.IsActive,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
-
             };
 
             user = await _repo.AddAsync(user);
 
-            if (dto.Parent.Role.Equals("Parent"))
+            // ✅ Nếu có danh sách học sinh thì thêm
+            if (dto.Students != null && dto.Students.Any())
             {
-                bool checkstud = string.IsNullOrEmpty(dto.Student.FullName)
-                    && dto.Student.DateOfBirth != default(DateTime)
-                              && !string.IsNullOrWhiteSpace(dto.Student.Gender);
-                if (!checkstud)
-                {
-                    var student = new Students
-                    {
-                        FullName = dto.Student.FullName,
-                        DateOfBirth = dto.Student.DateOfBirth,
-                        Gender = dto.Student.Gender,
-                        GuardianId = user.UserId,
-
-
-                    };
-                    await _stud.AddAsync(student);
-                }
+                await _studentService.AddStudentsAsync(dto.Students, user.UserId);
             }
         }
+
         public async Task<List<UserDTO>> GetAllAsync()
         {
-
             var users = await _repo.GetAllAsync();
             var userDtos = users.Select(u => new UserDTO
             {
-
                 FullName = u.FullName,
                 IsActive = u.IsActive,
                 PhoneNumber = u.PhoneNumber,
@@ -78,6 +64,7 @@ namespace BLL.UserService
 
             return userDtos;
         }
+
         public async Task<bool> UpdateAsync(UserUpdateDTO dto)
         {
             if (string.IsNullOrEmpty(dto.FullName) || string.IsNullOrEmpty(dto.PhoneNumber) || string.IsNullOrEmpty(dto.Email))
@@ -87,11 +74,10 @@ namespace BLL.UserService
 
             return await _repo.UpdateAsync(dto);
         }
+
         public async Task<bool> DeleteAsync(UserDeleteDTO dto)
         {
             return await _repo.DeleteAsyns(dto);
         }
     }
-
 }
-
