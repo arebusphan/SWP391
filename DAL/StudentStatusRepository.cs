@@ -17,7 +17,7 @@ namespace DAL.Repositories
         public List<StudentHealthStatusDTO> GetStudentStatusByGuardian(int guardianId)
         {
             var students = _context.Students
-                .Include(s => s.VaccinationRecords)
+               
                 .Include(s => s.HealthChecks)
                 .Include(s => s.ConsultationAppointments)
                 .Where(s => s.GuardianId == guardianId)
@@ -30,8 +30,7 @@ namespace DAL.Repositories
                 Gender = s.Gender,
                 DateOfBirth = s.DateOfBirth,
 
-                LatestVaccinationDate = s.VaccinationRecords.OrderByDescending(v => v.VaccinationDate).FirstOrDefault()?.VaccinationDate,
-                TotalVaccinations = s.VaccinationRecords.Count,
+               
 
                 LatestHealthCheckDate = s.HealthChecks.OrderByDescending(h => h.CheckDate).FirstOrDefault()?.CheckDate,
                 WeightKg = (float?)s.HealthChecks.OrderByDescending(h => h.CheckDate).FirstOrDefault()?.WeightKg,
@@ -47,7 +46,7 @@ namespace DAL.Repositories
         public List<StudentHealthStatusDTO> GetAllStudentStatus()
         {
             var students = _context.Students
-                .Include(s => s.VaccinationRecords)
+                
                 .Include(s => s.HealthChecks)
                 .Include(s => s.ConsultationAppointments)
                 .ToList();
@@ -59,8 +58,7 @@ namespace DAL.Repositories
                 Gender = s.Gender,
                 DateOfBirth = s.DateOfBirth,
 
-                LatestVaccinationDate = s.VaccinationRecords.OrderByDescending(v => v.VaccinationDate).FirstOrDefault()?.VaccinationDate,
-                TotalVaccinations = s.VaccinationRecords.Count,
+                
 
                 LatestHealthCheckDate = s.HealthChecks.OrderByDescending(h => h.CheckDate).FirstOrDefault()?.CheckDate,
                 WeightKg = (float?)s.HealthChecks.OrderByDescending(h => h.CheckDate).FirstOrDefault()?.WeightKg,

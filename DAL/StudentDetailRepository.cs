@@ -17,8 +17,7 @@ namespace DAL.Repositories
             var student = _context.Students
                 .Include(s => s.Guardian)
                 .Include(s => s.HealthProfile)
-                .Include(s => s.VaccinationRecords)
-                    .ThenInclude(vr => vr.Vaccine) // ✅ để lấy VaccineName
+                
                 .FirstOrDefault(s => s.StudentId == studentId);
 
             if (student == null) return null;
@@ -35,10 +34,7 @@ namespace DAL.Repositories
                 ChronicDiseases = student.HealthProfile?.ChronicDiseases ?? "",
                 Vision = student.HealthProfile?.Vision ?? "",
                 Hearing = student.HealthProfile?.Hearing ?? "",
-                Vaccinations = student.VaccinationRecords
-                .Select(vr => vr.Vaccine.VaccineName)
-               .Distinct()
-                 .ToList()
+               
 
             };
         }

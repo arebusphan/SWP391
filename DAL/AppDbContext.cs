@@ -25,8 +25,8 @@ namespace DAL
         public DbSet<HealthEvent> HealthEvents { get; set; }
         public DbSet<HealthEventSupply> HealthEventSupplies { get; set; }
 
-        public DbSet<VaccinationRecord> VaccinationRecords { get; set; }
-        public DbSet<Vaccine> Vaccines { get; set; }
+        
+       
         public DbSet<MedicalSupply> MedicalSupplies { get; set; }
 
         public DbSet<HealthNotifications> HealthNotifications { get; set; }

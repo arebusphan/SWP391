@@ -1,4 +1,4 @@
-﻿namespace DAL.Models
+﻿/*namespace DAL.Models
 {
     public class HealthProfileDTO
     {
@@ -11,4 +11,5 @@
         public string OralHealth { get; set; }
         public string OtherNotes { get; set; } 
     }
-}
+}*/
+    

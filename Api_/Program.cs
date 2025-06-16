@@ -88,8 +88,7 @@ namespace WebApplication6
             builder.Services.AddScoped<IHealthEventSupplyRepository, HealthEventSupplyRepository>();
             builder.Services.AddScoped<IHealthEventSupplyService, HealthEventSupplyService>();
 
-            builder.Services.AddScoped<IVaccinationRecordRepository, VaccinationRecordRepository>();
-            builder.Services.AddScoped<IVaccinationRecordService, VaccinationRecordService>();
+            
 
             builder.Services.AddScoped<IMedicalSupplyRepository, MedicalSupplyRepository>();
             builder.Services.AddScoped<IMedicalSupplyService, MedicalSupplyService>();

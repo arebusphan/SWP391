@@ -13,7 +13,7 @@ type StudentDetail = {
     chronicDiseases: string;
     vision: string;
     hearing: string;
-    vaccinations: string[];
+    
 };
 
 const StudentDetailPage = () => {
@@ -49,7 +49,7 @@ const StudentDetailPage = () => {
                 <li><strong>Chronic Diseases:</strong> {detail.chronicDiseases}</li>
                 <li><strong>Vision:</strong> {detail.vision}</li>
                 <li><strong>Hearing:</strong> {detail.hearing}</li>
-                <li><strong>Vaccinations:</strong> {detail.vaccinations.join(", ")}</li>
+               
             </ul>
         </div>
     );
