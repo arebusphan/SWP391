@@ -13,6 +13,9 @@ using BLL.MedicationService;
 using BLL.UserService;
 using DAL.Repositories;
 using BLL.StudentDetailService;
+using BLL.Interfaces;
+using BLL.Services;
+using DAL.Interfaces;
 
 namespace WebApplication6
 {
@@ -113,6 +116,8 @@ namespace WebApplication6
             builder.Services.AddScoped<IVaccinationResultRepository, VaccinationResultRepository>();
             builder.Services.AddScoped<IVaccinationResultService, VaccinationResultService>();
 
+            builder.Services.AddScoped<IClassesRepository, ClassesRepository>();
+            builder.Services.AddScoped<IClassesService, ClassesService>();
 
 
             builder.Services.AddAuthentication(options =>
