@@ -28,17 +28,17 @@ const LeftSideMedicalStaff = () => {
             icon: <MdAssignment size={20} />
         },
         {
-            label: "Gửi thông báo y tế",
+            label: "Sending Medical Event",
             path: "/MedicalStaffPage/Vaccination",
             icon: <MdLocalHospital size={20} />
         },
         {
-            label: "Xác nhận của học sinh",
+            label: "ConfirmStudents",
             path: "/MedicalStaffPage/ConfirmStudents",
             icon: <MdCheckCircle size={20} />
         },
         {
-            label: "Ghi nhận kết quả tiêm",
+            label: "Vaccine Result",
             path: "/MedicalStaffPage/VaccinationResult",
             icon: <MdHealthAndSafety size={20} />
         },

@@ -1,5 +1,6 @@
 ﻿using DAL;
-
+using Microsoft.EntityFrameworkCore;
+using DAL.Models;
 public class HealthNotificationRepository : IHealthNotificationRepository
 {
     private readonly AppDbContext _context;
@@ -22,4 +23,25 @@ public class HealthNotificationRepository : IHealthNotificationRepository
         await _context.SaveChangesAsync();
         return notification.NotificationId;
     }
+
+    // ✅ Trả về lịch sử theo DTO
+    public async Task<List<NotificationHistoryDTO>> GetNotificationHistoriesAsync()
+    {
+        var data = await _context.NotificationClasses
+            .Include(nc => nc.Notification)
+            .Include(nc => nc.Class)
+            .Select(nc => new NotificationHistoryDTO
+            {
+                Id = nc.Notification.NotificationId,
+                EventName = nc.Notification.EventName,
+                EventType = nc.Notification.EventType,
+                EventDate = nc.Notification.EventDate,
+                ClassName = nc.Class.ClassName,
+                EventImage = nc.Notification.EventImage // thêm dòng này
+            })
+            .ToListAsync();
+
+        return data;
+    }
+
 }

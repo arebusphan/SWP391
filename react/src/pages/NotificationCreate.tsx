@@ -2,9 +2,8 @@
 import axios from "axios";
 
 interface Class {
-    id: number;
-    name: string;
-    grade: string;
+    classId: number;
+    className: string;
 }
 
 interface NotificationHistory {
@@ -13,6 +12,7 @@ interface NotificationHistory {
     eventName: string;
     eventDate: string;
     className: string;
+    eventImage?: string;
 }
 
 const NotificationCreate = () => {
@@ -23,92 +23,136 @@ const NotificationCreate = () => {
     const [eventDate, setEventDate] = useState<string>("");
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [history, setHistory] = useState<NotificationHistory[]>([]);
-
-    const fetchClasses = async () => {
-        const res = await axios.get("https://localhost:7195/api/classes");
-        setClasses(res.data);
-        if (res.data.length > 0) setSelectedClassId(res.data[0].id);
-    };
-
-    const fetchHistory = async () => {
-        const res = await axios.get("https://localhost:7195/api/notifications");
-        setHistory(res.data);
-    };
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchClasses();
         fetchHistory();
     }, []);
 
+    const fetchClasses = async () => {
+        try {
+            const res = await axios.get("https://localhost:7195/api/classes");
+            setClasses(res.data);
+            if (res.data.length > 0) setSelectedClassId(res.data[0].classId);
+        } catch (error) {
+            console.error("Error loading classes:", error);
+            alert("Failed to load class list");
+        }
+    };
+
+    const fetchHistory = async () => {
+        try {
+            const res = await axios.get("https://localhost:7195/api/notifications");
+            setHistory(res.data);
+        } catch (error) {
+            console.error("Error loading history:", error);
+            alert("Failed to load notification history");
+        }
+    };
+
+    const uploadToCloudinary = async (file: File): Promise<string> => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", "school_upload"); // your Cloudinary preset
+        const response = await fetch(
+            "https://api.cloudinary.com/v1_1/dmgaexsik/image/upload",
+            {
+                method: "POST",
+                body: formData,
+            }
+        );
+
+        if (!response.ok) throw new Error("Upload failed");
+        const data = await response.json();
+        return data.secure_url;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true);
 
         try {
-            const formData = new FormData();
-            formData.append("eventType", eventType);
-            formData.append("eventName", eventName);
-            formData.append("eventDate", eventDate);
-            formData.append("classId", selectedClassId.toString());
-            if (imageFile) formData.append("image", imageFile);
+            let imageUrl = "";
 
-            await axios.post("https://localhost:7195/api/notifications", formData, {
-                headers: { "Content-Type": "multipart/form-data" }
-            });
+            if (imageFile) {
+                imageUrl = await uploadToCloudinary(imageFile);
+            }
 
-            alert("Đã gửi thông báo!");
+            const payload = {
+                eventName,
+                eventType,
+                eventDate,
+                createdBy: "admin",
+                classIds: [selectedClassId],
+                eventImage: imageUrl || null,
+            };
+
+            await axios.post("https://localhost:7195/api/notifications", payload);
+            alert("Notification sent!");
             fetchHistory();
+
+            // Reset form
+            setEventName("");
+            setEventDate("");
+            setImageFile(null);
         } catch (error) {
-            alert("Lỗi gửi thông báo!");
+            alert("Failed to send notification!");
+            console.error("Submit error:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <div className="max-w-5xl mx-auto p-6 mt-8 bg-white rounded-2xl shadow-md">
-            <h2 className="text-2xl font-bold mb-6 text-blue-800">Gửi Thông Báo Y Tế</h2>
+            <h2 className="text-2xl font-bold mb-6 text-blue-800">Send Health Notification</h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label className="font-semibold">Loại sự kiện</label>
+                        <label className="font-semibold">Event Type</label>
                         <select
                             value={eventType}
                             onChange={(e) => setEventType(e.target.value)}
                             className="w-full border px-4 py-2 rounded"
                         >
-                            <option value="vaccine">Tiêm chủng</option>
-                            <option value="healthcheck">Khám sức khỏe</option>
+                            <option value="vaccine">Vaccination</option>
+                            <option value="healthcheck">Health Check</option>
                         </select>
                     </div>
 
                     <div>
-                        <label className="font-semibold">Chọn lớp</label>
+                        <label className="font-semibold">Select Class</label>
                         <select
                             value={selectedClassId}
                             onChange={(e) => setSelectedClassId(Number(e.target.value))}
                             className="w-full border px-4 py-2 rounded"
                         >
+                            <option key="default" value="">
+                                -- Select Class --
+                            </option>
                             {classes.map((cls) => (
-                                <option key={cls.id} value={cls.id}>
-                                    {cls.name} ({cls.grade})
+                                <option key={cls.classId} value={cls.classId}>
+                                    {cls.className}
                                 </option>
                             ))}
                         </select>
                     </div>
 
                     <div>
-                        <label className="font-semibold">Tên sự kiện</label>
+                        <label className="font-semibold">Event Name</label>
                         <input
                             type="text"
                             value={eventName}
                             onChange={(e) => setEventName(e.target.value)}
                             className="w-full border px-4 py-2 rounded"
-                            placeholder="Ví dụ: Tiêm vắc xin phòng cúm"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="font-semibold">Ngày tham gia</label>
+                        <label className="font-semibold">Event Date</label>
                         <input
                             type="date"
                             value={eventDate}
@@ -119,7 +163,7 @@ const NotificationCreate = () => {
                     </div>
 
                     <div className="col-span-2">
-                        <label className="font-semibold">Ảnh minh hoạ (tùy chọn)</label>
+                        <label className="font-semibold">Illustration Image (optional)</label>
                         <input
                             type="file"
                             accept="image/*"
@@ -131,22 +175,25 @@ const NotificationCreate = () => {
 
                 <button
                     type="submit"
-                    className="mt-4 w-full bg-blue-700 text-white font-semibold py-3 rounded hover:bg-blue-800"
+                    disabled={loading}
+                    className={`mt-4 w-full bg-blue-700 text-white font-semibold py-3 rounded hover:bg-blue-800 ${loading ? "opacity-60 cursor-not-allowed" : ""
+                        }`}
                 >
-                    Gửi thông báo
+                    {loading ? "Sending..." : "Send Notification"}
                 </button>
             </form>
 
             <hr className="my-8" />
 
-            <h3 className="text-xl font-bold mb-4">📜 Lịch sử thông báo đã gửi</h3>
+            <h3 className="text-xl font-bold mb-4">📜 Sent Notifications History</h3>
             <table className="w-full table-auto border">
                 <thead className="bg-gray-100">
                     <tr>
-                        <th className="px-4 py-2 border">Sự kiện</th>
-                        <th className="px-4 py-2 border">Loại</th>
-                        <th className="px-4 py-2 border">Ngày</th>
-                        <th className="px-4 py-2 border">Lớp</th>
+                        <th className="px-4 py-2 border">Event</th>
+                        <th className="px-4 py-2 border">Type</th>
+                        <th className="px-4 py-2 border">Date</th>
+                        <th className="px-4 py-2 border">Class</th>
+                        <th className="px-4 py-2 border">Illustration Image</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -156,6 +203,17 @@ const NotificationCreate = () => {
                             <td className="px-4 py-2 border">{item.eventType}</td>
                             <td className="px-4 py-2 border">{new Date(item.eventDate).toLocaleDateString()}</td>
                             <td className="px-4 py-2 border">{item.className}</td>
+                            <td className="px-4 py-2 border">
+                                {item.eventImage ? (
+                                    <img
+                                        src={item.eventImage}
+                                        alt={item.eventName}
+                                        className="w-20 h-20 object-cover rounded"
+                                    />
+                                ) : (
+                                    <span>No Image</span>
+                                )}
+                            </td>
                         </tr>
                     ))}
                 </tbody>
