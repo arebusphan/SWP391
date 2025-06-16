@@ -7,13 +7,17 @@ import RightSideMedicalStaff from "../components/RightSideMedicalStaff";
 import StudentProfileList from "./StudentProfileList";
 import PendingMedicationRequests from "./PendingMedicationRequests";
 
-import VaccinationForm from "./VaccinationForm";
+
 import HealthCheckForm from "./HealthCheckForm";
 
 import MedicalIncident from './MedicalIncident';
 import MaterialManagement from './MaterialManagement';
 import StudentDetailPage from "./StudentDetailPage"; // ✅ Thêm dòng này
 
+// Thêm 3 màn mới tương ứng 3 API
+import NotificationCreate from "./NotificationCreate"; // API 1
+import ConfirmStudentList from "./ConfirmStudentList"; // API 2
+import VaccinationResultForm from "./VaccinationResultForm"; // API 3
 const MedicalStaffPage = () => {
     return (
         <Routes>
@@ -22,7 +26,9 @@ const MedicalStaffPage = () => {
                 <Route path="SendingMedicine" element={<SendingMedicine />} />
                 <Route path="StudentProfile" element={<StudentProfileList />} />
                 <Route path="RequestForMedication" element={<PendingMedicationRequests />} />
-                <Route path="Vaccination" element={<VaccinationForm />} />
+                <Route path="Vaccination" element={<NotificationCreate />} /> {/* API 1 */}
+                <Route path="ConfirmStudents" element={<ConfirmStudentList />} /> {/* API 2 */}
+                <Route path="VaccinationResult" element={<VaccinationResultForm />} /> {/* API 3 */}
                 <Route path="HealthCheck" element={<HealthCheckForm />} />
                 <Route path="MedicalIncident" element={<MedicalIncident />} />
                 <Route path="MaterialManagement" element={<MaterialManagement />} />

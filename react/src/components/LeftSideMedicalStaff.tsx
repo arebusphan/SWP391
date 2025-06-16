@@ -17,22 +17,58 @@ const LeftSideMedicalStaff = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const menuItems = [
-        { label: "Student Profile Management", path: "/MedicalStaffPage/StudentProfile", icon: <MdPerson size={20} /> },
-        { label: "Request For Medication", path: "/MedicalStaffPage/RequestForMedication", icon: <MdAssignment size={20} /> },
-        { label: "Vaccin", path: "/MedicalStaffPage/Vaccination", icon: <MdLocalHospital size={20} /> },
-        { label: "Health Check", path: "/MedicalStaffPage/healthCheck", icon: <MdHealthAndSafety size={20} /> },
-        { label: "Confirm and Notify", path: "#", icon: <MdCheckCircle size={20} /> },
-        { label: "Medical Incident", path: "/MedicalStaffPage/MedicalIncident", icon: <MdReport size={20} /> },
-        { label: "Material Management", path: "/MedicalStaffPage/MaterialManagement", icon: <MdLocalHospital size={20} /> },
-        { label: "Dashboard And Report", path: "#", icon: <MdDashboard size={20} /> },
+        {
+            label: "Student Profile Management",
+            path: "/MedicalStaffPage/StudentProfile",
+            icon: <MdPerson size={20} />
+        },
+        {
+            label: "Request For Medication",
+            path: "/MedicalStaffPage/RequestForMedication",
+            icon: <MdAssignment size={20} />
+        },
+        {
+            label: "Gửi thông báo y tế",
+            path: "/MedicalStaffPage/Vaccination",
+            icon: <MdLocalHospital size={20} />
+        },
+        {
+            label: "Xác nhận của học sinh",
+            path: "/MedicalStaffPage/ConfirmStudents",
+            icon: <MdCheckCircle size={20} />
+        },
+        {
+            label: "Ghi nhận kết quả tiêm",
+            path: "/MedicalStaffPage/VaccinationResult",
+            icon: <MdHealthAndSafety size={20} />
+        },
+        {
+            label: "Health Check",
+            path: "/MedicalStaffPage/HealthCheck",
+            icon: <MdHealthAndSafety size={20} />
+        },
+        {
+            label: "Medical Incident",
+            path: "/MedicalStaffPage/MedicalIncident",
+            icon: <MdReport size={20} />
+        },
+        {
+            label: "Material Management",
+            path: "/MedicalStaffPage/MaterialManagement",
+            icon: <MdLocalHospital size={20} />
+        },
+        {
+            label: "Dashboard And Report",
+            path: "#",
+            icon: <MdDashboard size={20} />
+        }
     ];
 
     return (
         <div className="h-screen flex">
             <div
-                className={`bg-blue-900 text-white overflow-hidden transition-all duration-300 ease-in-out flex flex-col ${
-                    isOpen ? "w-64 p-4" : "w-12 p-2"
-                }`}
+                className={`bg-blue-900 text-white overflow-hidden transition-all duration-300 ease-in-out flex flex-col ${isOpen ? "w-64 p-4" : "w-12 p-2"
+                    }`}
             >
                 <div
                     role="button"
@@ -45,11 +81,10 @@ const LeftSideMedicalStaff = () => {
                         <MdMenu size={20} />
                     </div>
                     <span
-                        className={`ml-2 overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                            isOpen ? "opacity-100 w-auto" : "opacity-0 w-0"
-                        }`}
+                        className={`ml-2 overflow-hidden whitespace-nowrap transition-all duration-300 ${isOpen ? "opacity-100 w-auto" : "opacity-0 w-0"
+                            }`}
                     >
-                        {/* Menu */}
+                        Menu
                     </span>
                 </div>
 
@@ -58,15 +93,13 @@ const LeftSideMedicalStaff = () => {
                         <div
                             key={index}
                             onClick={() => navigate(item.path)}
-                            className={`flex items-center cursor-pointer rounded-lg hover:bg-blue-700 px-2 py-2 transition-colors duration-300 ${
-                                location.pathname === item.path ? "bg-blue-800" : ""
-                            }`}
+                            className={`flex items-center cursor-pointer rounded-lg hover:bg-blue-700 px-2 py-2 transition-colors duration-300 ${location.pathname === item.path ? "bg-blue-800" : ""
+                                }`}
                         >
                             <div className="text-lg w-6 text-center">{item.icon}</div>
                             <span
-                                className={`ml-2 overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                                    isOpen ? "opacity-100 w-auto" : "opacity-0 w-0"
-                                }`}
+                                className={`ml-2 overflow-hidden whitespace-nowrap transition-all duration-300 ${isOpen ? "opacity-100 w-auto" : "opacity-0 w-0"
+                                    }`}
                             >
                                 {item.label}
                             </span>
