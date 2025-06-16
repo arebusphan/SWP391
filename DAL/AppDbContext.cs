@@ -41,7 +41,8 @@ namespace DAL
 
         public DbSet<NotificationStudent> NotificationStudents { get; set; }
         public DbSet<StudentClasses> StudentClasses { get; set; }
-       
+
+        public DbSet<VaccinationResults> VaccinationResults { get; set; }
 
 
     }

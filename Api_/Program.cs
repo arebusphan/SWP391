@@ -110,6 +110,8 @@ namespace WebApplication6
             builder.Services.AddScoped<INotificationStudentRepository, NotificationStudentRepository>();
             builder.Services.AddScoped<INotificationStudentService, NotificationStudentService>();
 
+            builder.Services.AddScoped<IVaccinationResultRepository, VaccinationResultRepository>();
+            builder.Services.AddScoped<IVaccinationResultService, VaccinationResultService>();
 
 
 
