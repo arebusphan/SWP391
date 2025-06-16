@@ -1,18 +1,19 @@
 ﻿import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FiBell } from "react-icons/fi";
 
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
-    DialogTitle,
     DialogTrigger,
 } from './ui/dialog';
 import { LoginForm } from './login-form';
 import { useAuth } from "../context/AuthContext";
+import NotificationsPage from "../components/Notificationiconview"; // Đường dẫn có thể cần sửa tùy thư mục
 
 const Navbar = () => {
     const [open, setOpen] = useState(false);
+    const [openNotification, setOpenNotification] = useState(false);
     const navigate = useNavigate();
     const { user, logout } = useAuth();
 
@@ -23,16 +24,14 @@ const Navbar = () => {
 
     return (
         <nav className="flex items-center justify-between px-6 h-20 border-b border-gray-200 shadow-sm sticky top-0 z-50 bg-white">
-            {/* Logo bên trái */}
-            <div className="flex items-center ">
+            <div className="flex items-center">
                 <img
                     src="/logo.png"
                     alt="Logo"
-                    className="w-20 h-20  object-cover"
+                    className="w-20 h-20 object-cover"
                 />
             </div>
 
-            {/* Menu và Auth bên phải */}
             <div className="flex items-center gap-6">
                 <ul className="flex gap-6 text-lg font-medium">
                     <li>
@@ -51,15 +50,41 @@ const Navbar = () => {
                             About
                         </Link>
                     </li>
+                    <li>
+                        <Link
+                            to=""
+                            className="text-gray-700 hover:text-blue-600 transition-colors duration-300"
+                        >
+                            Blog
+                        </Link>
+                    </li>
+
                     {user && (
-                        <li>
-                            <Link
-                                to="/dashboard"
-                                className="text-gray-700 hover:text-blue-600 transition-colors duration-300"
-                            >
-                                Dashboard
-                            </Link>
-                        </li>
+                        <>
+                            <li>
+                                <Link
+                                    to="/dashboard"
+                                    className="text-gray-700 hover:text-blue-600 transition-colors duration-300"
+                                >
+                                    Dashboard
+                                </Link>
+                            </li>
+                            <li>
+                                <Dialog open={openNotification} onOpenChange={setOpenNotification}>
+                                    <DialogTrigger asChild>
+                                        <button
+                                            className="text-gray-700 hover:text-blue-600 transition-colors duration-300 text-xl"
+                                            title="Notifications"
+                                        >
+                                            <FiBell />
+                                        </button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-2xl">
+                                        <NotificationsPage />
+                                    </DialogContent>
+                                </Dialog>
+                            </li>
+                        </>
                     )}
                 </ul>
 
@@ -72,16 +97,10 @@ const Navbar = () => {
                     </button>
                 ) : (
                     <Dialog open={open} onOpenChange={setOpen}>
-                        <DialogTrigger
-                            className="bg-blue-100 text-blue-800 hover:bg-blue-200 px-4 py-2 rounded-lg font-semibold transition"
-                        >
+                        <DialogTrigger className="bg-blue-100 text-blue-800 hover:bg-blue-200 px-4 py-2 rounded-lg font-semibold transition">
                             Login
                         </DialogTrigger>
                         <DialogContent>
-                            <DialogTitle></DialogTitle>
-                            <DialogDescription>
-                                
-                            </DialogDescription>
                             <LoginForm />
                         </DialogContent>
                     </Dialog>

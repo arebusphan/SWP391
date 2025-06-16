@@ -1,6 +1,6 @@
 ﻿import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { MdPersonAdd, MdSettings, MdMenu } from "react-icons/md";
+import { MdPersonAdd, MdSettings, MdMenu, MdSchool } from "react-icons/md";
 
 const LeftSideAdmin = () => {
     const navigate = useNavigate();
@@ -9,6 +9,7 @@ const LeftSideAdmin = () => {
 
     const menuItems = [
         { label: "Account Manager", path: "/AdminPage/Adduser", icon: <MdPersonAdd size={20} /> },
+        { label: "Student Manager", path: "/AdminPage/Studentview", icon: <MdSchool size={20} /> },
         { label: "Setting", path: "/", icon: <MdSettings size={20} /> },
     ];
 

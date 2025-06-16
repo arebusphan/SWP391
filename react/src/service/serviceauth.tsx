@@ -20,27 +20,41 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
   return response.data.secure_url;
 };
 
-export const adduser = async (
-    parent: {
-      fullName: string;
-      phoneNumber: string;
-      email: string;
-      roleId: number;
-      isActive: boolean;
-      userId: number;
-      role: string;
-    },
-    student: {
-      fullName: string;
-      dateOfBirth: string;
-      gender: string;
-    } | null
+export const addUserAPI = async (
+  parent: {
+    fullName: string;
+    phoneNumber?: string;
+    email: string;
+    roleId: number;
+    isActive: boolean;
+  },
+  students?: {
+    fullName: string;
+    dateOfBirth: string; // đổi lại đúng key backend cần
+    gender: string;
+    classId: number;
+  }[]
 ) => {
-    const payload = { parent, student };
+  const token = localStorage.getItem("token");
 
-    const res = await axios.post("https://localhost:7195/api/User/add", payload);
-    return res.data;
+  const payload = students?.length
+    ? { parent, students }
+    : { parent };
+
+  const res = await axios.post(
+    "https://localhost:7195/api/User/add",
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  return res.data;
 };
+
 
 export const getuser = (params?: {
     fullName?: string;
@@ -163,3 +177,17 @@ export const getMedicationRequestHistory = (params?: {
     },
   });
 };
+export const getNotifications = () => {
+  const token = localStorage.getItem("token");
+
+  return axios.get("https://localhost:7195/api/health-notifications", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+export const getAllClass = async () => {
+  const res = await axios.get("https://localhost:7195/api/Classes/all");
+  return res.data; // đừng return res.data
+};
+
