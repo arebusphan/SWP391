@@ -106,6 +106,13 @@ namespace WebApplication6
             builder.Services.AddScoped<IHealthNotificationRepository, HealthNotificationRepository>();
             builder.Services.AddScoped<IHealthNotificationService, HealthNotificationService>();
 
+
+            builder.Services.AddScoped<INotificationStudentRepository, NotificationStudentRepository>();
+            builder.Services.AddScoped<INotificationStudentService, NotificationStudentService>();
+
+
+
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
