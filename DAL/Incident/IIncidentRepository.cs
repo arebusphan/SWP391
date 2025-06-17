@@ -9,6 +9,6 @@ namespace DAL.Incident
 {
     public interface IIncidentRepository
     {
-        Task<MedicalIncident> AddAsync(IncidentDTO incident);
+        Task<MedicalIncidents> AddAsync(IncidentDTO incident);
     }
 }

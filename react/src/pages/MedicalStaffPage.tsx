@@ -32,7 +32,7 @@ const MedicalStaffPage = () => {
                 <Route path="ConfirmStudents" element={<ConfirmStudentList />} /> {/* API 2 */}
                 <Route path="VaccinationResult" element={<VaccinationResultForm />} /> {/* API 3 */}
                 <Route path="HealthCheck" element={<HealthCheckForm />} />
-                <Route path="SuppliesWarehouse" element={<SuppliesWarehose />} />
+                <Route path="MaterialManagement" element={<SuppliesWarehose />} />
                 <Route path="IncidentManagement" element={<IncidentManagement />} />
                 <Route path="student-detail/:studentId" element={<StudentDetailPage />} /> 
             </Route>

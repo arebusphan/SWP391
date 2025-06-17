@@ -9,6 +9,6 @@ namespace BLL.IncidentService
 {
     public interface IIncidentService
     {
-        Task<MedicalIncident> AddAsync(IncidentDTO incident);
+        Task<MedicalIncidents> AddAsync(IncidentDTO incident);
     }
 }
