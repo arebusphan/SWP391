@@ -41,5 +41,12 @@ namespace DAL.Repositories
             await _context.Students.AddRangeAsync(students);
             await _context.SaveChangesAsync();
         }
+        public async Task<IEnumerable<Students>> GetByClassIdAsync(int classId)
+        {
+            return await _context.Students
+                .Include(s => s.Class)
+                .Where(s => s.ClassId == classId)
+                .ToListAsync();
+        }
     }
 }

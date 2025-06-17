@@ -5,6 +5,7 @@ using BLL.StudentService;
 using BLL.HealthCheckService;
 using BLL.StudentDetailService;
 using DTOs;
+using DAL.Models;
 
 namespace API.Controllers
 {
@@ -124,5 +125,17 @@ namespace API.Controllers
 
             return Ok(detail);
         }
+        [HttpGet("by-class/{classId}")]
+
+        public async Task<ActionResult<List<StudentDTO>>> GetStudentsByClassId(int classId)
+        {
+            var students = await _studentService.GetStudentsByClassAsync(classId);
+
+            if (!students.Any()) // dùng LINQ
+                return NotFound("No students found for this class.");
+
+            return Ok(students);
+        }
+
     }
 }

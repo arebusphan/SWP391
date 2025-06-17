@@ -59,5 +59,19 @@ public class StudentService : IStudentService
             await _studentRepository.AddAsync(validStudents);
         }
     }
+    public async Task<IEnumerable<StudentDTO>> GetStudentsByClassAsync(int classId)
+    {
+        var students = await _studentRepository.GetByClassIdAsync(classId);
 
+        return students.Select(s => new StudentDTO
+        {
+            StudentId = s.StudentId,
+            FullName = s.FullName,
+            DateOfBirth = s.DateOfBirth,
+            Gender = s.Gender,
+            GuardianId = s.GuardianId,
+            GuardianName = s.Guardian?.FullName ?? string.Empty,
+            GuardianPhone = s.Guardian?.PhoneNumber ?? string.Empty
+        });
+    }
 }

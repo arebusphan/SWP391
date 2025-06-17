@@ -8,6 +8,6 @@ namespace DAL.Repositories
         List<Students> GetStudentsByGuardian(int guardianId);
         List<StudentBasicInfoDTO> GetAllBasicProfiles();
         Task AddAsync(List<Students> students);
-
+        Task<IEnumerable<Students>> GetByClassIdAsync(int classId);
     }
 }
