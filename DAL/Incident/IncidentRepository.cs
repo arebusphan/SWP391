@@ -14,19 +14,19 @@ namespace DAL.Incident
         public IncidentRepository(AppDbContext context) {
         _context = context;
         }
-        public async Task<MedicalIncident> AddAsync(IncidentDTO incident)
+        public async Task<MedicalIncidents> AddAsync(IncidentDTO incident)
         {
-            var entity = new MedicalIncident
+            var entity = new MedicalIncidents
             {
                 ClassId = incident.ClassId,
                 CreatedAt = DateTime.UtcNow,
                 Description = incident.Description,
-                HandleBy = incident.HandledBy,
+                HandledBy = incident.HandledBy,
                 IncidentName = incident.IncidentName,
-                OccurredAt = DateTime.UtcNow,
+                OccurredAt = null,
                 StudentId = incident.StudentId,
             };
-           await _context.medicalIncident.AddAsync(entity);
+           await _context.MedicalIncidents.AddAsync(entity);
                 await _context.SaveChangesAsync();
             return entity;
         }

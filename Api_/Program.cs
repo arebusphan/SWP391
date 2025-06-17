@@ -19,6 +19,8 @@ using BLL.Services;
 using DAL.Interfaces;
 
 using BLL.MedicalSuppliesService;
+using DAL.Incident;
+using BLL.IncidentService;
 
 namespace WebApplication6
 {
@@ -94,9 +96,11 @@ namespace WebApplication6
             builder.Services.AddScoped<IHealthEventSupplyService, HealthEventSupplyService>();
 
             
+            builder.Services.AddScoped<IIncidentRepository, IncidentRepository>();
+            builder.Services.AddScoped<IIncidentService, IncidentService>();
 
-            builder.Services.AddScoped<IMedicalSupplyRepository, MedicalSupplyRepository>();
-            builder.Services.AddScoped<IMedicalSupplyService, MedicalSupplyService>();
+            builder.Services.AddScoped<IMedicalSuppliesRepository, MedicalSuppliesRepository>();
+            builder.Services.AddScoped<IMedicalSuppliesService, MedicalSuppliesService>();
 
             builder.Services.AddScoped<IHealthNotificationRepository, HealthNotificationRepository>();
             builder.Services.AddScoped<IHealthNotificationService, HealthNotificationService>();

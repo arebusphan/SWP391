@@ -15,7 +15,7 @@ namespace BLL.IncidentService
         public IncidentService(IIncidentRepository repository) {
         _repository = repository;
         }
-        public async Task<MedicalIncident> AddAsync(IncidentDTO incident)
+        public async Task<MedicalIncidents> AddAsync(IncidentDTO incident)
         {
             return await _repository.AddAsync(incident);
         }
