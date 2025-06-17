@@ -17,6 +17,7 @@ const LeftSideMedicalStaff = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const menuItems = [
+<<<<<<< Updated upstream
         {
             label: "Student Profile Management",
             path: "/MedicalStaffPage/StudentProfile",
@@ -62,6 +63,16 @@ const LeftSideMedicalStaff = () => {
             path: "#",
             icon: <MdDashboard size={20} />
         }
+=======
+        { label: "Student Profile Management", path: "/MedicalStaffPage/StudentProfile", icon: <MdPerson size={20} /> },
+        { label: "Request For Medication", path: "/MedicalStaffPage/RequestForMedication", icon: <MdAssignment size={20} /> },
+        { label: "Vaccin", path: "/MedicalStaffPage/Vaccination", icon: <MdLocalHospital size={20} /> },
+        { label: "Health Check", path: "/MedicalStaffPage/healthCheck", icon: <MdHealthAndSafety size={20} /> },
+        { label: "Confirm and Notify", path: "#", icon: <MdCheckCircle size={20} /> },
+        { label: "Supplies Warehouse", path: "/MedicalStaffPage/SuppliesWarehouse", icon: <MdReport size={20} /> },
+        { label: "Incident Management", path: "/MedicalStaffPage/IncidentManagement", icon: <MdLocalHospital size={20} /> },
+        { label: "Dashboard And Report", path: "#", icon: <MdDashboard size={20} /> },
+>>>>>>> Stashed changes
     ];
 
     return (

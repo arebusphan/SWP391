@@ -177,6 +177,7 @@ export const getMedicationRequestHistory = (params?: {
     },
   });
 };
+<<<<<<< Updated upstream
 export const getNotifications = () => {
   const token = localStorage.getItem("token");
 
@@ -191,3 +192,25 @@ export const getAllClass = async () => {
   return res.data; // đừng return res.data
 };
 
+=======
+
+
+export const AddSupplies = async (
+    supplyName: string,
+    quantity: number,
+    notes: string,
+    image: string
+) => {
+    return await axios.post("https://localhost:7195/api/MedicalSupplies/post", {
+        supplyName,
+        quantity,
+        notes,
+        image,
+        lastUsedAt: null 
+    });
+};
+
+export const GetSupplies = async () => {
+    return await axios.get("https://localhost:7195/api/MedicalSupplies/get");
+}
+>>>>>>> Stashed changes

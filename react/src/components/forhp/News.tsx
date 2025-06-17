@@ -6,7 +6,7 @@ const News = () => {
     const getNews = () => {
         fetch("https://newsapi.org/v2/top-headlines?country=us&category=health&apiKey=897ed10279ad4d5aaec3c5718922af54")
             .then(res => res.json())
-            .then(json => setNews(json.articles.slice(0,6)))
+            .then(json => setNews(json.articles.slice(0,8)))
             .catch(error => console.error("Error fetching news:", error));
     };
 
@@ -16,7 +16,7 @@ const News = () => {
 
     return (
         <div className="flex flex-wrap justify-center gap-8 w-full h-full">
-            {news.slice(0, 6).map((data, index) => (
+            {news.slice(0, 8).map((data, index) => (
                 <a
                     key={index}
                     href={data.url}
@@ -25,7 +25,7 @@ const News = () => {
                     className="block max-w-sm rounded overflow-hidden shadow-lg hover:shadow-xl transition bg-white"
                 >
                     <img
-                        className="w-full h-[25vh] "
+                        className="w-full h-[30vh] "
                         src={data.urlToImage || "/img/card-top.jpg"}
                         alt={data.title || "News Image"}
                     />

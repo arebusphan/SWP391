@@ -36,11 +36,16 @@ namespace DAL
         public DbSet<Banners> Banners { get; set; }
         public DbSet<HealthProfile> HealthProfiles { get; set; }
 
+<<<<<<< Updated upstream
         public DbSet<HealthNotification> HealthNotifications { get; set; }
         public DbSet<NotificationClass> NotificationClasses { get; set; }
 
         public DbSet<NotificationStudent> NotificationStudents { get; set; }
         public DbSet<StudentClasses> StudentClasses { get; set; }
+=======
+       public DbSet<MedicalSupplies> medicalSupplies { get; set; }
+        public DbSet<MedicalIncident> medicalIncident { get; set; }
+>>>>>>> Stashed changes
 
         public DbSet<VaccinationResults> VaccinationResults { get; set; }
 

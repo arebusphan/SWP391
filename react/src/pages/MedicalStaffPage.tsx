@@ -10,9 +10,11 @@ import PendingMedicationRequests from "./PendingMedicationRequests";
 
 import HealthCheckForm from "./HealthCheckForm";
 
-import MedicalIncident from './MedicalIncident';
-import MaterialManagement from './MaterialManagement';
-import StudentDetailPage from "./StudentDetailPage"; // ✅ Thêm dòng này
+
+
+import StudentDetailPage from "./StudentDetailPage";
+import SuppliesWarehose from "./SuppliesWarehouse";
+import IncidentManagement from "./IncidentManagement";
 
 // Thêm 3 màn mới tương ứng 3 API
 import NotificationCreate from "./NotificationCreate"; // API 1
@@ -30,9 +32,9 @@ const MedicalStaffPage = () => {
                 <Route path="ConfirmStudents" element={<ConfirmStudentList />} /> {/* API 2 */}
                 <Route path="VaccinationResult" element={<VaccinationResultForm />} /> {/* API 3 */}
                 <Route path="HealthCheck" element={<HealthCheckForm />} />
-                <Route path="MedicalIncident" element={<MedicalIncident />} />
-                <Route path="MaterialManagement" element={<MaterialManagement />} />
-                <Route path="student-detail/:studentId" element={<StudentDetailPage />} /> {/* ✅ Thêm route mới */}
+                <Route path="SuppliesWarehouse" element={<SuppliesWarehose />} />
+                <Route path="IncidentManagement" element={<IncidentManagement />} />
+                <Route path="student-detail/:studentId" element={<StudentDetailPage />} /> 
             </Route>
         </Routes>
     );
