@@ -14,9 +14,13 @@ using BLL.UserService;
 using DAL.Repositories;
 using BLL.StudentDetailService;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 using BLL.Interfaces;
 using BLL.Services;
 using DAL.Interfaces;
+=======
+using BLL.MedicalSuppliesService;
+>>>>>>> Stashed changes
 =======
 using BLL.MedicalSuppliesService;
 >>>>>>> Stashed changes
@@ -111,9 +115,14 @@ namespace WebApplication6
             builder.Services.AddScoped<IStudentDetailService, StudentDetailService>();
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             builder.Services.AddScoped<IHealthNotificationRepository, HealthNotificationRepository>();
             builder.Services.AddScoped<IHealthNotificationService, HealthNotificationService>();
 
+=======
+            builder.Services.AddScoped<IMedicalSuppliesRepository , MedicalSuppliesRepository>();
+            builder.Services.AddScoped<IMedicalSuppliesService , MedicalSuppliesService>();
+>>>>>>> Stashed changes
 
             builder.Services.AddScoped<INotificationStudentRepository, NotificationStudentRepository>();
             builder.Services.AddScoped<INotificationStudentService, NotificationStudentService>();

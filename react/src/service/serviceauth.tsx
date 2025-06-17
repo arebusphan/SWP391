@@ -178,6 +178,7 @@ export const getMedicationRequestHistory = (params?: {
   });
 };
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 export const getNotifications = () => {
   const token = localStorage.getItem("token");
 
@@ -193,6 +194,8 @@ export const getAllClass = async () => {
 };
 
 =======
+=======
+>>>>>>> Stashed changes
 
 
 export const AddSupplies = async (
@@ -212,5 +215,9 @@ export const AddSupplies = async (
 
 export const GetSupplies = async () => {
     return await axios.get("https://localhost:7195/api/MedicalSupplies/get");
+<<<<<<< Updated upstream
+}
+>>>>>>> Stashed changes
+=======
 }
 >>>>>>> Stashed changes

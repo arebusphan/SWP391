@@ -10,6 +10,14 @@ import PendingMedicationRequests from "./PendingMedicationRequests";
 
 import HealthCheckForm from "./HealthCheckForm";
 
+<<<<<<< Updated upstream
+=======
+
+
+import StudentDetailPage from "./StudentDetailPage";
+import SuppliesWarehose from "./SuppliesWarehouse";
+import IncidentManagement from "./IncidentManagement";
+>>>>>>> Stashed changes
 
 
 import StudentDetailPage from "./StudentDetailPage";
