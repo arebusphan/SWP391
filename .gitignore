@@ -138,3 +138,5 @@ used queries
 /.vs
 Api_/appsettings.json
 Api_/appsettings.json
+react/package-lock.json
+react/package.json
