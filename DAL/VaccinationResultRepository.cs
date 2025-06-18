@@ -27,22 +27,30 @@ public class VaccinationResultRepository : IVaccinationResultRepository
 
     public async Task<List<VaccinationResultVM>> GetResultsByNotificationAsync(int notificationId, int classId)
     {
-        return await (from s in _context.Students
-                      where s.ClassId == classId
-                      join r in _context.VaccinationResults
-                          .Where(r => r.NotificationId == notificationId)
-                          on s.StudentId equals r.StudentId into resultJoin
-                      from r in resultJoin.DefaultIfEmpty()
-                      select new VaccinationResultVM
-                      {
-                          StudentId = s.StudentId,
-                          StudentName = s.FullName,
-                          ClassName = s.Class.ClassName,
-                          Vaccinated = r != null ? r.Vaccinated : null,
-                          VaccinatedDate = r != null ? r.VaccinatedDate : null,
-                          ObservationStatus = r != null ? r.ObservationStatus : null
-                      }).ToListAsync();
+        return await (
+            from s in _context.Students
+            join c in _context.Classes on s.ClassId equals c.ClassId
+            join ns in _context.NotificationStudents on s.StudentId equals ns.StudentId
+            join vr in _context.VaccinationResults
+                on new { s.StudentId, ns.NotificationId } equals new { vr.StudentId, vr.NotificationId } into vrGroup
+            from vr in vrGroup.DefaultIfEmpty() // left join để vẫn có học sinh chưa tiêm
+            where ns.NotificationId == notificationId
+                  && s.ClassId == classId
+                  && ns.ConfirmStatus == "Confirmed"
+            select new VaccinationResultVM
+            {
+                StudentId = s.StudentId,
+                StudentName = s.FullName,
+                ClassName = c.ClassName,
+                ConfirmStatus = ns.ConfirmStatus,
+                Vaccinated = vr.Vaccinated,
+                VaccinatedDate = vr.VaccinatedDate,
+                ObservationStatus = vr.ObservationStatus
+            }
+        ).ToListAsync();
     }
+
+
 
 
 }
