@@ -51,5 +51,25 @@ namespace API_.Controllers
             if (!result) return BadRequest(new { message = "delete fail" });
             return Ok(new { message = "delete successful" });
         }
+        [HttpGet("find-by-email-or-phone")]
+        public async Task<IActionResult> FindUser([FromQuery] string? email, [FromQuery] string? phone)
+        {
+            // Ít nhất phải có 1 trong 2
+            if (string.IsNullOrWhiteSpace(email) && string.IsNullOrWhiteSpace(phone))
+            {
+                return BadRequest("You must provide at least email or phone.");
+            }
+
+            var user = await _service.FindUserByEmailOrPhoneAsync(email ?? "", phone ?? "");
+
+            if (user == null)
+            {
+                return BadRequest("User not found.");
+            }
+
+            return Ok(user);
+        }
+
+
     }
 }

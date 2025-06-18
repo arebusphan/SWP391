@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Trash2, Plus } from "lucide-react";
+import { findUserByEmailOrPhone,addStudents } from "@/service/serviceauth";
 
 type Student = {
   fullName: string;
@@ -18,15 +19,28 @@ type Class = {
 
 type StudentFormProps = {
   classList: Class[];
-  onSubmit: (data: { students: Student[]; guardianPhone: string }) => void;
+  onSubmit: (data: {
+    students: Student[];
+    guardianId: number;
+    guardianName: string;
+    guardianPhone: string;
+  }) => void;
 };
 
 export default function StudentForm({ classList, onSubmit }: StudentFormProps) {
   const [students, setStudents] = useState<Student[]>([
     { fullName: "", dob: "", gender: "", classId: "" },
   ]);
-  const [guardianPhone, setGuardianPhone] = useState("");
-  const [guardianResult, setGuardianResult] = useState("");
+
+  const [guardianInput, setGuardianInput] = useState("");
+  const [guardianInfo, setGuardianInfo] = useState<{
+    userId: number;
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+  } | null>(null);
+
+  const [hasSearched, setHasSearched] = useState(false);
 
   const handleStudentChange = (
     index: number,
@@ -46,21 +60,62 @@ export default function StudentForm({ classList, onSubmit }: StudentFormProps) {
     setStudents(students.filter((_, i) => i !== index));
   };
 
-  const handleSearchGuardian = () => {
-    // Giả lập tìm kiếm
-    if (guardianPhone === "0123456789") {
-      setGuardianResult("Nguyễn Văn A (tìm thấy)");
-    } else {
-      setGuardianResult("Không tìm thấy");
+  const handleSearchGuardian = async () => {
+    setHasSearched(true);
+    try {
+      const user = await findUserByEmailOrPhone(guardianInput);
+      setGuardianInfo({
+        userId: user.userId,
+        fullName: user.fullName,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+      });
+    } catch (error) {
+      setGuardianInfo(null);
     }
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleClearGuardian = () => {
+    setGuardianInfo(null);
+    setGuardianInput("");
+    setHasSearched(false);
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    onSubmit({ students, guardianPhone });
+
+    if (!guardianInfo) {
+      alert("Please search and select a guardian.");
+      return;
+    }
+
+    const payloadToAPI = {
+      guardianId: guardianInfo.userId,
+      students: students.map((s) => ({
+        fullName: s.fullName,
+        dateOfBirth: s.dob,
+        gender: s.gender,
+        classId: parseInt(s.classId),
+      })),
+    };
+
+    try {
+      await addStudents(payloadToAPI); // 👈 Gọi API
+      alert("Students added successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Error adding students.");
+    }
+
+    onSubmit({
+      students,
+      guardianId: guardianInfo.userId,
+      guardianName: guardianInfo.fullName,
+      guardianPhone: guardianInfo.phoneNumber,
+    });
+
     setStudents([{ fullName: "", dob: "", gender: "", classId: "" }]);
-    setGuardianPhone("");
-    setGuardianResult("");
+    handleClearGuardian();
   };
 
   return (
@@ -68,7 +123,7 @@ export default function StudentForm({ classList, onSubmit }: StudentFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* STUDENT LEFT */}
         <div className="space-y-4">
-          <h3 className="font-semibold text-lg">Thông tin học sinh</h3>
+          <h3 className="font-semibold text-lg">Student Information</h3>
           <div className="max-h-[400px] overflow-y-auto space-y-4 pr-2">
             {students.map((student, index) => (
               <div
@@ -76,7 +131,7 @@ export default function StudentForm({ classList, onSubmit }: StudentFormProps) {
                 className="border p-4 rounded-md bg-muted/20 space-y-4 relative"
               >
                 <div>
-                  <Label>Họ và tên</Label>
+                  <Label>Full Name</Label>
                   <Input
                     name="fullName"
                     value={student.fullName}
@@ -86,7 +141,7 @@ export default function StudentForm({ classList, onSubmit }: StudentFormProps) {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
-                    <Label>Ngày sinh</Label>
+                    <Label>Date of Birth</Label>
                     <Input
                       type="date"
                       name="dob"
@@ -96,7 +151,7 @@ export default function StudentForm({ classList, onSubmit }: StudentFormProps) {
                     />
                   </div>
                   <div>
-                    <Label>Giới tính</Label>
+                    <Label>Gender</Label>
                     <select
                       name="gender"
                       value={student.gender}
@@ -104,13 +159,13 @@ export default function StudentForm({ classList, onSubmit }: StudentFormProps) {
                       className="w-full border rounded px-2 py-1"
                       required
                     >
-                      <option value="">--Chọn--</option>
-                      <option value="Nam">Nam</option>
-                      <option value="Nữ">Nữ</option>
+                      <option value="">--Select--</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
                     </select>
                   </div>
                   <div>
-                    <Label>Lớp</Label>
+                    <Label>Class</Label>
                     <select
                       name="classId"
                       value={student.classId}
@@ -118,9 +173,9 @@ export default function StudentForm({ classList, onSubmit }: StudentFormProps) {
                       className="w-full border rounded px-2 py-1"
                       required
                     >
-                      <option value="">--Chọn lớp--</option>
+                      <option value="">--Select Class--</option>
                       {classList.map((cls) => (
-                        <option key={cls.id} value={cls.id}>
+                        <option key={cls.id} value={cls.id.toString()}>
                           {cls.name}
                         </option>
                       ))}
@@ -148,37 +203,56 @@ export default function StudentForm({ classList, onSubmit }: StudentFormProps) {
             className="flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
-            Thêm học sinh
+            Add Student
           </Button>
         </div>
 
         {/* GUARDIAN RIGHT */}
         <div className="space-y-4">
-          <h3 className="font-semibold text-lg">Thông tin phụ huynh</h3>
+          <h3 className="font-semibold text-lg">Guardian Information</h3>
           <div>
-            <Label>Số điện thoại</Label>
+            <Label>Email or Phone</Label>
             <div className="flex gap-2">
               <Input
-                value={guardianPhone}
-                onChange={(e) => setGuardianPhone(e.target.value)}
-                placeholder="Nhập số điện thoại"
+                value={guardianInput}
+                onChange={(e) => setGuardianInput(e.target.value)}
+                placeholder="Enter email or phone"
                 required
               />
               <Button type="button" variant="outline" onClick={handleSearchGuardian}>
-                Tìm
+                Search
               </Button>
+              {guardianInfo && (
+                <Button type="button" variant="ghost" onClick={handleClearGuardian}>
+                  X
+                </Button>
+              )}
             </div>
-            {guardianResult && (
-              <p className="text-sm text-muted-foreground mt-1">
-                Kết quả: <span className="font-medium">{guardianResult}</span>
-              </p>
+
+            {guardianInfo && hasSearched ? (
+              <div className="mt-2 border rounded-md p-3 bg-gray-50 text-sm space-y-1">
+                <p>
+                  <span className="font-medium">Name:</span> {guardianInfo.fullName}
+                </p>
+                <p>
+                  <span className="font-medium">Email:</span> {guardianInfo.email}
+                </p>
+                <p>
+                  <span className="font-medium">Phone:</span> {guardianInfo.phoneNumber}
+                </p>
+              </div>
+            ) : (
+              hasSearched &&
+              !guardianInfo && (
+                <p className="text-sm text-red-500 mt-1">User not found</p>
+              )
             )}
           </div>
         </div>
       </div>
 
       <div className="flex justify-end">
-        <Button type="submit">Lưu danh sách</Button>
+        <Button type="submit">Save</Button>
       </div>
     </form>
   );

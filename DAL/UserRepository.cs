@@ -26,9 +26,18 @@ namespace DAL
         {
             return await _context.Users.Include(u => u.Role).ToListAsync();
         }
-        public async Task<bool> ExistsByEmailOrPhoneAsync(string email, string phone)
+        public async Task<UserDTO?> GetUserByEmailOrPhoneAsync(string email, string phone)
         {
-            return await _context.Users.AnyAsync(u => u.Email == email || u.PhoneNumber == phone);
+            return await _context.Users
+                .Where(u => u.Email == email || u.PhoneNumber == phone)
+                .Select(u => new UserDTO
+                {
+                    UserId = u.UserId,
+                    FullName = u.FullName,
+                    PhoneNumber = u.PhoneNumber,
+                    Email = u.Email,
+                })
+                .FirstOrDefaultAsync();
         }
         public async Task<bool> UpdateAsync(UserUpdateDTO user)
         {

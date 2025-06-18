@@ -26,19 +26,18 @@ type Class = {
 
 export default function StudentView() {
   const [searchName, setSearchName] = useState("");
-  const [selectedClassId, setSelectedClassId] = useState(""); // lưu dưới dạng string
+  const [selectedClassId, setSelectedClassId] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [open, setOpen] = useState(false);
   const [classList, setClassList] = useState<Class[]>([]);
 
-  // Lấy danh sách lớp
   useEffect(() => {
     const fetchClasses = async () => {
       try {
         const classes = await getAllClass();
         const mapped = classes.map((cls: any) => ({
-          id: cls.classId, // giữ kiểu int
+          id: cls.classId,
           name: cls.className,
         }));
         setClassList(mapped);
@@ -49,12 +48,11 @@ export default function StudentView() {
     fetchClasses();
   }, []);
 
-  // Lấy danh sách học sinh theo lớp
   useEffect(() => {
     const fetchStudents = async () => {
       try {
         if (selectedClassId !== "") {
-          const classIdNumber = Number(selectedClassId); // ép kiểu về number
+          const classIdNumber = Number(selectedClassId);
           const students = await getStudentsByClassId(classIdNumber);
           setUsers(students);
         } else {
@@ -68,7 +66,6 @@ export default function StudentView() {
     fetchStudents();
   }, [selectedClassId]);
 
-  // Lọc học sinh theo tên
   useEffect(() => {
     const result = users.filter((u) =>
       u.fullName.toLowerCase().includes(searchName.toLowerCase())
@@ -84,13 +81,14 @@ export default function StudentView() {
       classId: string;
     }[];
     guardianPhone: string;
+    guardianName: string;
   }) => {
     const newStudents: User[] = data.students.map((s, index) => ({
       studentId: Date.now() + index,
       fullName: s.fullName,
       gender: s.gender,
       dateOfBirth: s.dob,
-      guardianName: "",
+      guardianName: data.guardianName,
       guardianPhone: data.guardianPhone,
     }));
     setUsers((prev) => [...prev, ...newStudents]);

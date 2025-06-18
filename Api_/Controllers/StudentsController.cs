@@ -139,6 +139,13 @@ namespace API.Controllers
             var students = await _studentService.GetAllStudentDtosAsync();
             return Ok(students);
         }
+        [HttpPost("addstudent")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddStudents([FromBody] AddStudentRequest request)
+        {
+            await _studentService.AddStudentsAsync(request.Students, request.GuardianId);
+            return Ok();
+        }
 
     }
 }
