@@ -24,4 +24,25 @@ public class VaccinationResultRepository : IVaccinationResultRepository
 
         await _context.SaveChangesAsync();
     }
+
+    public async Task<List<VaccinationResultVM>> GetResultsByNotificationAsync(int notificationId, int classId)
+    {
+        return await (from s in _context.Students
+                      where s.ClassId == classId
+                      join r in _context.VaccinationResults
+                          .Where(r => r.NotificationId == notificationId)
+                          on s.StudentId equals r.StudentId into resultJoin
+                      from r in resultJoin.DefaultIfEmpty()
+                      select new VaccinationResultVM
+                      {
+                          StudentId = s.StudentId,
+                          StudentName = s.FullName,
+                          ClassName = s.Class.ClassName,
+                          Vaccinated = r != null ? r.Vaccinated : null,
+                          VaccinatedDate = r != null ? r.VaccinatedDate : null,
+                          ObservationStatus = r != null ? r.ObservationStatus : null
+                      }).ToListAsync();
+    }
+
+
 }
