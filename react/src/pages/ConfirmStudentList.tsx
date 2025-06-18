@@ -38,7 +38,11 @@ const ConfirmStudentList = () => {
         if (selectedClassId && notificationId) {
             axios
                 .get("https://localhost:7195/api/notifications/students/confirmation", {
-                    params: { notificationId, classId: selectedClassId, status: statusFilter || undefined },
+                    params: {
+                        notificationId,
+                        classId: selectedClassId,
+                        status: statusFilter || undefined,
+                    },
                 })
                 .then((res) => {
                     setConfirmStudents(res.data);
@@ -73,17 +77,14 @@ const ConfirmStudentList = () => {
     };
 
     const exportToExcel = () => {
-        const data = selectedStudentIds.map((id) => {
-            const student = confirmStudents.find((s) => s.studentId === id);
-            return {
-                "Student ID": student?.studentId,
-                "Full Name": student?.studentName,
-                "Status": student?.confirmStatus,
-                "Decline Reason": student?.declineReason || "-",
-                "Parent Phone": student?.parentPhone || "-",
-                "Class": selectedClass?.className || "",
-            };
-        });
+        const data = confirmStudents.map((s) => ({
+            "Student ID": s.studentId,
+            "Full Name": s.studentName,
+            "Status": s.confirmStatus,
+            "Decline Reason": s.declineReason || "-",
+            "Parent Phone": s.parentPhone || "-",
+            "Class": selectedClass?.className || "",
+        }));
 
         const worksheet = XLSX.utils.json_to_sheet(data);
         const workbook = XLSX.utils.book_new();
@@ -129,14 +130,14 @@ const ConfirmStudentList = () => {
             {currentStudents.length === 0 ? (
                 <p className="italic text-gray-500 text-center">No students in this class.</p>
             ) : (
-                <table className="w-full table-auto border border-gray-300">
+                <table className="w-full table-auto border border-gray-300 text-center">
                     <thead className="bg-blue-100">
                         <tr>
                             <th className="border px-3 py-2">Student ID</th>
                             <th className="border px-3 py-2">Full Name</th>
                             <th className="border px-3 py-2">Details</th>
                             <th className="border px-3 py-2">Status</th>
-                            <th className="border px-3 py-2 text-center">
+                            <th className="border px-3 py-2">
                                 <div className="flex items-center justify-center gap-2">
                                     Select
                                     <input
@@ -155,11 +156,14 @@ const ConfirmStudentList = () => {
                             <tr key={stu.studentId} className="hover:bg-blue-50">
                                 <td className="border px-3 py-2">{stu.studentId}</td>
                                 <td className="border px-3 py-2">{stu.studentName}</td>
-                                <td className="border px-3 py-2 text-blue-600 underline cursor-pointer" onClick={() => setSelectedStudent(stu)}>
+                                <td
+                                    className="border px-3 py-2 text-blue-600 underline cursor-pointer"
+                                    onClick={() => setSelectedStudent(stu)}
+                                >
                                     View Details
                                 </td>
                                 <td className="border px-3 py-2">{stu.confirmStatus}</td>
-                                <td className="border px-3 py-2 text-center">
+                                <td className="border px-3 py-2">
                                     <input
                                         type="checkbox"
                                         checked={selectedStudentIds.includes(stu.studentId)}
@@ -188,20 +192,19 @@ const ConfirmStudentList = () => {
                     </div>
                 )}
 
-                {selectedStudentIds.length > 0 && (
-                    <div className="flex justify-end">
-                        <button
-                            onClick={exportToExcel}
-                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                        >
-                            Export to Excel
-                        </button>
-                    </div>
-                )}
+                <div className="flex justify-end">
+                    <button
+                        onClick={exportToExcel}
+                        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                    >
+                        Export to Excel
+                    </button>
+                </div>
             </div>
 
             {selectedStudent && (
-                <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+                <div className="fixed inset-0 backdrop-blur-[2px] bg-white/10 flex items-center justify-center z-50">
+
                     <div className="bg-white p-6 rounded-lg w-[400px] shadow-lg relative">
                         <button
                             onClick={() => setSelectedStudent(null)}
@@ -218,6 +221,7 @@ const ConfirmStudentList = () => {
                     </div>
                 </div>
             )}
+
         </div>
     );
 };
