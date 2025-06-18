@@ -53,7 +53,8 @@ const ConfirmStudentList = () => {
             const res = await axios.get("https://localhost:7195/api/notifications/students/confirmation", {
                 params: {
                     notificationId,
-                    classId: selectedClassId
+                    classId: selectedClassId,
+                    status: statusFilter || undefined,
                 },
             });
             setConfirmStudents(res.data);
@@ -121,15 +122,30 @@ const ConfirmStudentList = () => {
             <h2 className="text-2xl font-bold mb-4">Vaccination Confirmation</h2>
 
             <div className="flex flex-wrap gap-4 mb-6 items-center">
-                {classes.map((cls) => (
-                    <button
-                        key={cls.classId}
-                        className={`px-4 py-2 rounded ${selectedClassId === cls.classId ? "bg-blue-600 text-white" : "bg-gray-200"}`}
-                        onClick={() => setSelectedClassId(cls.classId)}
-                    >
-                        {cls.className}
-                    </button>
-                ))}
+                <label className="mr-2 font-semibold">Select Grade:</label>
+                <select
+                    className="px-4 py-2 border rounded-md"
+                    value={selectedClassId}
+                    onChange={(e) => setSelectedClassId(Number(e.target.value))}
+                >
+                    {classes.map((cls) => (
+                        <option key={cls.classId} value={cls.classId}>
+                            {cls.className}
+                        </option>
+                    ))}
+                </select>
+
+                <label className="ml-4 mr-2 font-semibold">Filter Status:</label>
+                <select
+                    className="px-4 py-2 border rounded-md"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                    <option value="">All</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Declined">Declined</option>
+                </select>
             </div>
 
             {currentStudents.length === 0 ? (
@@ -141,6 +157,7 @@ const ConfirmStudentList = () => {
                             <th className="border px-3 py-2">Student ID</th>
                             <th className="border px-3 py-2">Full Name</th>
                             <th className="border px-3 py-2">Details</th>
+                            <th className="border px-3 py-2">Status</th>
                             <th className="border px-3 py-2 text-center">
                                 <input
                                     type="checkbox"
@@ -165,6 +182,7 @@ const ConfirmStudentList = () => {
                                         View Details
                                     </button>
                                 </td>
+                                <td className="border px-3 py-2">{stu.confirmStatus}</td>
                                 <td className="border px-3 py-2 text-center">
                                     <input
                                         type="checkbox"
@@ -194,7 +212,7 @@ const ConfirmStudentList = () => {
             )}
 
             {selectedStudentIds.length > 0 && (
-                <div className="mt-6 flex justify-end">
+                <div className="mt-6 text-right">
                     <button onClick={exportToExcel} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                         Export to Excel
                     </button>
@@ -202,7 +220,7 @@ const ConfirmStudentList = () => {
             )}
 
             {selectedStudent && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-xl w-[400px] shadow-xl relative">
                         <button
                             onClick={() => setSelectedStudent(null)}
