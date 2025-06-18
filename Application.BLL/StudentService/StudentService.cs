@@ -61,17 +61,11 @@ public class StudentService : IStudentService
     }
     public async Task<IEnumerable<StudentDTO>> GetStudentsByClassAsync(int classId)
     {
-        var students = await _studentRepository.GetByClassIdAsync(classId);
-
-        return students.Select(s => new StudentDTO
-        {
-            StudentId = s.StudentId,
-            FullName = s.FullName,
-            DateOfBirth = s.DateOfBirth,
-            Gender = s.Gender,
-            GuardianId = s.GuardianId,
-            GuardianName = s.Guardian?.FullName ?? string.Empty,
-            GuardianPhone = s.Guardian?.PhoneNumber ?? string.Empty
-        });
+        return await _studentRepository.GetByClassIdAsync(classId);
     }
+    public async Task<List<StudentDTO>> GetAllStudentDtosAsync()
+    {
+        return await _studentRepository.GetStudentDTOsAsync();
+    }
+
 }

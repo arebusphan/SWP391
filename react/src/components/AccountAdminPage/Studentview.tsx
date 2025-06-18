@@ -1,114 +1,179 @@
 import { useEffect, useState } from "react";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-
-// Dữ liệu mẫu
-type Class = {
-  classId: number;
-  className: string;
-};
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Plus, Pencil } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import StudentForm from "./AddStudentForm";
+import {
+  getAllStudents,
+  getAllClass,
+  getStudentsByClassId,
+} from "@/service/serviceauth";
 
 type User = {
-  userId: number;
+  studentId: number;
   fullName: string;
-  email: string;
-  classId: number;
+  gender: string;
+  dateOfBirth: string;
+  guardianName: string;
+  guardianPhone: string;
 };
 
-const fakeClassList: Class[] = [
-  { classId: 1, className: "Toán 10A1" },
-  { classId: 2, className: "Văn 10A2" },
-  { classId: 3, className: "Lý 11A1" },
-  { classId: 4, className: "Hoá 11A2" },
-  { classId: 5, className: "Sinh 12A1" },
-];
-
-const fakeUsers: User[] = [
-  { userId: 1, fullName: "Nguyễn Văn A", email: "a@example.com", classId: 1 },
-  { userId: 2, fullName: "Trần Thị B", email: "b@example.com", classId: 2 },
-  { userId: 3, fullName: "Lê Văn C", email: "c@example.com", classId: 3 },
-  { userId: 4, fullName: "Phạm Thị D", email: "d@example.com", classId: 4 },
-  { userId: 5, fullName: "Võ Văn E", email: "e@example.com", classId: 5 },
-  { userId: 6, fullName: "Bùi Thị F", email: "f@example.com", classId: 1 },
-  { userId: 7, fullName: "Đặng Văn G", email: "g@example.com", classId: 2 },
-  { userId: 8, fullName: "Hoàng Thị H", email: "h@example.com", classId: 3 },
-  { userId: 9, fullName: "Đỗ Văn I", email: "i@example.com", classId: 4 },
-  { userId: 10, fullName: "Ngô Thị J", email: "j@example.com", classId: 5 },
-];
+type Class = {
+  id: number;
+  name: string;
+};
 
 export default function StudentView() {
   const [searchName, setSearchName] = useState("");
-  const [selectedClassId, setSelectedClassId] = useState<string>("");
+  const [selectedClassId, setSelectedClassId] = useState(""); // lưu dưới dạng string
+  const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [open, setOpen] = useState(false);
+  const [classList, setClassList] = useState<Class[]>([]);
 
-  const handleFilter = () => {
-    const result = fakeUsers.filter((u) => {
-      const matchName = u.fullName
-        .toLowerCase()
-        .includes(searchName.toLowerCase());
-      const matchClass = selectedClassId
-        ? u.classId === parseInt(selectedClassId)
-        : true;
-      return matchName && matchClass;
-    });
-    setFilteredUsers(result);
-  };
-
+  // Lấy danh sách lớp
   useEffect(() => {
-    handleFilter();
-  }, [searchName, selectedClassId]);
+    const fetchClasses = async () => {
+      try {
+        const classes = await getAllClass();
+        const mapped = classes.map((cls: any) => ({
+          id: cls.classId, // giữ kiểu int
+          name: cls.className,
+        }));
+        setClassList(mapped);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách lớp:", error);
+      }
+    };
+    fetchClasses();
+  }, []);
+
+  // Lấy danh sách học sinh theo lớp
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        if (selectedClassId !== "") {
+          const classIdNumber = Number(selectedClassId); // ép kiểu về number
+          const students = await getStudentsByClassId(classIdNumber);
+          setUsers(students);
+        } else {
+          const allStudents = await getAllStudents();
+          setUsers(allStudents);
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy học sinh:", error);
+      }
+    };
+    fetchStudents();
+  }, [selectedClassId]);
+
+  // Lọc học sinh theo tên
+  useEffect(() => {
+    const result = users.filter((u) =>
+      u.fullName.toLowerCase().includes(searchName.toLowerCase())
+    );
+    setFilteredUsers(result);
+  }, [searchName, users]);
+
+  const handleAddStudent = (data: {
+    students: {
+      fullName: string;
+      dob: string;
+      gender: string;
+      classId: string;
+    }[];
+    guardianPhone: string;
+  }) => {
+    const newStudents: User[] = data.students.map((s, index) => ({
+      studentId: Date.now() + index,
+      fullName: s.fullName,
+      gender: s.gender,
+      dateOfBirth: s.dob,
+      guardianName: "",
+      guardianPhone: data.guardianPhone,
+    }));
+    setUsers((prev) => [...prev, ...newStudents]);
+    setOpen(false);
+  };
 
   return (
     <div className="p-5 space-y-4">
       <h2 className="text-xl font-bold">Danh sách học sinh</h2>
 
-      {/* Thanh tìm kiếm và chọn lớp */}
-      <div className="flex flex-wrap gap-3 items-center">
-        <Input
-          placeholder="Tìm theo tên..."
-          value={searchName}
-          onChange={(e) => setSearchName(e.target.value)}
-          className="w-[250px]"
-        />
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2 items-center">
+          <Input
+            placeholder="Tìm theo tên..."
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            className="w-[200px]"
+          />
+          <select
+            value={selectedClassId}
+            onChange={(e) => setSelectedClassId(e.target.value)}
+            className="border rounded px-2 py-1"
+          >
+            <option value="">-- Tất cả lớp --</option>
+            {classList.map((cls) => (
+              <option key={cls.id} value={cls.id.toString()}>
+                {cls.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <select
-          value={selectedClassId}
-          onChange={(e) => setSelectedClassId(e.target.value)}
-          className="border px-3 py-2 rounded-md"
-        >
-          <option value="">-- Tất cả lớp --</option>
-          {fakeClassList.map((cls) => (
-            <option key={cls.classId} value={cls.classId}>
-              {cls.className}
-            </option>
-          ))}
-        </select>
-
-        <Button onClick={handleFilter}>Lọc</Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button variant="secondary">
+              <Plus className="w-4 h-4 mr-1" /> Thêm học sinh
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="!max-w-5xl w-full">
+            <h3 className="text-lg font-semibold mb-2">Thêm học sinh mới</h3>
+            <StudentForm classList={classList} onSubmit={handleAddStudent} />
+          </DialogContent>
+        </Dialog>
       </div>
 
-      {/* Danh sách học sinh */}
-      <div className="space-y-2 max-h-[400px] overflow-y-auto">
-        {filteredUsers.map((u) => {
-          const className =
-            fakeClassList.find((c) => c.classId === u.classId)?.className ||
-            "Không rõ";
-          return (
-            <div
-              key={u.userId}
-              className="border p-2 rounded shadow-sm text-sm"
-            >
-              <div>
-                <strong>{u.fullName}</strong> - {className}
-              </div>
-              <div>{u.email}</div>
-            </div>
-          );
-        })}
-        {filteredUsers.length === 0 && (
-          <p className="text-sm text-gray-500">Không có học sinh phù hợp.</p>
-        )}
-      </div>
+      <table className="w-full text-sm border border-gray-300">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="border px-3 py-2 text-left">Tên học sinh</th>
+            <th className="border px-3 py-2 text-left">Giới tính</th>
+            <th className="border px-3 py-2 text-left">Ngày sinh</th>
+            <th className="border px-3 py-2 text-left">Tên người giám hộ</th>
+            <th className="border px-3 py-2 text-left">SĐT người giám hộ</th>
+            <th className="border px-3 py-2 text-left">Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map((u) => (
+              <tr key={u.studentId} className="hover:bg-gray-50">
+                <td className="border px-3 py-2">{u.fullName}</td>
+                <td className="border px-3 py-2">{u.gender}</td>
+                <td className="border px-3 py-2">
+                  {new Date(u.dateOfBirth).toLocaleDateString("vi-VN")}
+                </td>
+                <td className="border px-3 py-2">{u.guardianName}</td>
+                <td className="border px-3 py-2">{u.guardianPhone}</td>
+                <td className="border px-3 py-2">
+                  <button className="text-blue-500 hover:text-blue-700">
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={6} className="text-center text-gray-500 py-3">
+                Không có học sinh phù hợp.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }

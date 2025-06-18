@@ -212,6 +212,28 @@ export const GetSupplies = async () => {
     return await axios.get("https://localhost:7195/api/MedicalSupplies/get");
 
 }
+export const getAllStudents = async () => {
+  const token = localStorage.getItem("token");
+
+  const res = await axios.get("https://localhost:7195/api/students/get-all-student", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+export async function getStudentsByClassId(classId: number) {
+  const token = localStorage.getItem("token");
+
+  const res = await axios.get(`https://localhost:7195/api/students/by-class/${classId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+}
 
 
 

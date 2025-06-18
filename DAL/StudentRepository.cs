@@ -41,12 +41,40 @@ namespace DAL.Repositories
             await _context.Students.AddRangeAsync(students);
             await _context.SaveChangesAsync();
         }
-        public async Task<IEnumerable<Students>> GetByClassIdAsync(int classId)
+        public async Task<IEnumerable<StudentDTO>> GetByClassIdAsync(int classId)
         {
             return await _context.Students
-                .Include(s => s.Class)
+                .Include(s => s.Guardian) // Lấy thêm thông tin người giám hộ
                 .Where(s => s.ClassId == classId)
+                .Select(s => new StudentDTO
+                {
+                    StudentId = s.StudentId,
+                    FullName = s.FullName,
+                    DateOfBirth = s.DateOfBirth,
+                    Gender = s.Gender,
+                    GuardianId = s.Guardian.UserId,
+                    GuardianName = s.Guardian.FullName,
+                    GuardianPhone = s.Guardian.PhoneNumber
+                })
+                .ToListAsync(); // Trả về dưới dạng List, nhưng kiểu trả về là IEnumerable => OK
+        }
+
+        public async Task<List<StudentDTO>> GetStudentDTOsAsync()
+        {
+            return await _context.Students
+                .Include(s => s.Guardian)
+                .Select(s => new StudentDTO
+                {
+                    StudentId = s.StudentId,
+                    FullName = s.FullName,
+                    DateOfBirth = s.DateOfBirth,
+                    Gender = s.Gender,
+                    GuardianId = s.Guardian.UserId,
+                    GuardianName = s.Guardian.FullName,
+                    GuardianPhone = s.Guardian.PhoneNumber
+                })
                 .ToListAsync();
         }
+
     }
 }
