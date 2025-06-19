@@ -1,9 +1,15 @@
+// src/components/SendMedicine/SendMedicineView.tsx
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription } from "../ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import SendMedicineForm from "./SendMedicineForm";
+import ViewMedicationHistory from "./ViewMedicationHistory";
 import { getMedicationRequestHistory } from "../../service/serviceauth";
 
 interface MedicationRequest {
@@ -20,10 +26,29 @@ export default function SendMedicineView() {
   const [openSendMedicineDialog, setOpenSendMedicineDialog] = useState(false);
   const [requests, setRequests] = useState<MedicationRequest[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [openLogDialog, setOpenLogDialog] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<number>(0);
+
+  const refreshRequests = () => {
+    getMedicationRequestHistory().then((res) => {
+      const sorted = res.data.sort(
+        (a: MedicationRequest, b: MedicationRequest) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setRequests(sorted);
+    });
+  };
 
   useEffect(() => {
-    getMedicationRequestHistory().then((res) => setRequests(res.data));
+    refreshRequests();
   }, []);
+
+  const handleViewLog = (requestId: number, studentId: number) => {
+    setSelectedRequestId(requestId);
+    setSelectedStudentId(studentId);
+    setOpenLogDialog(true);
+  };
 
   return (
     <div className="p-5">
@@ -41,7 +66,12 @@ export default function SendMedicineView() {
         <DialogContent>
           <DialogTitle>Send Medicine</DialogTitle>
           <DialogDescription>Send medicine to user</DialogDescription>
-          <SendMedicineForm onSuccess={() => setOpenSendMedicineDialog(false)} />
+          <SendMedicineForm
+            onSuccess={() => {
+              setOpenSendMedicineDialog(false);
+              refreshRequests();
+            }}
+          />
         </DialogContent>
       </Dialog>
 
@@ -55,12 +85,13 @@ export default function SendMedicineView() {
               <th className="p-3">Image</th>
               <th className="p-3">Status</th>
               <th className="p-3">Created At</th>
+              <th className="p-3">Log</th>
             </tr>
           </thead>
           <tbody>
             {requests.length === 0 ? (
               <tr>
-                <td colSpan={4} className="text-center p-5">
+                <td colSpan={5} className="text-center p-5">
                   No requests found.
                 </td>
               </tr>
@@ -92,6 +123,14 @@ export default function SendMedicineView() {
                   <td className="p-3">
                     {new Date(req.createdAt).toLocaleString()}
                   </td>
+                  <td className="p-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleViewLog(req.requestId, req.studentId)}
+                    >
+                      View History
+                    </Button>
+                  </td>
                 </tr>
               ))
             )}
@@ -99,30 +138,31 @@ export default function SendMedicineView() {
         </table>
       </div>
 
-      {/* Zoomed Image Overlay */}
-      {selectedImage && (
-        <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center transition-opacity duration-300"
-          onClick={() => setSelectedImage(null)}
-        >
-          <div
-            className="relative max-w-[60vw] max-h-[60vh] scale-100 transition-transform duration-300 ease-in-out"
-            onClick={(e) => e.stopPropagation()}
-          >
+      <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+        <DialogContent className="!max-w-[70vw] !max-h-[70vh] p-0 overflow-hidden">
+          <div className="relative w-full h-full flex justify-center items-center bg-black">
             <img
-              src={selectedImage}
+              src={selectedImage ?? ""}
               alt="Zoomed Prescription"
-              className="w-full h-full object-contain rounded shadow-2xl"
+              className="object-contain w-full h-full max-w-full max-h-full"
+              style={{ maxHeight: "70vh", maxWidth: "70vw" }}
             />
             <button
               onClick={() => setSelectedImage(null)}
-              className="absolute top-2 right-2 text-white text-xl font-bold bg-black bg-opacity-50 rounded-full px-3 py-1 hover:bg-opacity-80"
+              className="absolute top-2 right-2 text-white text-2xl font-bold bg-black bg-opacity-60 rounded-full px-3 py-1 hover:bg-opacity-90"
             >
               ×
             </button>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
+
+      <ViewMedicationHistory
+        open={openLogDialog}
+        onClose={() => setOpenLogDialog(false)}
+        requestId={selectedRequestId}
+        studentId={selectedStudentId}
+      />
     </div>
   );
 }
