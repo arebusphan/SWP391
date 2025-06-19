@@ -1,9 +1,9 @@
 ﻿using BLL.AuthService;
 using BLL.HealthCheckService;
-using BLL.HealthProfile;
-using BLL.IncidentService;
+using BLL.HealthProfile;using BLL.IncidentService;
 using BLL.Interfaces;
 using BLL.MedicalSuppliesService;
+using BLL.MedicationIntakeLogsService;
 using BLL.MedicationService;
 using BLL.OtpService;
 using BLL.Services;
@@ -13,6 +13,7 @@ using BLL.UserService;
 using DAL;
 using DAL.Incident;
 using DAL.Interfaces;
+using DAL.MedicationIntakeLogs;
 using DAL.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -128,6 +129,9 @@ namespace WebApplication6
 
             builder.Services.AddScoped<IClassesRepository, ClassesRepository>();
             builder.Services.AddScoped<IClassesService, ClassesService>();
+
+            builder.Services.AddScoped<IMedicationIntakeLogRepo, MedicationIntakeLogRepo>();
+            builder.Services.AddScoped<IMedicationIntakeLogService, MedicationIntakeLogService>();
 
             builder.Services.AddAuthentication(options =>
             {

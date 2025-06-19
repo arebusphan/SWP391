@@ -181,7 +181,7 @@ export const getMedicationRequestHistory = (params?: {
 export const getNotifications = () => {
   const token = localStorage.getItem("token");
 
-  return axios.get("https://localhost:7195/api/health-notifications", {
+  return axios.get("https://localhost:7195/api/notifications", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -358,3 +358,17 @@ export const updateStudentHealthProfile = async (
   });
 };
 
+export const getMedicationIntakeLogs = async (studentId: number) => {
+  const token = localStorage.getItem("token");
+
+  const res = await axios.get(
+    `https://localhost:7195/api/medication-requests/logs/${studentId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return res.data;
+};

@@ -1,4 +1,5 @@
-﻿using BLL.MedicationService;
+﻿using BLL.MedicationIntakeLogsService;
+using BLL.MedicationService;
 using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,12 @@ namespace API.Controllers
     public class MedicationController : ControllerBase
     {
         private readonly IMedicationService _medicationService;
+        private readonly IMedicationIntakeLogService _logService;
 
-        public MedicationController(IMedicationService medicationService)
+        public MedicationController(IMedicationService medicationService,IMedicationIntakeLogService logService)
         {
             _medicationService = medicationService;
+            _logService = logService;
         }
 
         [HttpPost("parent-request")]
@@ -73,6 +76,25 @@ namespace API.Controllers
 
             return Ok(new { message = "Status updated successfully" });
         }
+        [HttpPost("logs")]
+        public async Task<IActionResult> CreateIntakeLog([FromBody] MedicationIntakeLogCreateDto dto)
+        {
+            try
+            {
+                var created = await _logService.CreateLogAsync(dto);
+                return Ok(created);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
 
+        [HttpGet("logs/{studentId}")]
+        public async Task<IActionResult> GetIntakeLogsByStudent(int studentId)
+        {
+            var logs = await _logService.GetLogsByStudentIdAsync(studentId);
+            return Ok(logs);
+        }
     }
 }
