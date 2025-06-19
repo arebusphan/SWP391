@@ -19,7 +19,7 @@ namespace API_.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Parent")]
-        public async Task<IActionResult> SubmitProfile([FromBody] HealthProfileCreateDTO dto)
+        public async Task<IActionResult> SubmitProfile([FromBody] HealthProfileDTO dto)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 
@@ -65,7 +65,7 @@ namespace API_.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Parent")]
-        public async Task<IActionResult> Update(int id, [FromBody] HealthProfileCreateDTO dto)
+        public async Task<IActionResult> Update(int id, [FromBody] HealthProfileDTO dto)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             await _service.UpdateAsync(id, dto, userId);

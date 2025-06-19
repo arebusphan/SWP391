@@ -6,7 +6,7 @@ type Student = {
     fullName: string;
 };
 
-type HealthDeclarationDTO = {
+type HealthProfileDTO = {
     declarationId?: number;
     studentId: number;
     allergies: string;
@@ -18,7 +18,7 @@ type HealthDeclarationDTO = {
 
 const ParentHealthForm = () => {
     const [students, setStudents] = useState<Student[]>([]);
-    const [formData, setFormData] = useState<HealthDeclarationDTO>({
+    const [formData, setFormData] = useState<HealthProfileDTO>({
         studentId: 0,
         allergies: "",
         chronicDiseases: "",
@@ -26,7 +26,7 @@ const ParentHealthForm = () => {
         hearing: "",
         otherNotes: "",
     });
-    const [submitted, setSubmitted] = useState<HealthDeclarationDTO[]>([]);
+    const [submitted, setSubmitted] = useState<HealthProfileDTO[]>([]);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [showForm, setShowForm] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -65,15 +65,24 @@ const ParentHealthForm = () => {
     const handleSubmit = async () => {
         if (!formData.studentId) return alert("❗ Please select a student");
 
+        const payload = {
+            studentId: formData.studentId,
+            allergies: formData.allergies,
+            chronicDiseases: formData.chronicDiseases,
+            vision: formData.vision,
+            hearing: formData.hearing,
+            otherNotes: formData.otherNotes,
+        };
+
         setSubmitting(true);
         try {
             if (editingId) {
-                await axios.put(`https://localhost:7195/api/HealthProfile/${editingId}`, formData, {
+                await axios.put(`https://localhost:7195/api/HealthProfile/${editingId}`, payload, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 alert("✅ Updated successfully");
             } else {
-                await axios.post("https://localhost:7195/api/HealthProfile", formData, {
+                await axios.post("https://localhost:7195/api/HealthProfile", payload, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 alert("✅ Submitted successfully");
@@ -97,7 +106,8 @@ const ParentHealthForm = () => {
         }
     };
 
-    const handleEdit = (profile: HealthDeclarationDTO) => {
+
+    const handleEdit = (profile: HealthProfileDTO) => {
         setFormData(profile);
         setEditingId(profile.declarationId || null);
         setShowForm(true);
@@ -171,7 +181,7 @@ const ParentHealthForm = () => {
                             <input
                                 type="text"
                                 name={field}
-                                value={formData[field as keyof HealthDeclarationDTO]}
+                                value={formData[field as keyof HealthProfileDTO]}
                                 onChange={handleChange}
                                 className="w-full border px-3 py-2 rounded"
                             />

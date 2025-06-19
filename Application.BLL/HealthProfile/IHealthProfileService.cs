@@ -9,11 +9,11 @@ namespace BLL.HealthProfile
 {
     public interface IHealthProfileService
     {
-        Task SubmitAsync(HealthProfileCreateDTO dto, int createdBy);
+        Task SubmitAsync(HealthProfileDTO dto, int createdBy);
         Task<List<HealthProfileDTO>> GetPendingProfilesAsync();
         Task<HealthProfileDTO?> GetByStudentIdAsync(int studentId);
         Task<List<HealthProfileDTO>> GetProfilesByUserAsync(int userId);  // Lấy danh sách đã submit bởi phụ huynh
-        Task UpdateAsync(int declarationId, HealthProfileCreateDTO dto, int userId); // Cập nhật hồ sơ đã gửi
+        Task UpdateAsync(int declarationId, HealthProfileDTO dto, int userId); // Cập nhật hồ sơ đã gửi
 
     }
 }

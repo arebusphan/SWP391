@@ -13,7 +13,7 @@ type StudentInfo = {
 };
 
 // DTO cho health profile
-type HealthDeclarationDTO = {
+type HealthProfileDTO = {
     declarationId: number;
     studentId: number;
     allergies: string;
@@ -27,7 +27,7 @@ const StudentDetailPage = () => {
     const { studentId } = useParams();
     const navigate = useNavigate();
     const [info, setInfo] = useState<StudentInfo | null>(null);
-    const [profile, setProfile] = useState<HealthDeclarationDTO | null>(null);
+    const [profile, setProfile] = useState<HealthProfileDTO | null>(null);
     const [loading, setLoading] = useState(true);
     const token = localStorage.getItem("token");
 

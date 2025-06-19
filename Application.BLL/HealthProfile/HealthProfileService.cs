@@ -18,7 +18,7 @@ namespace BLL.HealthProfile
             _context = context;
         }
 
-        public async Task SubmitAsync(HealthProfileCreateDTO dto, int createdBy)
+        public async Task SubmitAsync(HealthProfileDTO dto, int createdBy)
         {
             var student = await _context.Students
                 .FirstOrDefaultAsync(s => s.StudentId == dto.StudentId && s.GuardianId == createdBy);
@@ -26,7 +26,7 @@ namespace BLL.HealthProfile
             if (student == null)
                 throw new Exception("Student not found or not under this guardian.");
 
-            var profile = new HealthDeclarations
+            var profile = new DAL.Models.HealthProfile
             {
                 StudentId = dto.StudentId,
                 Allergies = dto.Allergies,
@@ -38,7 +38,7 @@ namespace BLL.HealthProfile
                 CreatedAt = DateTime.Now
             };
 
-            _context.HealthDeclarations.Add(profile);
+            _context.HealthProfiles.Add(profile);
             await _context.SaveChangesAsync();
         }
 
@@ -46,7 +46,7 @@ namespace BLL.HealthProfile
 
         public async Task<List<HealthProfileDTO>> GetPendingProfilesAsync()
         {
-            return await _context.HealthDeclarations
+            return await _context.HealthProfiles
                 .Include(h => h.Students)
                 .Select(h => new HealthProfileDTO
                 {
@@ -62,7 +62,7 @@ namespace BLL.HealthProfile
 
         public async Task<HealthProfileDTO?> GetByStudentIdAsync(int studentId)
         {
-            var profile = await _context.HealthDeclarations
+            var profile = await _context.HealthProfiles
                 .Where(p => p.StudentId == studentId)
                 .OrderByDescending(p => p.CreatedAt)
                 .FirstOrDefaultAsync();
@@ -71,7 +71,7 @@ namespace BLL.HealthProfile
 
             return new HealthProfileDTO
             {
-                Id = profile.DeclarationId,
+                DeclarationId = profile.DeclarationId,
                 StudentId = profile.StudentId,
                 Allergies = profile.Allergies,
                 ChronicDiseases = profile.ChronicDiseases,
@@ -82,7 +82,7 @@ namespace BLL.HealthProfile
         }
         public async Task<List<HealthProfileDTO>> GetProfilesByUserAsync(int userId)
         {
-            var latestPerStudent = await _context.HealthDeclarations
+            var latestPerStudent = await _context.HealthProfiles
                 .Where(h => h.CreatedBy == userId)
                 .GroupBy(h => h.StudentId)
                 .Select(g => g.OrderByDescending(x => x.CreatedAt).First())
@@ -90,7 +90,7 @@ namespace BLL.HealthProfile
 
             return latestPerStudent.Select(h => new HealthProfileDTO
             {
-                Id = h.DeclarationId,
+                DeclarationId = h.DeclarationId,
                 StudentId = h.StudentId,
                 Allergies = h.Allergies,
                 ChronicDiseases = h.ChronicDiseases,
@@ -101,9 +101,9 @@ namespace BLL.HealthProfile
         }
 
 
-        public async Task UpdateAsync(int id, HealthProfileCreateDTO dto, int userId)
+        public async Task UpdateAsync(int id, HealthProfileDTO dto, int userId)
         {
-            var profile = await _context.HealthDeclarations
+            var profile = await _context.HealthProfiles
                 .FirstOrDefaultAsync(p => p.DeclarationId == id && p.CreatedBy == userId);
 
             if (profile == null)
