@@ -277,5 +277,51 @@ export const addStudents = async (payload: {
   });
 };
 
+export const getStudentHealthProfile = async (studentId: number) => {
+  const token = localStorage.getItem("token");
 
+  return await axios.get(`https://localhost:7195/api/HealthProfile/student/${studentId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
 
+export const createStudentHealthProfile = async (payload: {
+  studentId: number;
+  allergies?: string;
+  chronicDiseases?: string;
+  vision?: string;
+  hearing?: string;
+  otherNotes?: string;
+}) => {
+  const token = localStorage.getItem("token");
+
+  return await axios.post("https://localhost:7195/api/HealthProfile", payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+};
+
+export const updateStudentHealthProfile = async (
+  profileId: number, // 👈 ID của hồ sơ sức khỏe cần cập nhật
+  payload: {
+    studentId: number;
+    allergies?: string;
+    chronicDiseases?: string;
+    vision?: string;
+    hearing?: string;
+    otherNotes?: string;
+  }
+) => {
+  const token = localStorage.getItem("token");
+
+  return await axios.put(`https://localhost:7195/api/HealthProfile/${profileId}`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+};
