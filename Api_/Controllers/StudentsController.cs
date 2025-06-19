@@ -130,11 +130,21 @@ namespace API.Controllers
         public async Task<ActionResult<List<StudentDTO>>> GetStudentsByClassId(int classId)
         {
             var students = await _studentService.GetStudentsByClassAsync(classId);
-
-            if (!students.Any()) // dùng LINQ
-                return NotFound("No students found for this class.");
-
             return Ok(students);
+        }
+        [HttpGet("get-All-Student")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllStudent()
+        {
+            var students = await _studentService.GetAllStudentDtosAsync();
+            return Ok(students);
+        }
+        [HttpPost("addstudent")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddStudents([FromBody] AddStudentRequest request)
+        {
+            await _studentService.AddStudentsAsync(request.Students, request.GuardianId);
+            return Ok();
         }
 
     }

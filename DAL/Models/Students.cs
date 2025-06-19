@@ -31,5 +31,8 @@ namespace DAL.Models
         public ICollection<HealthChecks> HealthChecks { get; set; } = new List<HealthChecks>();
 
         public ICollection<ConsultationAppointments> ConsultationAppointments { get; set; } = new List<ConsultationAppointments>();
+
+        public ICollection<VaccinationResults> VaccinationResults { get; set; } = new List<VaccinationResults>();
+
     }
 }

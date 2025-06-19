@@ -34,7 +34,7 @@ const LeftSideMedicalStaff = () => {
             icon: <MdLocalHospital size={20} />
         },
         {
-            label: "ConfirmStudents",
+            label: "Vaccination Confirmation",
             path: "/MedicalStaffPage/ConfirmStudents",
             icon: <MdCheckCircle size={20} />
         },

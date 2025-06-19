@@ -254,6 +254,107 @@ export const GetSupplies = async () => {
     return await axios.get("https://localhost:7195/api/MedicalSupplies/get");
 
 }
+export const getAllStudents = async () => {
+  const token = localStorage.getItem("token");
+
+  const res = await axios.get("https://localhost:7195/api/students/get-all-student", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
 
 
+export async function findUserByEmailOrPhone(input: string) {
+  const params = new URLSearchParams();
+
+  // Tự động xác định là email hay phone
+  if (input.includes("@")) {
+    params.append("email", input);
+  } else {
+    params.append("phone", input);
+  }
+
+  const res = await fetch(`https://localhost:7195/api/User/find-by-email-or-phone?${params.toString()}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      // Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) throw new Error("User not found");
+
+  return await res.json();
+}
+
+export const addStudents = async (payload: {
+  guardianId: number;
+  students: {
+    fullName: string;
+    dateOfBirth: string;
+    gender: string;
+    classId: number;
+  }[];
+}) => {
+  const token = localStorage.getItem("token");
+
+  return axios.post("https://localhost:7195/api/students/addstudent", payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+};
+
+export const getStudentHealthProfile = async (studentId: number) => {
+  const token = localStorage.getItem("token");
+
+  return await axios.get(`https://localhost:7195/api/HealthProfile/student/${studentId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const createStudentHealthProfile = async (payload: {
+  studentId: number;
+  allergies?: string;
+  chronicDiseases?: string;
+  vision?: string;
+  hearing?: string;
+  otherNotes?: string;
+}) => {
+  const token = localStorage.getItem("token");
+
+  return await axios.post("https://localhost:7195/api/HealthProfile", payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+};
+
+export const updateStudentHealthProfile = async (
+  profileId: number, // 👈 ID của hồ sơ sức khỏe cần cập nhật
+  payload: {
+    studentId: number;
+    allergies?: string;
+    chronicDiseases?: string;
+    vision?: string;
+    hearing?: string;
+    otherNotes?: string;
+  }
+) => {
+  const token = localStorage.getItem("token");
+
+  return await axios.put(`https://localhost:7195/api/HealthProfile/${profileId}`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+};
 

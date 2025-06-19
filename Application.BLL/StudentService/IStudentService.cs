@@ -13,5 +13,7 @@ namespace BLL.StudentService
         List<StudentBasicInfoDTO> GetAllBasicProfiles();
         Task AddStudentsAsync(List<StudentAddDTO> studentDtos, int guardianId);
         Task<IEnumerable<StudentDTO>> GetStudentsByClassAsync(int classId);
+        Task<List<StudentDTO>> GetAllStudentDtosAsync();
+
     }
 }

@@ -1,15 +1,19 @@
-﻿/*namespace DAL.Models
+﻿namespace DAL.Models
 {
     public class HealthProfileDTO
-    {
-        public float? LeftEyeVision { get; set; }
-        public float? RightEyeVision { get; set; }
-        public string LeftEarHearing { get; set; }
-        public string RightEarHearing { get; set; }
-        public string SpineStatus { get; set; }
-        public string SkinStatus { get; set; }
-        public string OralHealth { get; set; }
-        public string OtherNotes { get; set; } 
+   {
+
+       public int DeclarationId { get; set; }
+       public int StudentId { get; set; }
+
+       public string? Allergies { get; set; }
+       public string? ChronicDiseases { get; set; }
+       public string? Vision { get; set; }
+       public string? Hearing { get; set; }
+       public string? OtherNotes { get; set; }
+
+       public string? StudentName { get; set; } // optional: phục vụ hiển thị
+       public string? ClassName { get; set; }   // optional: phục vụ lọc lớp
     }
-}*/
+}
     

@@ -24,7 +24,9 @@ namespace BLL.UserService
 
         public async Task CreateUserAsync(ParentWithStudentDTO dto)
         {
-            if (await _repo.ExistsByEmailOrPhoneAsync(dto.Parent.Email, dto.Parent.PhoneNumber))
+            var existingUser = await _repo.GetUserByEmailOrPhoneAsync(dto.Parent.Email, dto.Parent.PhoneNumber);
+
+            if (existingUser != null)
             {
                 throw new Exception("Email or phone number already exists");
             }
@@ -79,5 +81,10 @@ namespace BLL.UserService
         {
             return await _repo.DeleteAsyns(dto);
         }
+        public async Task<UserDTO?> FindUserByEmailOrPhoneAsync(string email, string phone)
+        {
+            return await _repo.GetUserByEmailOrPhoneAsync(email, phone);
+        }
+
     }
 }

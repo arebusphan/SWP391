@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // ✅ thêm
+import { useNavigate } from "react-router-dom";
 
 type StudentProfile = {
     studentId: number;
@@ -9,30 +9,23 @@ type StudentProfile = {
     dateOfBirth: string;
     guardianName: string;
     guardianPhone: string;
+    className: string;
 };
 
 const StudentProfileList = () => {
     const [students, setStudents] = useState<StudentProfile[]>([]);
+    const [filteredStudents, setFilteredStudents] = useState<StudentProfile[]>([]);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate(); // ✅ thêm
+    const [classFilter, setClassFilter] = useState("");
+    const [searchName, setSearchName] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function fetchStudents() {
             const token = localStorage.getItem("token");
-            let role = localStorage.getItem("role");
+            const role = localStorage.getItem("role");
 
-            if (!token || !role) {
-                alert("❗ Missing token or role. Please login again.");
-                console.warn("token:", token);
-                console.warn("role:", role);
-                setLoading(false);
-                return;
-            }
-
-            if (!["Parent", "MedicalStaff"].includes(role)) {
-                console.warn("⚠️ Role không hợp lệ:", role);
-                role = "Parent";
-            }
+            if (!token || !role) return alert("Missing token or role.");
 
             const url =
                 role === "Parent"
@@ -45,12 +38,11 @@ const StudentProfileList = () => {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-
-                console.log("📦 Dữ liệu học sinh:", res.data);
                 setStudents(res.data);
+                setFilteredStudents(res.data);
             } catch (err) {
-                console.error("❌ Error loading student data:", err);
-                alert("❌ Failed to load student profiles.");
+                console.error(err);
+                alert("Failed to fetch students");
             } finally {
                 setLoading(false);
             }
@@ -59,51 +51,95 @@ const StudentProfileList = () => {
         fetchStudents();
     }, []);
 
-    const formatDate = (dateStr: string): string =>
-        new Date(dateStr).toLocaleDateString("vi-VN");
+    useEffect(() => {
+        let filtered = [...students];
+
+        if (classFilter) {
+            filtered = filtered.filter((s) => s.className === classFilter);
+        }
+
+        if (searchName.trim() !== "") {
+            filtered = filtered.filter((s) =>
+                s.fullName.toLowerCase().includes(searchName.toLowerCase())
+            );
+        }
+
+        setFilteredStudents(filtered);
+    }, [classFilter, searchName, students]);
+
+    const formatDate = (d: string) => new Date(d).toLocaleDateString("vi-VN");
+
+    const uniqueClasses = Array.from(new Set(students.map((s) => s.className)));
 
     return (
-        <div className="max-w-5xl mx-auto p-6 bg-white rounded shadow">
-            <h2 className="text-2xl font-bold mb-4 text-blue-700">Student Profiles</h2>
+        <div className="max-w-6xl mx-auto p-6 bg-white rounded shadow">
+            <h2 className="text-2xl font-bold mb-4">Student Profiles</h2>
+
+            <div className="flex items-center gap-4 mb-4">
+                <select
+                    className="border px-3 py-1 rounded"
+                    value={classFilter}
+                    onChange={(e) => setClassFilter(e.target.value)}
+                >
+                    <option value="">-- All Classes --</option>
+                    {uniqueClasses.map((cls) => (
+                        <option key={cls} value={cls}>
+                            {cls}
+                        </option>
+                    ))}
+                </select>
+
+                <input
+                    type="text"
+                    placeholder="Search by name"
+                    className="border px-3 py-1 rounded w-60"
+                    value={searchName}
+                    onChange={(e) => setSearchName(e.target.value)}
+                />
+            </div>
 
             {loading ? (
                 <p>Loading...</p>
-            ) : students.length === 0 ? (
-                <p>No student records found.</p>
+            ) : filteredStudents.length === 0 ? (
+                <p>No students found.</p>
             ) : (
-                <div className="overflow-x-auto">
-                    <table className="w-full table-auto border border-gray-300 text-sm">
-                        <thead className="bg-gray-100">
-                            <tr>
-                                <th className="p-3 border-b">Name</th>
-                                <th className="p-3 border-b">Gender</th>
-                                <th className="p-3 border-b">Date of Birth</th>
-                                <th className="p-3 border-b">Guardian Name</th>
-                                <th className="p-3 border-b">Guardian Phone</th>
-                                <th className="p-3 border-b">Actions</th> {/* ✅ thêm cột */}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {students.map((s) => (
-                                <tr key={s.studentId} className="hover:bg-gray-50">
-                                    <td className="p-3 border-b">{s.fullName}</td>
-                                    <td className="p-3 border-b capitalize">{s.gender}</td>
-                                    <td className="p-3 border-b">{formatDate(s.dateOfBirth)}</td>
-                                    <td className="p-3 border-b">{s.guardianName}</td>
-                                    <td className="p-3 border-b">{s.guardianPhone}</td>
-                                    <td className="p-3 border-b">
-                                        <button
-                                            onClick={() => navigate(`/MedicalStaffPage/student-detail/${s.studentId}`)}
-                                            className="text-blue-600 hover:underline"
-                                        >
-                                            View
-                                        </button>
-                                    </td>
+                        <table className="w-full table-fixed border-collapse shadow rounded-lg overflow-hidden text-sm">
+                            <thead>
+                                <tr className="bg-gray-100 text-gray-700">
+                                    <th className="p-3 text-center w-[16.6%]">Name</th>
+                                    <th className="p-3 text-center w-[10%]">Gender</th>
+                                    <th className="p-3 text-center w-[15%]">Date of Birth</th>
+                                    <th className="p-3 text-center w-[16.6%]">Guardian Name</th>
+                                    <th className="p-3 text-center w-[16.6%]">Guardian Phone</th>
+                                    <th className="p-3 text-center w-[10%]">Class</th>
+                                    <th className="p-3 text-center w-[15%]">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {filteredStudents.map((s) => (
+                                    <tr
+                                        key={s.studentId}
+                                        className="bg-white hover:bg-gray-50 border-b"
+                                    >
+                                        <td className="p-3 text-center">{s.fullName}</td>
+                                        <td className="p-3 text-center">{s.gender}</td>
+                                        <td className="p-3 text-center">{formatDate(s.dateOfBirth)}</td>
+                                        <td className="p-3 text-center">{s.guardianName}</td>
+                                        <td className="p-3 text-center">{s.guardianPhone}</td>
+                                        <td className="p-3 text-center">{s.className}</td>
+                                        <td className="p-3 text-center">
+                                            <button
+                                                onClick={() => navigate(`/student/${s.studentId}`)}
+                                                className="text-blue-600 hover:underline font-medium"
+                                            >
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+
             )}
         </div>
     );
