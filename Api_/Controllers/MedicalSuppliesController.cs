@@ -35,5 +35,11 @@ namespace API_.Controllers
             var result = await _service.GetAllAsync();
             return Ok(result);
         }
+        [HttpPut("post/used")]
+        public async Task<IActionResult> UpdateAsync(UpdateSuppliesDTO supplies )
+        {
+            var result = await _service.UpdateAsync(supplies);
+            return Ok(result);
+        }
     }
 }

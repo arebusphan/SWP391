@@ -208,11 +208,52 @@ export const AddSupplies = async (
     });
 };
 
+
+
+export const getStudentsByClassId = async (classId: number) => {
+    const token = localStorage.getItem('token');
+    const res = await axios.get(`https://localhost:7195/api/students/by-class/${classId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return res.data;
+};
+export const postIncident = async (
+    studentId: number,
+    classId: number,
+    incidentName: string,
+    description: string,
+    handledBy: string,
+    occurredAt: string,
+    createdAt: string
+) => {
+    return axios.post("https://localhost:7195/apiIncident/post", {
+        studentId,
+        classId,
+        incidentName,
+        description,
+        handledBy,
+        occurredAt,
+        createdAt
+    });
+};
+export const AddSupplyToInventory = async (
+    suppliesid: number,
+    quantity: number,
+   
+  
+) => {
+    return await axios.post("https://localhost:7195/api/MedicalSupplies/put", {
+        suppliesid,
+        quantity,
+         
+    });
+};
 export const GetSupplies = async () => {
     return await axios.get("https://localhost:7195/api/MedicalSupplies/get");
 
 }
-
 
 
 

@@ -50,7 +50,7 @@ const LeftSideMedicalStaff = () => {
         },
         {
             label: "Medical Incident",
-            path: "/MedicalStaffPage/MedicalIncident",
+            path: "/MedicalStaffPage/IncidentManagement",
             icon: <MdReport size={20} />
         },
         {

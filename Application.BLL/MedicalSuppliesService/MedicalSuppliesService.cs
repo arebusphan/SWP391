@@ -24,5 +24,9 @@ namespace BLL.MedicalSuppliesService
         {
             return await _repository.GetAllAsync();
         }
+        public async Task<MedicalSupplies> UpdateAsync(UpdateSuppliesDTO supplies)
+        {
+            return await _repository.UpdateAsync(supplies);
+        }
     }
 }

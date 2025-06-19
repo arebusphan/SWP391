@@ -12,6 +12,7 @@ const LeftSideParent = () => {
         { label: "Sending Medicine", path: "/ParentPage/SendingMedicine", icon: <MdLocalPharmacy size={20} /> },
         { label: "Notification", path: "/ParentPage/Notificationview", icon: <MdNotifications size={20} /> },
         { label: "History", path: "/ParentPage/Historyview", icon: <MdHistory size={20} /> },
+        { label: "Incident History", path: "/ParentPage/IncidentHistory", icon: <MdHistory size={20} /> },
     ];
 
     return (

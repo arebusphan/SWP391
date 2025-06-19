@@ -38,5 +38,29 @@ namespace DAL
         {
             return await _context.medicalSupplies.ToListAsync();
         }
+        public async Task<MedicalSupplies> UpdateAsync(UpdateSuppliesDTO supplies)
+        {
+            var entity = await _context.medicalSupplies
+                .FirstOrDefaultAsync(x => x.SupplyId == supplies.SupplyId);
+
+            if (entity == null)
+            {
+                throw new Exception($"Không tìm thấy vật tư với ID = {supplies.SupplyId}");
+            }
+
+            if (supplies.Quantity.HasValue)
+            {
+                if (entity.Quantity < supplies.Quantity.Value)
+                {
+                    throw new Exception("Số lượng trong kho không đủ!");
+                }
+
+                entity.Quantity -= supplies.Quantity.Value;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return entity;
+        }
     }
 }

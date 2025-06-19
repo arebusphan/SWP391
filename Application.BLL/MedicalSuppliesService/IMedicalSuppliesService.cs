@@ -11,5 +11,6 @@ namespace BLL.MedicalSuppliesService
     {
         Task<MedicalSupplies> AddAsync(MedicalSuppliesDTO supplies);
         Task<List<MedicalSupplies>> GetAllAsync();
+        Task<MedicalSupplies> UpdateAsync(UpdateSuppliesDTO supplies);
     }
 }
