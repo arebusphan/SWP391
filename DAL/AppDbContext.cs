@@ -46,6 +46,7 @@ namespace DAL
         public DbSet<VaccinationResults> VaccinationResults { get; set; }
 
         public DbSet<Classes> Classes { get; set; }
-      
+        public DbSet<HealthDeclarations> HealthDeclarations { get; set; }
+
     }
 }

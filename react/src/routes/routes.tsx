@@ -6,6 +6,7 @@ import MedicalStaffPage from "../pages/MedicalStaffPage";
 import AboutPage from "../pages/AboutPage";
 import DashboardRedirect from "../pages/NavigateDashboard";
 import Unauthorized from "../pages/Unauthorized";
+import StudentDetailPage from "../pages/StudentDetailPage";
 
 // Route bảo vệ quyền truy cập theo vai trò
 import ProtectedRoute from "./ProtectedRoute";
@@ -30,6 +31,8 @@ const AppRoutes = () => {
 
                 
                 <Route path="/dashboard" element={<DashboardRedirect />} />
+
+                <Route path="/student/:studentId" element={<StudentDetailPage />} />
 
                 <Route element={<ProtectedRoute allowedRoles={["Parent"]} />}>
                     <Route path="/ParentPage/*" element={<ParentPage />} />

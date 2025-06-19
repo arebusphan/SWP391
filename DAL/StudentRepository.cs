@@ -29,7 +29,9 @@ namespace DAL.Repositories
         public List<StudentBasicInfoDTO> GetAllBasicProfiles()
         {
             return _context.Students
-                .Include(s => s.Guardian) // Bao gồm Guardian để lấy tên và số điện thoại
+                .Include(s => s.Guardian)
+                .Include(s => s.Class)
+
                 .Select(s => new StudentBasicInfoDTO
                 {
                     StudentId = s.StudentId,
@@ -37,7 +39,8 @@ namespace DAL.Repositories
                     Gender = s.Gender,
                     DateOfBirth = s.DateOfBirth,
                     GuardianName = s.Guardian.FullName,
-                    GuardianPhone = s.Guardian.PhoneNumber
+                    GuardianPhone = s.Guardian.PhoneNumber,
+                    ClassName = s.Class.ClassName
                 })
                 .ToList(); // Trả về danh sách DTO
         }
@@ -85,5 +88,6 @@ namespace DAL.Repositories
                 })
                 .ToListAsync(); // Trả về danh sách DTO đầy đủ
         }
+
     }
 }

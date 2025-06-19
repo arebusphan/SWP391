@@ -1,26 +1,25 @@
 ﻿using BLL.AuthService;
+using BLL.HealthCheckService;
+using BLL.HealthProfile;
+using BLL.IncidentService;
+using BLL.Interfaces;
+using BLL.MedicalSuppliesService;
+using BLL.MedicationService;
+using BLL.OtpService;
+using BLL.Services;
+using BLL.StudentDetailService;
+using BLL.StudentService;
+using BLL.UserService;
 using DAL;
+using DAL.Incident;
+using DAL.Interfaces;
+using DAL.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Microsoft.OpenApi.Models;
-using BLL.OtpService;
-using BLL.StudentService;
-using BLL.HealthCheckService;
-using BLL.MedicationService;
-using BLL.UserService;
-using DAL.Repositories;
-using BLL.StudentDetailService;
-
-using BLL.Interfaces;
-using BLL.Services;
-using DAL.Interfaces;
-
-using BLL.MedicalSuppliesService;
-using DAL.Incident;
-using BLL.IncidentService;
+using System.Text;
 
 namespace WebApplication6
 {
@@ -88,6 +87,8 @@ namespace WebApplication6
 
             builder.Services.AddScoped<IHealthCheckRepository, HealthCheckRepository>();
             builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
+
+            builder.Services.AddScoped<IHealthProfileService, HealthProfileService>();
 
             builder.Services.AddScoped<IHealthEventRepository, HealthEventRepository>();
             builder.Services.AddScoped<IHealthEventService, HealthEventService>();

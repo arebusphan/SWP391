@@ -6,4 +6,5 @@
     public DateTime DateOfBirth { get; set; }
     public string GuardianName { get; set; }
     public string GuardianPhone { get; set; }
+    public string ClassName { get; set; }
 }
