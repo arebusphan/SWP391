@@ -188,13 +188,34 @@ const ParentHealthForm = () => {
                         </div>
                     ))}
 
-                    <button
-                        onClick={handleSubmit}
-                        className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-                        disabled={submitting}
-                    >
-                        {submitting ? "Submitting..." : editingId ? "Update" : "Submit"}
-                    </button>
+                    <div className="flex gap-4">
+                        <button
+                            onClick={handleSubmit}
+                            className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+                            disabled={submitting}
+                        >
+                            {submitting ? "Submitting..." : editingId ? "Update" : "Submit"}
+                        </button>
+                        <button
+                            onClick={() => {
+                                setShowForm(false);
+                                setEditingId(null);
+                                setFormData({
+                                    studentId: 0,
+                                    allergies: "",
+                                    chronicDiseases: "",
+                                    vision: "",
+                                    hearing: "",
+                                    otherNotes: "",
+                                });
+                            }}
+                            className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
+                            disabled={submitting}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+
                 </>
             )}
         </div>
