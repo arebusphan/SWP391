@@ -103,18 +103,21 @@ namespace BLL.HealthProfile
 
         public async Task UpdateAsync(int id, HealthProfileCreateDTO dto, int userId)
         {
-            var profile = await _context.HealthDeclarations.FirstOrDefaultAsync(h => h.DeclarationId == id && h.CreatedBy == userId);
-            if (profile == null) throw new Exception("Not found or no permission");
+            var profile = await _context.HealthDeclarations
+                .FirstOrDefaultAsync(p => p.DeclarationId == id && p.CreatedBy == userId);
 
+            if (profile == null)
+                throw new Exception("Profile not found or unauthorized");
+
+            // Cập nhật dữ liệu
+            profile.StudentId = dto.StudentId;
             profile.Allergies = dto.Allergies;
             profile.ChronicDiseases = dto.ChronicDiseases;
             profile.Vision = dto.Vision;
             profile.Hearing = dto.Hearing;
             profile.OtherNotes = dto.OtherNotes;
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); // Cập nhật, KHÔNG được Add mới
         }
-
-
     }
 }
