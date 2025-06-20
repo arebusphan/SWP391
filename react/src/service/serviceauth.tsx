@@ -372,3 +372,40 @@ export const getMedicationIntakeLogs = async (studentId: number) => {
 
   return res.data;
 };
+export const confirmVaccination = async (
+  notificationStudentId: number,
+  confirmStatus: "Confirmed" | "Declined",
+  parentPhone: string,
+  declineReason?: string
+) => {
+  const token = localStorage.getItem("token");
+
+  const payload = {
+    notificationStudentId,
+    confirmStatus,
+    parentPhone,
+    declineReason: confirmStatus === "Declined" ? declineReason || "" : null,
+  };
+
+  return await axios.post(
+    "https://localhost:7195/api/notifications/students/confirm",
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+export const getPendingVaccinationConfirmations = async () => {
+  const token = localStorage.getItem("token");
+
+  const res = await axios.get("https://localhost:7195/api/notifications/students/pending", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};

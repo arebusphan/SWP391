@@ -1,6 +1,6 @@
 ﻿import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { MdPerson, MdNotifications, MdHistory, MdLocalPharmacy, MdMenu } from "react-icons/md";
+import { MdPerson, MdNotifications, MdHistory, MdLocalPharmacy, MdMenu, MdVaccines } from "react-icons/md";
 
 const LeftSideParent = () => {
     const navigate = useNavigate();
@@ -11,7 +11,7 @@ const LeftSideParent = () => {
         { label: "Profile", path: "/ParentPage/Info", icon: <MdPerson size={20} /> },
         { label: "Sending Medicine", path: "/ParentPage/SendingMedicine", icon: <MdLocalPharmacy size={20} /> },
         { label: "Notification", path: "/ParentPage/Notificationview", icon: <MdNotifications size={20} /> },
-        { label: "History", path: "/ParentPage/Historyview", icon: <MdHistory size={20} /> },
+        { label: "Vaccination Confirmation", path: "/ParentPage/VaccinationConfirmation", icon: <MdVaccines size={20} /> },
 
         { label: "Incident History", path: "/ParentPage/IncidentHistory", icon: <MdHistory size={20} /> },
 
