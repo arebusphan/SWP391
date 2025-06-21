@@ -18,7 +18,7 @@ interface NotificationHistory {
 const NotificationCreate = () => {
     const [classes, setClasses] = useState<Class[]>([]);
     const [selectedClassId, setSelectedClassId] = useState<number>(0);
-    const [eventType, setEventType] = useState<string>("vaccine");
+    const [eventType, setEventType] = useState<string>("Vaccination");
     const [eventName, setEventName] = useState<string>("");
     const [eventDate, setEventDate] = useState<string>("");
     const [imageFile, setImageFile] = useState<File | null>(null);

@@ -13,16 +13,40 @@ public class HealthNotificationRepository : IHealthNotificationRepository
 
         foreach (var classId in classIds)
         {
+            // Gắn notification với class
             _context.NotificationClasses.Add(new NotificationClass
             {
                 NotificationId = notification.NotificationId,
                 ClassId = classId
             });
+
+            // Lấy danh sách học sinh trong lớp
+            var students = _context.Students
+                .Where(s => s.ClassId == classId)
+                .ToList();
+
+            foreach (var student in students)
+            {
+                var parentPhone = _context.Users
+                    .Where(u => u.UserId == student.GuardianId)
+                    .Select(u => u.PhoneNumber)
+                    .FirstOrDefault();
+
+                // Gửi notification đến từng học sinh
+                _context.NotificationStudents.Add(new NotificationStudent
+                {
+                    NotificationId = notification.NotificationId,
+                    StudentId = student.StudentId,
+                    ConfirmStatus = "Pending",
+                    ParentPhone = parentPhone
+                });
+            }
         }
 
         await _context.SaveChangesAsync();
         return notification.NotificationId;
     }
+
 
     // ✅ Trả về lịch sử theo DTO
     public async Task<List<NotificationHistoryDTO>> GetNotificationHistoriesAsync()
