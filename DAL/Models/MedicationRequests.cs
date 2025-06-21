@@ -26,6 +26,7 @@ namespace DAL.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
+        public string? RejectReason { get; set; }
         public int CreatedBy { get; set; }
         [ForeignKey("CreatedBy")]
         public Users CreatedByUser { get; set; }

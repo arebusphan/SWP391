@@ -1,4 +1,3 @@
-// src/components/SendMedicine/SendMedicineView.tsx
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -21,7 +20,7 @@ interface MedicationRequest {
   healthStatus: string;
   note: string;
   status: string;
-  declineReason?: string;
+  rejectReason?: string;
   createdAt: string;
 }
 
@@ -29,13 +28,11 @@ export default function SendMedicineView() {
   const [openSendMedicineDialog, setOpenSendMedicineDialog] = useState(false);
   const [requests, setRequests] = useState<MedicationRequest[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [openLogDialog, setOpenLogDialog] = useState(false);
+  const [openHistoryDialog, setOpenHistoryDialog] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<number>(0);
   const [hasPreviewImage, setHasPreviewImage] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string>("");
-  const [openDeclineDialog, setOpenDeclineDialog] = useState(false);
-  const [declineReason, setDeclineReason] = useState<string>("");
 
   const refreshRequests = () => {
     getMedicationRequestHistory().then((res) => {
@@ -54,16 +51,12 @@ export default function SendMedicineView() {
   const handleViewHistory = (requestId: number, studentId: number) => {
     setSelectedRequestId(requestId);
     setSelectedStudentId(studentId);
-    setOpenLogDialog(true);
-  };
-
-  const handleViewDeclineReason = (reason: string) => {
-    setDeclineReason(reason);
-    setOpenDeclineDialog(true);
+    setOpenHistoryDialog(true);
   };
 
   return (
     <div className="p-5">
+      {/* Send medicine button */}
       <div className="flex justify-end mb-10">
         <Button
           className="flex items-center"
@@ -74,12 +67,13 @@ export default function SendMedicineView() {
         </Button>
       </div>
 
+      {/* Dialog gửi thuốc */}
       <Dialog open={openSendMedicineDialog} onOpenChange={setOpenSendMedicineDialog}>
         <DialogContent className="!p-6 !max-w-fit">
           <div className="flex flex-row items-start gap-6">
             <div className="flex flex-col gap-2 w-[400px]">
               <DialogTitle>Send Medicine</DialogTitle>
-              <DialogDescription>Send medicine to user</DialogDescription>
+              <DialogDescription>Provide medicine request details</DialogDescription>
               <SendMedicineForm
                 onSuccess={() => {
                   setOpenSendMedicineDialog(false);
@@ -108,7 +102,7 @@ export default function SendMedicineView() {
       <h2 className="text-xl font-bold mb-4">Medication Request History</h2>
 
       <div className="border rounded-md overflow-hidden">
-        <table className="w-full text-left">
+        <table className="w-full text-left table-fixed">
           <thead className="bg-gray-100">
             <tr>
               <th className="p-3">Medicine</th>
@@ -117,7 +111,7 @@ export default function SendMedicineView() {
               <th className="p-3">Note</th>
               <th className="p-3">Status</th>
               <th className="p-3">Created At</th>
-              <th className="p-3">Details</th>
+              <th className="p-3 w-[220px]">Details</th>
             </tr>
           </thead>
           <tbody>
@@ -128,62 +122,67 @@ export default function SendMedicineView() {
                 </td>
               </tr>
             ) : (
-              requests.map((req) => (
-                <tr key={req.requestId} className="border-t hover:bg-gray-50">
-                  <td className="p-3">{req.medicineName}</td>
-                  <td className="p-3">
-                    <img
-                      src={req.prescriptionImage}
-                      alt="prescription"
-                      className="w-20 h-20 object-cover rounded cursor-pointer transition-transform duration-200 hover:scale-105"
-                      onClick={() => setSelectedImage(req.prescriptionImage)}
-                    />
-                  </td>
-                  <td className="p-3">{req.healthStatus}</td>
-                  <td className="p-3">{req.note}</td>
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-1 rounded text-white ${
-                        req.status === "Pending"
-                          ? "bg-yellow-500"
-                          : req.status === "Approved"
-                          ? "bg-green-500"
-                          : "bg-red-500"
-                      }`}
-                    >
-                      {req.status}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    {new Date(req.createdAt).toLocaleString()}
-                  </td>
-                  <td className="p-3">
-                    {req.status === "Approved" ? (
-                      <Button
-                        variant="outline"
-                        onClick={() => handleViewHistory(req.requestId, req.studentId)}
+              requests.map((req) => {
+                const canViewHistory = ["Approved", "Injected"].includes(req.status);
+                return (
+                  <tr key={req.requestId} className="border-t hover:bg-gray-50 align-top">
+                    <td className="p-3">{req.medicineName}</td>
+                    <td className="p-3">
+                      <img
+                        src={req.prescriptionImage}
+                        alt="prescription"
+                        className="w-20 h-20 object-cover rounded cursor-pointer transition-transform duration-200 hover:scale-105"
+                        onClick={() => setSelectedImage(req.prescriptionImage)}
+                      />
+                    </td>
+                    <td className="p-3">{req.healthStatus}</td>
+                    <td className="p-3">{req.note}</td>
+                    <td className="p-3">
+                      <span
+                        className={`px-2 py-1 rounded text-white ${
+                          req.status === "Pending"
+                            ? "bg-yellow-500"
+                            : req.status === "Approved"
+                            ? "bg-green-500"
+                            : req.status === "Injected"
+                            ? "bg-blue-500"
+                            : "bg-red-500"
+                        }`}
                       >
-                        View History
-                      </Button>
-                    ) : req.status === "Rejected" && req.declineReason ? (
-                      <Button
-                        variant="destructive"
-                        onClick={() => handleViewDeclineReason(req.declineReason!)}
-                      >
-                        View Reason
-                      </Button>
-                    ) : (
-                      <span className="text-gray-400 italic">—</span>
-                    )}
-                  </td>
-                </tr>
-              ))
+                        {req.status}
+                      </span>
+                    </td>
+                    <td className="p-3">
+                      {new Date(req.createdAt).toLocaleString()}
+                    </td>
+                    <td className="p-3 w-[220px] align-top">
+                      {canViewHistory ? (
+                        <Button
+                          variant="outline"
+                          onClick={() =>
+                            handleViewHistory(req.requestId, req.studentId)
+                          }
+                        >
+                          View History
+                        </Button>
+                      ) : req.status === "Rejected" && req.rejectReason ? (
+                        <div className="text-black text-sm whitespace-pre-line break-words">
+                          <span className="font-semibold">Reason:</span>{" "}
+                          {req.rejectReason}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 italic">—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Dialog zoom ảnh */}
+      {/* Dialog xem ảnh đơn thuốc */}
       <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
         <DialogContent className="!max-w-[70vw] !max-h-[70vh] p-0 overflow-hidden">
           <div className="relative w-full h-full flex justify-center items-center bg-black">
@@ -205,21 +204,11 @@ export default function SendMedicineView() {
 
       {/* Dialog xem lịch sử uống thuốc */}
       <ViewMedicationHistory
-        open={openLogDialog}
-        onClose={() => setOpenLogDialog(false)}
+        open={openHistoryDialog}
+        onClose={() => setOpenHistoryDialog(false)}
         requestId={selectedRequestId}
         studentId={selectedStudentId}
       />
-
-      {/* Dialog lý do từ chối */}
-      <Dialog open={openDeclineDialog} onOpenChange={setOpenDeclineDialog}>
-        <DialogContent className="max-w-md">
-          <DialogTitle>Reason for Rejection</DialogTitle>
-          <p className="text-sm text-gray-700 whitespace-pre-line mt-2">
-            {declineReason}
-          </p>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

@@ -130,17 +130,23 @@ export const getMedicationRequestsForNurse = () => {
     });
 };
 
-export const updateMedicationStatus = (id: number, status: string, reviewedBy: number) => {
-    const token = localStorage.getItem("token");
-    return axios.put(`https://localhost:7195/api/medication-requests/${id}/updateStatus`, {
-        status,
-        reviewedBy,
-    }, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
+export const updateMedicationStatus = (
+  id: number,
+  status: string,
+  reviewedBy: number,
+  rejectReason?: string
+) => {
+  const token = localStorage.getItem("token");
+
+  return axios.put(`https://localhost:7195/api/medication-requests/${id}/updateStatus`, {
+    status,
+    reviewedBy,
+    rejectReason: rejectReason?.trim() || null,
+  }, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 };
+
 export const getAllStudentHealthStatus = () => {
     const token = localStorage.getItem("token");
     return axios.get("https://localhost:7195/api/students/all-health-status", {

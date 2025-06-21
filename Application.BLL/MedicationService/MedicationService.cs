@@ -49,9 +49,13 @@ public class MedicationService : IMedicationService
             MedicineName = r.MedicineName,
             PrescriptionImage = r.PrescriptionImage,
             Status = r.Status,
-            CreatedAt = r.CreatedAt
+            CreatedAt = r.CreatedAt,
+            HealthStatus = r.HealthStatus ?? "",
+            Note = r.Note ?? "",
+            RejectReason = r.RejectReason ?? ""
         }).ToList();
     }
+
 
     public List<MedicationRequestResponseDTO> GetPendingRequests()
     {
@@ -64,19 +68,25 @@ public class MedicationService : IMedicationService
             StudentName = r.Student?.FullName ?? "(Unknown)",
             MedicineName = r.MedicineName,
             PrescriptionImage = r.PrescriptionImage,
+            HealthStatus = r.HealthStatus,
+            Note = r.Note,
             Status = r.Status,
-            CreatedAt = r.CreatedAt
+            CreatedAt = r.CreatedAt,
+
         }).ToList();
     }
 
-    public bool UpdateRequestStatus(int requestId, string newStatus, int reviewedBy)
+    public bool UpdateRequestStatus(int requestId, string newStatus, int reviewedBy, string rejectReason)
     {
         var request = _medicationRepository.GetById(requestId);
         if (request == null || request.Status != "Pending") return false;
 
         request.Status = newStatus;
         request.ReviewedBy = reviewedBy;
-
+        if (newStatus == "Rejected")
+        {
+            request.RejectReason = rejectReason ?? "";
+        }
         _medicationRepository.Update(request);
         _medicationRepository.Save();
 
