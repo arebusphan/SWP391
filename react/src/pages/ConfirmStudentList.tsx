@@ -8,6 +8,12 @@ interface Class {
     className: string;
 }
 
+interface Notification {
+    notificationId: number;
+    eventName: string;
+    eventDate: string;
+}
+
 interface ConfirmStudent {
     studentId: number;
     studentName: string;
@@ -18,8 +24,9 @@ interface ConfirmStudent {
 
 const ConfirmStudentList = () => {
     const [classes, setClasses] = useState<Class[]>([]);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
     const [selectedClassId, setSelectedClassId] = useState<number>(0);
-    const [notificationId] = useState<number>(1);
+    const [selectedNotificationId, setSelectedNotificationId] = useState<number>(0);
     const [statusFilter, setStatusFilter] = useState<string>("");
     const [confirmStudents, setConfirmStudents] = useState<ConfirmStudent[]>([]);
     const [selectedStudent, setSelectedStudent] = useState<ConfirmStudent | null>(null);
@@ -32,14 +39,19 @@ const ConfirmStudentList = () => {
             setClasses(res.data);
             setSelectedClassId(res.data[0]?.classId || 0);
         });
+
+        axios.get("https://localhost:7195/api/notifications/list-basic").then((res) => {
+            setNotifications(res.data);
+            setSelectedNotificationId(res.data[0]?.notificationId || 0);
+        });
     }, []);
 
     useEffect(() => {
-        if (selectedClassId && notificationId) {
+        if (selectedClassId && selectedNotificationId) {
             axios
                 .get("https://localhost:7195/api/notifications/students/confirmation", {
                     params: {
-                        notificationId,
+                        notificationId: selectedNotificationId,
                         classId: selectedClassId,
                         status: statusFilter || undefined,
                     },
@@ -50,7 +62,7 @@ const ConfirmStudentList = () => {
                     setCurrentPage(1);
                 });
         }
-    }, [selectedClassId, notificationId, statusFilter]);
+    }, [selectedClassId, selectedNotificationId, statusFilter]);
 
     const filteredStudents = statusFilter
         ? confirmStudents.filter((s) => s.confirmStatus === statusFilter)
@@ -100,6 +112,18 @@ const ConfirmStudentList = () => {
             <h2 className="text-2xl font-bold mb-4 text-center">Vaccination Confirmation</h2>
 
             <div className="flex flex-wrap gap-4 mb-6 items-center justify-center">
+                <select
+                    className="border px-4 py-2 rounded"
+                    value={selectedNotificationId}
+                    onChange={(e) => setSelectedNotificationId(+e.target.value)}
+                >
+                    {notifications.map((n) => (
+                        <option key={n.notificationId} value={n.notificationId}>
+                            {n.eventName} ({new Date(n.eventDate).toLocaleDateString()})
+                        </option>
+                    ))}
+                </select>
+
                 <select
                     className="border px-4 py-2 rounded"
                     value={selectedClassId}
@@ -204,7 +228,6 @@ const ConfirmStudentList = () => {
 
             {selectedStudent && (
                 <div className="fixed inset-0 backdrop-blur-[2px] bg-white/10 flex items-center justify-center z-50">
-
                     <div className="bg-white p-6 rounded-lg w-[400px] shadow-lg relative">
                         <button
                             onClick={() => setSelectedStudent(null)}
@@ -221,7 +244,6 @@ const ConfirmStudentList = () => {
                     </div>
                 </div>
             )}
-
         </div>
     );
 };

@@ -11,4 +11,7 @@ public class HealthNotificationService : IHealthNotificationService
 
     public Task<List<NotificationHistoryDTO>> GetNotificationHistoriesAsync()
         => _repo.GetNotificationHistoriesAsync(); // ✅
+    public Task<List<HealthNotificationBasicDTO>> GetAllBasicNotificationsAsync()
+    => _repo.GetAllBasicAsync();
+
 }

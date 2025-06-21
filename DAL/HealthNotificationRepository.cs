@@ -43,5 +43,18 @@ public class HealthNotificationRepository : IHealthNotificationRepository
 
         return data;
     }
+    public async Task<List<HealthNotificationBasicDTO>> GetAllBasicAsync()
+    {
+        return await _context.HealthNotifications
+            .Select(n => new HealthNotificationBasicDTO
+            {
+                NotificationId = n.NotificationId,
+                EventName = n.EventName,
+                EventDate = n.EventDate
+            })
+            .OrderByDescending(n => n.EventDate)
+            .ToListAsync();
+    }
+
 
 }
