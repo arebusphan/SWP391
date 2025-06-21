@@ -18,7 +18,10 @@ interface MedicationRequest {
   studentName: string;
   medicineName: string;
   prescriptionImage: string;
+  healthStatus: string;
+  note: string;
   status: string;
+  declineReason?: string;
   createdAt: string;
 }
 
@@ -29,6 +32,10 @@ export default function SendMedicineView() {
   const [openLogDialog, setOpenLogDialog] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<number>(0);
+  const [hasPreviewImage, setHasPreviewImage] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [openDeclineDialog, setOpenDeclineDialog] = useState(false);
+  const [declineReason, setDeclineReason] = useState<string>("");
 
   const refreshRequests = () => {
     getMedicationRequestHistory().then((res) => {
@@ -44,10 +51,15 @@ export default function SendMedicineView() {
     refreshRequests();
   }, []);
 
-  const handleViewLog = (requestId: number, studentId: number) => {
+  const handleViewHistory = (requestId: number, studentId: number) => {
     setSelectedRequestId(requestId);
     setSelectedStudentId(studentId);
     setOpenLogDialog(true);
+  };
+
+  const handleViewDeclineReason = (reason: string) => {
+    setDeclineReason(reason);
+    setOpenDeclineDialog(true);
   };
 
   return (
@@ -63,15 +75,33 @@ export default function SendMedicineView() {
       </div>
 
       <Dialog open={openSendMedicineDialog} onOpenChange={setOpenSendMedicineDialog}>
-        <DialogContent>
-          <DialogTitle>Send Medicine</DialogTitle>
-          <DialogDescription>Send medicine to user</DialogDescription>
-          <SendMedicineForm
-            onSuccess={() => {
-              setOpenSendMedicineDialog(false);
-              refreshRequests();
-            }}
-          />
+        <DialogContent className="!p-6 !max-w-fit">
+          <div className="flex flex-row items-start gap-6">
+            <div className="flex flex-col gap-2 w-[400px]">
+              <DialogTitle>Send Medicine</DialogTitle>
+              <DialogDescription>Send medicine to user</DialogDescription>
+              <SendMedicineForm
+                onSuccess={() => {
+                  setOpenSendMedicineDialog(false);
+                  refreshRequests();
+                }}
+                onPreviewChange={(preview, url) => {
+                  setHasPreviewImage(preview);
+                  setPreviewUrl(url || "");
+                }}
+              />
+            </div>
+
+            {hasPreviewImage && previewUrl && (
+              <div className="w-[300px] min-h-[420px] flex items-center justify-center border border-gray-300 rounded overflow-hidden">
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className="object-contain max-h-[400px] w-full"
+                />
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -83,15 +113,17 @@ export default function SendMedicineView() {
             <tr>
               <th className="p-3">Medicine</th>
               <th className="p-3">Image</th>
+              <th className="p-3">Initial Health</th>
+              <th className="p-3">Note</th>
               <th className="p-3">Status</th>
               <th className="p-3">Created At</th>
-              <th className="p-3">Log</th>
+              <th className="p-3">Details</th>
             </tr>
           </thead>
           <tbody>
             {requests.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center p-5">
+                <td colSpan={7} className="text-center p-5">
                   No requests found.
                 </td>
               </tr>
@@ -107,6 +139,8 @@ export default function SendMedicineView() {
                       onClick={() => setSelectedImage(req.prescriptionImage)}
                     />
                   </td>
+                  <td className="p-3">{req.healthStatus}</td>
+                  <td className="p-3">{req.note}</td>
                   <td className="p-3">
                     <span
                       className={`px-2 py-1 rounded text-white ${
@@ -124,12 +158,23 @@ export default function SendMedicineView() {
                     {new Date(req.createdAt).toLocaleString()}
                   </td>
                   <td className="p-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => handleViewLog(req.requestId, req.studentId)}
-                    >
-                      View History
-                    </Button>
+                    {req.status === "Approved" ? (
+                      <Button
+                        variant="outline"
+                        onClick={() => handleViewHistory(req.requestId, req.studentId)}
+                      >
+                        View History
+                      </Button>
+                    ) : req.status === "Rejected" && req.declineReason ? (
+                      <Button
+                        variant="destructive"
+                        onClick={() => handleViewDeclineReason(req.declineReason!)}
+                      >
+                        View Reason
+                      </Button>
+                    ) : (
+                      <span className="text-gray-400 italic">—</span>
+                    )}
                   </td>
                 </tr>
               ))
@@ -138,6 +183,7 @@ export default function SendMedicineView() {
         </table>
       </div>
 
+      {/* Dialog zoom ảnh */}
       <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
         <DialogContent className="!max-w-[70vw] !max-h-[70vh] p-0 overflow-hidden">
           <div className="relative w-full h-full flex justify-center items-center bg-black">
@@ -157,12 +203,23 @@ export default function SendMedicineView() {
         </DialogContent>
       </Dialog>
 
+      {/* Dialog xem lịch sử uống thuốc */}
       <ViewMedicationHistory
         open={openLogDialog}
         onClose={() => setOpenLogDialog(false)}
         requestId={selectedRequestId}
         studentId={selectedStudentId}
       />
+
+      {/* Dialog lý do từ chối */}
+      <Dialog open={openDeclineDialog} onOpenChange={setOpenDeclineDialog}>
+        <DialogContent className="max-w-md">
+          <DialogTitle>Reason for Rejection</DialogTitle>
+          <p className="text-sm text-gray-700 whitespace-pre-line mt-2">
+            {declineReason}
+          </p>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

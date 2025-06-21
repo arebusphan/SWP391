@@ -20,12 +20,16 @@ public class MedicationService : IMedicationService
             StudentId = dto.StudentId,
             MedicineName = dto.MedicineName,
             PrescriptionImage = dto.PrescriptionImage,
+            HealthStatus = dto.HealthStatus, 
+            Note = dto.Note,                
             CreatedBy = parentUserId,
-            Status = "Pending"
+            Status = "Pending",
+            CreatedAt = DateTime.Now
         };
 
         _medicationRepository.Add(request);
     }
+
 
     public List<MedicationRequestResponseDTO> GetRequestsByParent(int parentId, string? status = null)
     {

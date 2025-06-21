@@ -18,6 +18,8 @@ type MedicationRequest = {
 const PendingMedicationRequests = () => {
     const [requests, setRequests] = useState<MedicationRequest[]>([]);
     const [loading, setLoading] = useState(true);
+    const [rejectingId, setRejectingId] = useState<number | null>(null);
+    const [rejectReason, setRejectReason] = useState("");
 
     useEffect(() => {
         async function fetchRequests() {
@@ -35,29 +37,58 @@ const PendingMedicationRequests = () => {
         fetchRequests();
     }, []);
 
-    const handleUpdateStatus = async (id: number, status: "Approved" | "Rejected") => {
+    const handleApprove = async (id: number) => {
         try {
             const token = localStorage.getItem("token");
             if (!token) return alert("Not logged in.");
 
-            // ✅ Decode with proper claim key
             const decoded: any = jwtDecode(token);
             const reviewedBy = parseInt(
                 decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]
             );
 
-            if (isNaN(reviewedBy)) {
-                console.error("reviewedBy is NaN. Check decoded token:", decoded);
-                return alert("Invalid reviewer ID. Cannot update status.");
-            }
+            if (isNaN(reviewedBy)) return alert("Invalid reviewer ID.");
 
-            await updateMedicationStatus(id, status, reviewedBy);
-            alert(`Request ${status === "Approved" ? "approved" : "rejected"} successfully.`);
-
+            await updateMedicationStatus(id, "Approved", reviewedBy);
+            alert("Request approved successfully.");
             setRequests((prev) => prev.filter((r) => r.requestId !== id));
         } catch (error) {
-            console.error("Failed to update status:", error);
-            alert("Failed to update status.");
+            console.error("Failed to approve:", error);
+            alert("Failed to approve request.");
+        }
+    };
+
+    const handleReject = (id: number) => {
+        setRejectingId(id);
+        setRejectReason("");
+    };
+
+    const confirmReject = async () => {
+        if (!rejectReason.trim()) {
+            alert("Please provide a reason for rejection.");
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) return alert("Not logged in.");
+
+            const decoded: any = jwtDecode(token);
+            const reviewedBy = parseInt(
+                decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]
+            );
+
+            if (isNaN(reviewedBy)) return alert("Invalid reviewer ID.");
+
+            // TODO: truyền thêm rejectReason vào API khi backend hỗ trợ
+            await updateMedicationStatus(rejectingId!, "Rejected", reviewedBy);
+
+            alert("Request rejected successfully.");
+            setRequests((prev) => prev.filter((r) => r.requestId !== rejectingId));
+            setRejectingId(null);
+        } catch (error) {
+            console.error("Failed to reject:", error);
+            alert("Failed to reject request.");
         }
     };
 
@@ -102,13 +133,13 @@ const PendingMedicationRequests = () => {
                                     </td>
                                     <td className="p-3 border-b space-x-2">
                                         <button
-                                            onClick={() => handleUpdateStatus(r.requestId, "Approved")}
+                                            onClick={() => handleApprove(r.requestId)}
                                             className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded"
                                         >
                                             Approve
                                         </button>
                                         <button
-                                            onClick={() => handleUpdateStatus(r.requestId, "Rejected")}
+                                            onClick={() => handleReject(r.requestId)}
                                             className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
                                         >
                                             Reject
@@ -118,6 +149,36 @@ const PendingMedicationRequests = () => {
                             ))}
                         </tbody>
                     </table>
+                </div>
+            )}
+
+            {/* Rejection Reason Dialog */}
+            {rejectingId !== null && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded shadow max-w-sm w-full space-y-4">
+                        <h3 className="text-lg font-semibold text-red-600">Reason for Rejection</h3>
+                        <textarea
+                            className="w-full border rounded p-2 text-sm"
+                            rows={4}
+                            value={rejectReason}
+                            onChange={(e) => setRejectReason(e.target.value)}
+                            placeholder="Enter reason..."
+                        />
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                className="px-4 py-1 bg-gray-300 rounded"
+                                onClick={() => setRejectingId(null)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="px-4 py-1 bg-red-600 text-white rounded"
+                                onClick={confirmReject}
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

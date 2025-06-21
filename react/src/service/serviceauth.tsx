@@ -66,14 +66,17 @@ export const getuser = (params?: {
     return axios.get("https://localhost:7195/api/User/get", { params });
 };
 
-export const sendingmedicine = (studentId: number, medicineName: string, prescriptionImageUrl: string) => {
+
+interface MedicationRequestPayload {
+  studentId: number;
+  medicineName: string;
+  prescriptionImage: string;
+  healthStatus: string;
+  note: string;
+}
+
+export const sendingmedicine = (payload: MedicationRequestPayload) => {
   const token = localStorage.getItem("token");
-  const payload = {
-    studentId,
-    medicineName,
-    prescriptionImage: prescriptionImageUrl,
-  };
-  console.log("Sending medicine payload:", payload);
 
   return axios.post(
     "https://localhost:7195/api/medication-requests/parent-request",
@@ -86,6 +89,7 @@ export const sendingmedicine = (studentId: number, medicineName: string, prescri
     }
   );
 };
+
 
 
 export const update = (userId: number, fullName: string, email: string, phoneNumber: string) => {

@@ -13,8 +13,15 @@ namespace DAL.Models
         [ForeignKey("StudentId")]
         public Students Student { get; set; }
 
+        [Required]
         public string MedicineName { get; set; }
+
         public string PrescriptionImage { get; set; }
+
+        public string HealthStatus { get; set; }  // ✅ Tình trạng sức khỏe
+
+        public string Note { get; set; }          // ✅ Ghi chú thêm
+
         public string Status { get; set; } = "Pending";
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
