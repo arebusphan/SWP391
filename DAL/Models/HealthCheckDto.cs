@@ -3,6 +3,7 @@
     public class HealthCheckDto
     {
         public int StudentId { get; set; }
+        public string StudentName { get; set; } = string.Empty; // ➕ thêm dòng này
         public DateTime CheckDate { get; set; }
         public double? WeightKg { get; set; }
         public double? HeightCm { get; set; }

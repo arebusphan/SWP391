@@ -45,6 +45,7 @@ namespace BLL.HealthCheckService
             return records.Select(h => new HealthCheckDto
             {
                 StudentId = h.StudentId,
+                StudentName = h.Student != null ? h.Student.FullName : "", // ➕ lấy tên từ liên kết
                 CheckDate = h.CheckDate,
                 WeightKg = h.WeightKg,
                 HeightCm = h.HeightCm,
@@ -59,6 +60,7 @@ namespace BLL.HealthCheckService
                 RecordedBy = h.RecordedBy
             }).ToList();
         }
+
 
     }
 }
