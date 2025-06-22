@@ -79,7 +79,7 @@ public class MedicationService : IMedicationService
     public bool UpdateRequestStatus(int requestId, string newStatus, int reviewedBy, string rejectReason)
     {
         var request = _medicationRepository.GetById(requestId);
-        if (request == null || request.Status != "Pending") return false;
+        if (request == null|| request.Status == "Rejected") return false;
 
         request.Status = newStatus;
         request.ReviewedBy = reviewedBy;
@@ -96,5 +96,22 @@ public class MedicationService : IMedicationService
     public List<MedicationRequests> GetAll()
     {
         return _medicationRepository.GetAll().ToList();
+    }
+    public List<MedicationRequestResponseDTO> GetApprovedRequests()
+    {
+        var data = _medicationRepository.GetApprovedRequests();
+
+        return data.Select(r => new MedicationRequestResponseDTO
+        {
+            RequestId = r.RequestId,
+            StudentId = r.StudentId,
+            StudentName = r.Student?.FullName ?? "(Unknown)",
+            MedicineName = r.MedicineName,
+            PrescriptionImage = r.PrescriptionImage,
+            HealthStatus = r.HealthStatus,
+            Note = r.Note,
+            Status = r.Status,
+            CreatedAt = r.CreatedAt
+        }).ToList();
     }
 }

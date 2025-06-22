@@ -11,7 +11,7 @@ namespace DAL.Repositories
         MedicationRequests GetById(int requestId);
         void Update(MedicationRequests request);
         void Save();
-        List<MedicationRequests> GetAll(); 
-
+        List<MedicationRequests> GetAll();
+        List<MedicationRequests> GetApprovedRequests();
     }
 }

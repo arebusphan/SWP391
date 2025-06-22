@@ -123,7 +123,7 @@ export default function SendMedicineView() {
               </tr>
             ) : (
               requests.map((req) => {
-                const canViewHistory = ["Approved", "Injected"].includes(req.status);
+                const canViewHistory = ["Approved", "Injected", "Administered"].includes(req.status);
                 return (
                   <tr key={req.requestId} className="border-t hover:bg-gray-50 align-top">
                     <td className="p-3">{req.medicineName}</td>
@@ -140,13 +140,15 @@ export default function SendMedicineView() {
                     <td className="p-3">
                       <span
                         className={`px-2 py-1 rounded text-white ${
-                          req.status === "Pending"
-                            ? "bg-yellow-500"
-                            : req.status === "Approved"
-                            ? "bg-green-500"
-                            : req.status === "Injected"
-                            ? "bg-blue-500"
-                            : "bg-red-500"
+                         req.status === "Pending"
+      ? "bg-yellow-500"
+      : req.status === "Approved"
+      ? "bg-green-500"
+      : req.status === "Injected"
+      ? "bg-blue-500"
+      : req.status === "Administered"
+      ? "bg-cyan-600"
+      : "bg-red-500"
                         }`}
                       >
                         {req.status}

@@ -138,14 +138,26 @@ export const updateMedicationStatus = (
 ) => {
   const token = localStorage.getItem("token");
 
-  return axios.put(`https://localhost:7195/api/medication-requests/${id}/updateStatus`, {
+  const payload: any = {
     status,
     reviewedBy,
-    rejectReason: rejectReason?.trim() || null,
-  }, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  };
+
+  if (status === "Rejected") {
+    payload.rejectReason = rejectReason?.trim() || "";
+  }
+
+  return axios.put(
+    `https://localhost:7195/api/medication-requests/${id}/updateStatus`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 };
+
 
 export const getAllStudentHealthStatus = () => {
     const token = localStorage.getItem("token");
@@ -418,4 +430,32 @@ export const getPendingVaccinationConfirmations = async () => {
   });
 
   return res.data;
+};
+export const getApprovedMedicationRequests = () => {
+  const token = localStorage.getItem("token");
+
+  return axios.get("https://localhost:7195/api/medication-requests/approved", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+export const createMedicationIntakeLog = async (payload: {
+  requestId: number;
+  studentId: number;
+  givenBy: string;
+  notes: string;
+}) => {
+  const token = localStorage.getItem("token");
+
+  return await axios.post(
+    "https://localhost:7195/api/medication-requests/logs",
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 };

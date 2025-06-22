@@ -36,6 +36,15 @@ namespace DAL.Repositories
                 .ToList();
         }
 
+        public List<MedicationRequests> GetApprovedRequests()
+        {
+            return _context.MedicationRequests
+                .Include(r => r.Student)
+                .Include(r => r.CreatedByUser)
+                .Where(r => r.Status == "Approved")
+                .ToList();
+        }
+
         public MedicationRequests GetById(int requestId)
         {
             return _context.MedicationRequests

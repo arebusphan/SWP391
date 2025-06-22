@@ -1,277 +1,325 @@
-﻿import { useEffect, useState } from "react";
+﻿// src/pages/PendingMedicationRequests.tsx
+import { useEffect, useState } from "react";
 import {
-    getMedicationRequestsForNurse,
-    updateMedicationStatus,
+  getMedicationRequestsForNurse,
+  getApprovedMedicationRequests,
+  updateMedicationStatus,
+  createMedicationIntakeLog,
 } from "../service/serviceauth";
 import { jwtDecode } from "jwt-decode";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import ViewMedicationHistory from "@/components/ParentPage/ViewMedicationHistory";
+
+// Types
 
 type MedicationRequest = {
-    requestId: number;
-    studentId: number;
-    studentName: string;
-    medicineName: string;
-    prescriptionImage: string;
-    healthStatus: string;
-    note: string;
-    createdAt: string;
-    status: "Pending" | "Approved" | "Rejected";
-    rejectReason: string;
+  requestId: number;
+  studentId: number;
+  studentName: string;
+  medicineName: string;
+  prescriptionImage: string;
+  healthStatus: string;
+  note: string;
+  createdAt: string;
+  status: "Pending" | "Approved" | "Rejected";
+  rejectReason: string;
 };
 
 const REJECTION_REASONS = [
-    "Thuốc gửi không đúng với đơn thuốc",
-    "Đơn thuốc không hợp lệ",
-    "Đơn thuốc đã quá hạn",
-    "Đơn thuốc không ghi liều lượng cụ thể",
+  "Medication does not match prescription",
+  "Invalid prescription",
+  "Prescription has expired",
+  "Dosage not specified",
 ];
 
-const PendingMedicationRequests = () => {
-    const [requests, setRequests] = useState<MedicationRequest[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [rejectingId, setRejectingId] = useState<number | null>(null);
-    const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
-    const [customReason, setCustomReason] = useState("");
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+export default function PendingMedicationRequests() {
+  const [pendingRequests, setPendingRequests] = useState<MedicationRequest[]>([]);
+  const [approvedRequests, setApprovedRequests] = useState<MedicationRequest[]>([]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [rejectingId, setRejectingId] = useState<number | null>(null);
+  const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
+  const [customReason, setCustomReason] = useState("");
+  const [logDialogRequest, setLogDialogRequest] = useState<MedicationRequest | null>(null);
+  const [logNotes, setLogNotes] = useState("");
+  const [givenByName, setGivenByName] = useState("");
+  const [historyDialogRequest, setHistoryDialogRequest] = useState<MedicationRequest | null>(null);
 
-    useEffect(() => {
-        async function fetchRequests() {
-            try {
-                const res = await getMedicationRequestsForNurse();
-                setRequests(res.data);
-            } catch (error) {
-                console.error("Failed to fetch medication requests:", error);
-                alert("Failed to load medication requests.");
-            } finally {
-                setLoading(false);
-            }
-        }
+  useEffect(() => {
+    async function fetchRequests() {
+      try {
+        const pendingRes = await getMedicationRequestsForNurse();
+        setPendingRequests(pendingRes.data.filter((r: MedicationRequest) => r.status === "Pending"));
 
-        fetchRequests();
-    }, []);
+        const approvedRes = await getApprovedMedicationRequests();
+        setApprovedRequests(approvedRes.data);
+      } catch (error) {
+        alert("Failed to load medication requests.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchRequests();
+  }, []);
 
-    const handleApprove = async (id: number) => {
-        try {
-            const token = localStorage.getItem("token");
-            if (!token) return alert("Not logged in.");
+  const handleApprove = async (request: MedicationRequest) => {
+    try {
+      const token = localStorage.getItem("token");
+      const decoded: any = jwtDecode(token!);
+      const reviewedBy = parseInt(decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]);
+      const res = await updateMedicationStatus(request.requestId, "Approved", reviewedBy);
+      if (res.status === 200) {
+        setPendingRequests(prev => prev.filter(r => r.requestId !== request.requestId));
+        setApprovedRequests(prev => [...prev, { ...request, status: "Approved" }]);
+      } else {
+        throw new Error("Unexpected response");
+      }
+    } catch (err: any) {
+      alert("Failed to approve request. " + (err?.response?.data || err.message));
+    }
+  };
 
-            const decoded: any = jwtDecode(token);
-            const reviewedBy = parseInt(
-                decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]
-            );
+  const confirmReject = async () => {
+    const finalReason = [...selectedReasons.filter(r => r !== "Other"), customReason.trim()]
+      .filter(Boolean)
+      .join(", ");
+    if (!finalReason) return alert("Please enter at least one reason.");
 
-            if (isNaN(reviewedBy)) return alert("Invalid reviewer ID.");
+    try {
+      const token = localStorage.getItem("token");
+      const decoded: any = jwtDecode(token!);
+      const reviewedBy = parseInt(decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]);
+      const res = await updateMedicationStatus(rejectingId!, "Rejected", reviewedBy, finalReason);
+      if (res.status === 200) {
+        setPendingRequests(prev => prev.filter(r => r.requestId !== rejectingId));
+        setRejectingId(null);
+      } else {
+        throw new Error("Unexpected response");
+      }
+    } catch (err: any) {
+      alert("Failed to reject request. " + (err?.response?.data || err.message));
+    }
+  };
 
-            await updateMedicationStatus(id, "Approved", reviewedBy);
-            alert("Request approved successfully.");
-            setRequests((prev) => prev.filter((r) => r.requestId !== id));
-        } catch (error) {
-            console.error("Failed to approve:", error);
-            alert("Failed to approve request.");
-        }
-    };
+  const confirmLog = async () => {
+    if (!logDialogRequest || !logNotes.trim() || !givenByName.trim()) {
+      alert("Please fill in all fields.");
+      return;
+    }
 
-    const handleReject = (id: number) => {
-        setRejectingId(id);
-        setSelectedReasons([]);
-        setCustomReason("");
-    };
+    try {
+      await createMedicationIntakeLog({
+        requestId: logDialogRequest.requestId,
+        studentId: logDialogRequest.studentId,
+        givenBy: givenByName,
+        notes: logNotes,
+      });
+      alert("Medication intake recorded.");
+      setLogDialogRequest(null);
+    } catch {
+      alert("Failed to log intake.");
+    }
+  };
 
-    const confirmReject = async () => {
-        const finalReason = [
-  ...selectedReasons.filter((r) => r !== "Other"),
-  customReason.trim(),
-]
-  .filter(Boolean)
-  .join(", ");
+  const markAsAdministered = async (requestId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      const decoded: any = jwtDecode(token!);
+      const reviewedBy = parseInt(decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]);
+      const res = await updateMedicationStatus(requestId, "Administered", reviewedBy);
+      if (res.status === 200) {
+        setApprovedRequests(prev => prev.filter(r => r.requestId !== requestId));
+      } else {
+        throw new Error("Unexpected response");
+      }
+    } catch (err: any) {
+      alert("Failed to update status. " + (err?.response?.data || err.message));
+    }
+  };
 
+  return (
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
+      <h2 className="text-2xl font-bold">Medication Request List</h2>
 
-        if (!finalReason) {
-            alert("Vui lòng chọn hoặc nhập ít nhất một lý do.");
-            return;
-        }
+      {/* Dialog: Prescription */}
+      <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+        <DialogContent className="!max-w-4xl">
+          <img src={selectedImage || ""} className="w-full rounded" />
+        </DialogContent>
+      </Dialog>
 
-        try {
-            const token = localStorage.getItem("token");
-            if (!token) return alert("Not logged in.");
+      {/* Dialog: Rejection */}
+      <Dialog open={rejectingId !== null} onOpenChange={() => setRejectingId(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Rejection Reasons</DialogTitle>
+          </DialogHeader>
+          {REJECTION_REASONS.map(reason => (
+            <label key={reason} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={selectedReasons.includes(reason)}
+                onChange={(e) =>
+                  setSelectedReasons(prev =>
+                    e.target.checked ? [...prev, reason] : prev.filter(r => r !== reason)
+                  )
+                }
+              />
+              {reason}
+            </label>
+          ))}
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={selectedReasons.includes("Other")}
+              onChange={(e) => {
+                setSelectedReasons(prev =>
+                  e.target.checked ? [...prev, "Other"] : prev.filter(r => r !== "Other")
+                );
+                if (!e.target.checked) setCustomReason("");
+              }}
+            />
+            Other
+          </label>
+          {selectedReasons.includes("Other") && (
+            <textarea
+              value={customReason}
+              onChange={(e) => setCustomReason(e.target.value)}
+              className="w-full p-2 border rounded resize-none"
+              rows={4}
+            />
+          )}
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setRejectingId(null)}>Cancel</Button>
+            <Button className="bg-red-600 text-white" onClick={confirmReject}>Confirm Rejection</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-            const decoded: any = jwtDecode(token);
-            const reviewedBy = parseInt(
-                decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]
-            );
+      {/* Dialog: Intake Log */}
+      <Dialog open={!!logDialogRequest} onOpenChange={() => setLogDialogRequest(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Record Medication Intake</DialogTitle>
+          </DialogHeader>
+          <p>Student: {logDialogRequest?.studentName}</p>
+          <p>Medicine: {logDialogRequest?.medicineName}</p>
+          <input
+            type="text"
+            value={givenByName}
+            onChange={(e) => setGivenByName(e.target.value)}
+            placeholder="Given by (name)"
+            className="w-full p-2 border rounded mb-2"
+          />
+          <textarea
+            value={logNotes}
+            onChange={(e) => setLogNotes(e.target.value)}
+            placeholder="Notes..."
+            className="w-full p-2 border rounded resize-none"
+            rows={4}
+          />
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setLogDialogRequest(null)}>Cancel</Button>
+            <Button className="bg-green-600 text-white" onClick={confirmLog}>Record</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-            if (isNaN(reviewedBy)) return alert("Invalid reviewer ID.");
+      {/* Dialog: History */}
+      <ViewMedicationHistory
+        open={!!historyDialogRequest}
+        onClose={() => setHistoryDialogRequest(null)}
+        requestId={historyDialogRequest?.requestId ?? null}
+        studentId={historyDialogRequest?.studentId ?? 0}
+      />
 
-            // TODO: chưa truyền rejectReason vào API
-           await updateMedicationStatus(rejectingId!, "Rejected", reviewedBy, finalReason);
+      {/* Pending Table */}
+      <div className="bg-white p-4 rounded shadow">
+        <h3 className="font-semibold text-blue-600 mb-2">Pending Requests</h3>
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          <table className="w-full border text-sm">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="p-2 border">Student</th>
+                <th className="p-2 border">Medicine</th>
+                <th className="p-2 border">Note</th>
+                <th className="p-2 border">Prescription</th>
+                <th className="p-2 border">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pendingRequests.map((r) => (
+                <tr key={r.requestId}>
+                  <td className="p-2 border">{r.studentName}</td>
+                  <td className="p-2 border">{r.medicineName}</td>
+                  <td className="p-2 border">{r.note || "—"}</td>
+                  <td className="p-2 border">
+                    {r.prescriptionImage ? (
+                      <img
+                        src={r.prescriptionImage}
+                        className="w-10 h-10 object-cover rounded cursor-pointer"
+                        onClick={() => setSelectedImage(r.prescriptionImage)}
+                      />
+                    ) : "—"}
+                  </td>
+                  <td className="p-2 border space-x-2">
+                    <Button onClick={() => handleApprove(r)} className="bg-green-600 text-white text-xs rounded-full">Approve</Button>
+                    <Button onClick={() => setRejectingId(r.requestId)} className="bg-red-600 text-white text-xs rounded-full">Reject</Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
-            alert("Request rejected successfully.");
-            setRequests((prev) => prev.filter((r) => r.requestId !== rejectingId));
-            setRejectingId(null);
-        } catch (error) {
-            console.error("Failed to reject:", error);
-            alert("Failed to reject request.");
-        }
-    };
-
-    return (
-        <div className="max-w-6xl mx-auto p-6 bg-white rounded shadow">
-            <h2 className="text-2xl font-bold mb-4 text-blue-700">Pending Medication Requests</h2>
-
-            {loading ? (
-                <p>Loading...</p>
-            ) : requests.length === 0 ? (
-                <p>No pending requests.</p>
-            ) : (
-                <div className="overflow-x-auto">
-                    <table className="w-full table-auto border border-gray-300 text-sm">
-                        <thead className="bg-gray-100">
-                            <tr>
-                                <th className="p-3 border-b">Student</th>
-                                <th className="p-3 border-b">Medicine</th>
-                                <th className="p-3 border-b">Health Status</th>
-                                <th className="p-3 border-b">Note</th>
-                                <th className="p-3 border-b">Image</th>
-                                <th className="p-3 border-b">Submitted</th>
-                                <th className="p-3 border-b">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {requests.map((r) => (
-                                <tr key={r.requestId} className="hover:bg-gray-50">
-                                    <td className="p-3 border-b">{r.studentName}</td>
-                                    <td className="p-3 border-b">{r.medicineName}</td>
-                                    <td className="p-3 border-b">{r.healthStatus || "—"}</td>
-                                    <td className="p-3 border-b">{r.note || "—"}</td>
-                                    <td className="p-3 border-b">
-                                        {r.prescriptionImage ? (
-                                            <img
-                                                src={r.prescriptionImage}
-                                                alt="Prescription"
-                                                className="h-12 w-12 object-cover rounded cursor-pointer"
-                                                onClick={() => setSelectedImage(r.prescriptionImage)}
-                                            />
-                                        ) : (
-                                            "—"
-                                        )}
-                                    </td>
-                                    <td className="p-3 border-b">
-                                        {new Date(r.createdAt).toLocaleDateString()}
-                                    </td>
-                                    <td className="p-3 border-b space-x-2">
-                                        <button
-                                            onClick={() => handleApprove(r.requestId)}
-                                            className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded"
-                                        >
-                                            Approve
-                                        </button>
-                                        <button
-                                            onClick={() => handleReject(r.requestId)}
-                                            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
-                                        >
-                                            Reject
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-
-            {/* Dialog xem ảnh */}
-            <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-                <DialogContent
-                    className="!max-w-4xl !p-0 !bg-transparent !border-none !shadow-none flex justify-center items-center"
-                >
+      {/* Approved Table */}
+      <div className="bg-white p-4 rounded shadow">
+        <h3 className="font-semibold text-green-600 mb-2">Approved Requests</h3>
+        <table className="w-full border text-sm">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="p-2 border">Student</th>
+              <th className="p-2 border">Medicine</th>
+              <th className="p-2 border">Note</th>
+              <th className="p-2 border">Prescription</th>
+              <th className="p-2 border">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {approvedRequests.map((r) => (
+              <tr key={r.requestId}>
+                <td className="p-2 border">{r.studentName}</td>
+                <td className="p-2 border">{r.medicineName}</td>
+                <td className="p-2 border">{r.note || "—"}</td>
+                <td className="p-2 border">
+                  {r.prescriptionImage ? (
                     <img
-                        src={selectedImage || ""}
-                        alt="Prescription Full"
-                        className="w-full h-auto max-h-[90vh] object-contain rounded"
+                      src={r.prescriptionImage}
+                      className="w-10 h-10 object-cover rounded cursor-pointer"
+                      onClick={() => setSelectedImage(r.prescriptionImage)}
                     />
-                </DialogContent>
-            </Dialog>
-
-            {/* Dialog lý do từ chối */}
-            <Dialog open={rejectingId !== null} onOpenChange={() => setRejectingId(null)}>
-                <DialogContent className="max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="text-red-600">Lý do từ chối</DialogTitle>
-                    </DialogHeader>
-
-                    <div className="space-y-2">
-                        {REJECTION_REASONS.map((reason, idx) => (
-                            <label key={idx} className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedReasons.includes(reason)}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedReasons((prev) => [...prev, reason]);
-                                        } else {
-                                            setSelectedReasons((prev) =>
-                                                prev.filter((r) => r !== reason)
-                                            );
-                                        }
-                                    }}
-                                />
-                                <span>{reason}</span>
-                            </label>
-                        ))}
-
-                        <label className="flex items-center space-x-2 mt-2">
-                            <input
-                                type="checkbox"
-                                checked={selectedReasons.includes("Other")}
-                                onChange={(e) => {
-                                    if (e.target.checked) {
-                                        setSelectedReasons((prev) => [...prev, "Other"]);
-                                    } else {
-                                        setSelectedReasons((prev) =>
-                                            prev.filter((r) => r !== "Other")
-                                        );
-                                        setCustomReason("");
-                                    }
-                                }}
-                            />
-                            <span>Khác</span>
-                        </label>
-
-                        {selectedReasons.includes("Other") && (
-                            <textarea
-                                value={customReason}
-                                onChange={(e) => setCustomReason(e.target.value)}
-                                placeholder="Nhập lý do khác..."
-                                className="w-full p-2 border rounded resize-none text-sm"
-                                style={{ height: "96px" }} // 6rem fixed height
-                            />
-                        )}
-                    </div>
-
-                    <DialogFooter className="mt-4">
-                        <button
-                            onClick={() => setRejectingId(null)}
-                            className="px-4 py-1 bg-gray-300 rounded"
-                        >
-                            Hủy
-                        </button>
-                        <button
-                            onClick={confirmReject}
-                            className="px-4 py-1 bg-red-600 text-white rounded"
-                        >
-                            Xác nhận
-                        </button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        </div>
-    );
-};
-
-export default PendingMedicationRequests;
+                  ) : "—"}
+                </td>
+                <td className="p-2 border space-x-2">
+                  <Button onClick={() => setHistoryDialogRequest(r)} className="bg-blue-600 text-white text-xs rounded-full">History</Button>
+                  <Button onClick={() => setLogDialogRequest(r)} className="bg-green-600 text-white text-xs rounded-full">Give</Button>
+                  <Button onClick={() => markAsAdministered(r.requestId)} className="bg-gray-700 text-white text-xs rounded-full">Done</Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

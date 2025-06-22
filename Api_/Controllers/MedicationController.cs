@@ -66,7 +66,7 @@ namespace API.Controllers
         {
             public string Status { get; set; }
             public int ReviewedBy { get; set; }
-            public string rejectReason { get; set; }
+            public string? rejectReason { get; set; }
         }
 
         [HttpPut("{id}/updateStatus")]
@@ -96,6 +96,12 @@ namespace API.Controllers
         {
             var logs = await _logService.GetLogsByStudentIdAsync(studentId);
             return Ok(logs);
+        }
+        [HttpGet("approved")]
+        public IActionResult GetApprovedRequests()
+        {
+            var result = _medicationService.GetApprovedRequests();
+            return Ok(result);
         }
     }
 }

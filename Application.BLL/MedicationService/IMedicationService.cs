@@ -16,5 +16,6 @@ namespace BLL.MedicationService
 
         // ✅ Nếu bạn cần admin lấy tất cả request
         List<MedicationRequests> GetAll();
+        List<MedicationRequestResponseDTO> GetApprovedRequests();
     }
 }
