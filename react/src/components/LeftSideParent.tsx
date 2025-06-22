@@ -16,6 +16,7 @@ const LeftSideParent = () => {
         { label: "Incident History", path: "/ParentPage/IncidentHistory", icon: <MdHistory size={20} /> },
 
         { label: "Health Profile", path: "/ParentPage/SubmitHealthProfile", icon: <MdLocalPharmacy size={20} /> },
+        { label: "Student Health Check", path: "/ParentPage/parent-health-check", icon: <span>🩺</span> }
 
     ];
 
@@ -70,8 +71,11 @@ const LeftSideParent = () => {
             <div className="flex-1 bg-gray-100 p-6 overflow-y-auto">
                 <Outlet />
             </div>
+            
         </div>
+
     );
+
 };
 
 export default LeftSideParent;
