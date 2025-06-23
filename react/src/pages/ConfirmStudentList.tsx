@@ -227,23 +227,33 @@ const ConfirmStudentList = () => {
             </div>
 
             {selectedStudent && (
-                <div className="fixed inset-0 backdrop-blur-[2px] bg-white/10 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg w-[400px] shadow-lg relative">
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    {/* CHỈ nền đen mờ, KHÔNG BLUR */}
+                    <div className="absolute inset-0 bg-black/20"></div>
+
+                    {/* Modal hộp trắng nổi bật */}
+                    <div className="relative bg-white rounded-xl shadow-xl p-6 w-[420px] max-w-full z-10">
                         <button
                             onClick={() => setSelectedStudent(null)}
-                            className="absolute top-2 right-3 text-xl text-gray-600"
+                            className="absolute top-2 right-3 text-xl text-gray-600 hover:text-red-500"
                         >
                             &times;
                         </button>
-                        <h3 className="text-lg font-semibold mb-4">Confirmation Details</h3>
-                        <p><strong>Student ID:</strong> {selectedStudent.studentId}</p>
-                        <p><strong>Full Name:</strong> {selectedStudent.studentName}</p>
-                        <p><strong>Status:</strong> {selectedStudent.confirmStatus}</p>
-                        <p><strong>Decline Reason:</strong> {selectedStudent.declineReason || "-"}</p>
-                        <p><strong>Parent Phone:</strong> {selectedStudent.parentPhone || "-"}</p>
+                        <h3 className="text-base font-semibold mb-4">📋 Confirmation Details</h3>
+                        <div className="space-y-2 text-sm">
+                            <div><strong>Student ID:</strong> {selectedStudent.studentId}</div>
+                            <div><strong>Full Name:</strong> {selectedStudent.studentName}</div>
+                            <div><strong>Status:</strong> {selectedStudent.confirmStatus}</div>
+                            <div><strong>Decline Reason:</strong> {selectedStudent.declineReason || "—"}</div>
+                            <div><strong>Parent Phone:</strong> {selectedStudent.parentPhone || "—"}</div>
+                        </div>
                     </div>
                 </div>
             )}
+
+
+
+
         </div>
     );
 };

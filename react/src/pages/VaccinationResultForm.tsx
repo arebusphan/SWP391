@@ -256,49 +256,68 @@ const VaccineResultForm = () => {
             </div>
 
             {selectedStudent && (
-                <div className="fixed inset-0 backdrop-blur-[2px] bg-white/20 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg w-[400px] shadow-lg relative">
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    {/* Nền đen mờ nhẹ */}
+                    <div className="absolute inset-0 bg-black/20"></div>
+
+                    {/* Modal nội dung */}
+                    <div className="relative bg-white rounded-xl shadow-xl p-6 w-[440px] max-w-full z-10">
                         <button
                             onClick={() => setSelectedStudent(null)}
-                            className="absolute top-2 right-3 text-xl text-gray-600"
+                            className="absolute top-2 right-3 text-xl text-gray-600 hover:text-red-500"
                         >
                             &times;
                         </button>
-                        <h3 className="text-lg font-semibold mb-4">Confirmation Details</h3>
-                        <p><strong>Name:</strong> {selectedStudent.studentName}</p>
-                        <p><strong>Class:</strong> {selectedStudent.className}</p>
-                        <p><strong>Phone:</strong> {selectedStudent.parentPhone}</p>
 
-                        <div className="mt-4">
-                            <label className="block font-medium">Vaccination Status:</label>
-                            <div className="mt-1 flex gap-4">
-                                <label className="inline-flex items-center">
-                                    <input type="radio" name="vaccinated" checked={vaccinated === true} onChange={() => setVaccinated(true)} />
-                                    <span className="ml-2">Vaccinated</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input type="radio" name="vaccinated" checked={vaccinated === false} onChange={() => setVaccinated(false)} />
-                                    <span className="ml-2">Not Vaccinated</span>
-                                </label>
+                        <h3 className="text-base font-semibold mb-4">📋 Confirmation Details</h3>
+                        <div className="space-y-3 text-sm">
+                            <div><strong>Name:</strong> {selectedStudent.studentName}</div>
+                            <div><strong>Class:</strong> {selectedStudent.className}</div>
+                            <div><strong>Phone:</strong> {selectedStudent.parentPhone}</div>
+
+                            <div>
+                                <label className="block font-medium mb-1">Vaccination Status:</label>
+                                <div className="flex gap-4">
+                                    <label className="inline-flex items-center">
+                                        <input type="radio" name="vaccinated" checked={vaccinated === true} onChange={() => setVaccinated(true)} />
+                                        <span className="ml-2">Vaccinated</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <input type="radio" name="vaccinated" checked={vaccinated === false} onChange={() => setVaccinated(false)} />
+                                        <span className="ml-2">Not Vaccinated</span>
+                                    </label>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="mt-4">
-                            <label className="block font-medium">Observation:</label>
-                            <textarea
-                                value={observationStatus}
-                                onChange={(e) => setObservationStatus(e.target.value)}
-                                className="w-full border mt-1 p-2 rounded"
-                            ></textarea>
-                        </div>
+                            <div>
+                                <label className="block font-medium mb-1">Observation:</label>
+                                <textarea
+                                    value={observationStatus}
+                                    onChange={(e) => setObservationStatus(e.target.value)}
+                                    className="w-full border mt-1 p-2 rounded"
+                                    rows={3}
+                                ></textarea>
+                            </div>
 
-                        <div className="mt-4 flex justify-end gap-2">
-                            <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
-                            <button onClick={() => setSelectedStudent(null)} className="bg-gray-300 px-4 py-2 rounded">Cancel</button>
+                            <div className="flex justify-end gap-2 pt-2">
+                                <button
+                                    onClick={handleSave}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    onClick={() => setSelectedStudent(null)}
+                                    className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
+
         </div>
     );
 };
