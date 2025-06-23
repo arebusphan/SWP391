@@ -65,6 +65,12 @@ const ParentHealthForm = () => {
     const handleSubmit = async () => {
         if (!formData.studentId) return alert("❗ Please select a student");
 
+        // Ngăn submit nếu đã gửi trước đó
+        if (!editingId && submitted.some(p => p.studentId === formData.studentId)) {
+            alert("❌ This student already has a submitted profile.");
+            return;
+        }
+
         const payload = {
             studentId: formData.studentId,
             allergies: formData.allergies,
@@ -106,7 +112,6 @@ const ParentHealthForm = () => {
         }
     };
 
-
     const handleEdit = (profile: HealthProfileDTO) => {
         setFormData(profile);
         setEditingId(profile.declarationId || null);
@@ -114,8 +119,16 @@ const ParentHealthForm = () => {
     };
 
     const startNewForm = () => {
+        const submittedStudentIds = submitted.map(p => p.studentId);
+        const notSubmitted = students.filter(s => !submittedStudentIds.includes(s.studentId));
+
+        if (notSubmitted.length === 0) {
+            alert("❌ All students have already submitted profiles.");
+            return;
+        }
+
         setFormData({
-            studentId: 0,
+            studentId: notSubmitted[0].studentId,
             allergies: "",
             chronicDiseases: "",
             vision: "",
@@ -139,7 +152,6 @@ const ParentHealthForm = () => {
                 ➕ Submit New Profile
             </button>
 
-            {/* Submitted List */}
             <h3 className="text-xl font-bold mt-6 mb-2 text-gray-800">Submitted Profiles</h3>
             <ul className="space-y-3">
                 {submitted.map((p) => (
@@ -151,7 +163,6 @@ const ParentHealthForm = () => {
                 ))}
             </ul>
 
-            {/* Conditional Form Display */}
             {showForm && (
                 <>
                     <h3 className="text-xl font-bold mt-8 text-gray-800">
@@ -165,13 +176,18 @@ const ParentHealthForm = () => {
                             value={formData.studentId}
                             onChange={handleChange}
                             className="w-full border px-3 py-2 rounded"
+                            disabled={!!editingId}
                         >
                             <option value="">-- Select Student --</option>
-                            {students.map((s) => (
-                                <option key={s.studentId} value={s.studentId}>
-                                    {s.fullName}
-                                </option>
-                            ))}
+                            {students
+                                .filter(s =>
+                                    editingId || !submitted.some(p => p.studentId === s.studentId)
+                                )
+                                .map((s) => (
+                                    <option key={s.studentId} value={s.studentId}>
+                                        {s.fullName}
+                                    </option>
+                                ))}
                         </select>
                     </div>
 
@@ -215,7 +231,6 @@ const ParentHealthForm = () => {
                             Cancel
                         </button>
                     </div>
-
                 </>
             )}
         </div>

@@ -26,6 +26,12 @@ namespace BLL.HealthProfile
             if (student == null)
                 throw new Exception("Student not found or not under this guardian.");
 
+            var existed = await _context.HealthProfiles
+                .AnyAsync(h => h.StudentId == dto.StudentId);
+
+            if (existed)
+                throw new Exception("Health profile already submitted for this student.");
+
             var profile = new DAL.Models.HealthProfile
             {
                 StudentId = dto.StudentId,
@@ -44,21 +50,26 @@ namespace BLL.HealthProfile
 
 
 
+
         public async Task<List<HealthProfileDTO>> GetPendingProfilesAsync()
         {
-            return await _context.HealthProfiles
-                .Include(h => h.Students)
-                .Select(h => new HealthProfileDTO
-                {
-                    StudentId = h.StudentId,
-                    Allergies = h.Allergies,
-                    ChronicDiseases = h.ChronicDiseases,
-                    Vision = h.Vision,
-                    Hearing = h.Hearing,
-                    OtherNotes = h.OtherNotes
-                })
+            var studentsWithProfile = await _context.HealthProfiles
+                .Select(h => h.StudentId)
+                .Distinct()
                 .ToListAsync();
+
+            var pendingStudents = await _context.Students
+                .Where(s => !studentsWithProfile.Contains(s.StudentId))
+                .Include(s => s.Guardian)
+                .ToListAsync();
+
+            return pendingStudents.Select(s => new HealthProfileDTO
+            {
+                StudentId = s.StudentId,
+                OtherNotes = $"Guardian: {s.Guardian?.FullName}, Phone: {s.Guardian?.PhoneNumber}"
+            }).ToList();
         }
+
 
         public async Task<HealthProfileDTO?> GetByStudentIdAsync(int studentId)
         {
@@ -119,5 +130,22 @@ namespace BLL.HealthProfile
 
             await _context.SaveChangesAsync(); // Cập nhật, KHÔNG được Add mới
         }
+        public async Task SendReminderToGuardianAsync(int studentId)
+        {
+            var student = await _context.Students
+                .Include(s => s.Guardian)
+                .FirstOrDefaultAsync(s => s.StudentId == studentId);
+
+            if (student?.Guardian == null)
+                throw new Exception("Guardian not found");
+
+            var guardian = student.Guardian;
+
+            // TODO: thay bằng lệnh gửi email/thông báo thật
+            Console.WriteLine($"🔔 Gửi thông báo tới phụ huynh: {guardian.FullName} - {guardian.PhoneNumber}");
+
+            // hoặc tạo record vào bảng Notifications nếu có
+        }
+
     }
 }
