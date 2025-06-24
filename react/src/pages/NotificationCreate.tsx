@@ -16,8 +16,10 @@ interface NotificationHistory {
 }
 
 const NotificationCreate = () => {
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
     const [classes, setClasses] = useState<Class[]>([]);
-    const [selectedClassId, setSelectedClassId] = useState<number>(0);
+    const [selectedClassIds, setSelectedClassIds] = useState<number[]>([]);
     const [eventType, setEventType] = useState<string>("Vaccination");
     const [eventName, setEventName] = useState<string>("");
     const [eventDate, setEventDate] = useState<string>("");
@@ -37,7 +39,8 @@ const NotificationCreate = () => {
         try {
             const res = await axios.get("https://localhost:7195/api/classes");
             setClasses(res.data);
-            if (res.data.length > 0) setSelectedClassId(res.data[0].classId);
+            if (res.data.length > 0) setSelectedClassIds([res.data[0].classId]);
+
         } catch (error) {
             console.error("Error loading classes:", error);
             alert("Failed to load class list");
@@ -47,9 +50,8 @@ const NotificationCreate = () => {
     const fetchHistory = async () => {
         try {
             const res = await axios.get<NotificationHistory[]>("https://localhost:7195/api/notifications");
-            const sorted = res.data.sort(
-                (a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
-            );
+            const sorted = res.data.sort((a, b) => b.id - a.id);
+
             setHistory(sorted);
             setCurrentPage(1);
         } catch (error) {
@@ -87,11 +89,29 @@ const NotificationCreate = () => {
                 eventType,
                 eventDate,
                 createdBy: "admin",
-                classIds: [selectedClassId],
+                classIds: selectedClassIds,
                 eventImage: imageUrl || null,
             };
 
             await axios.post("https://localhost:7195/api/notifications", payload);
+            setHistory((prev) => [
+                {
+                    id: Date.now(), // ID tạm
+                    eventType,
+                    eventName,
+                    eventDate,
+                    className: selectedClassIds
+                        .map((id) => {
+                            const found = classes.find((cls) => cls.classId === id);
+                            return found ? found.className : `Class ${id}`;
+                        })
+                        .join(", "),
+                    eventImage: imageUrl || undefined,
+                },
+                ...prev,
+            ]);
+            setCurrentPage(1);
+
             alert("Notification sent!");
             fetchHistory();
 
@@ -124,20 +144,45 @@ const NotificationCreate = () => {
                             <option value="healthcheck">Health Check</option>
                         </select>
                     </div>
-
-                    <div>
+                    <div className="relative dropdown-wrapper">
                         <label className="font-semibold">Select Class</label>
-                        <select value={selectedClassId} onChange={(e) => setSelectedClassId(Number(e.target.value))} className="w-full border px-4 py-2 rounded">
-                            <option key="default" value="">
-                                -- Select Class --
-                            </option>
-                            {classes.map((cls) => (
-                                <option key={cls.classId} value={cls.classId}>
-                                    {cls.className}
-                                </option>
-                            ))}
-                        </select>
+
+                        <button
+                            type="button"
+                            onClick={() => setDropdownOpen(!dropdownOpen)}
+                            className="w-full border px-4 py-2 rounded text-left bg-white"
+                        >
+                            {selectedClassIds.length === 0
+                                ? "Choose classes"
+                                : `${selectedClassIds.length} class${selectedClassIds.length > 1 ? "es" : ""} selected`}
+                        </button>
+
+                        {dropdownOpen && (
+                            <div className="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto bg-white border rounded shadow-md">
+                                {classes.map((cls) => (
+                                    <label key={cls.classId} className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            value={cls.classId}
+                                            checked={selectedClassIds.includes(cls.classId)}
+                                            onChange={(e) => {
+                                                const value = Number(e.target.value);
+                                                setSelectedClassIds((prev) =>
+                                                    e.target.checked
+                                                        ? [...prev, value]
+                                                        : prev.filter((id) => id !== value)
+                                                );
+                                            }}
+                                            className="mr-2"
+                                        />
+                                        {cls.className}
+                                    </label>
+                                ))}
+                            </div>
+                        )}
                     </div>
+
+
 
                     <div>
                         <label className="font-semibold">Event Name</label>
