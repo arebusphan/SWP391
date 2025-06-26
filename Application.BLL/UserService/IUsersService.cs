@@ -15,5 +15,6 @@ namespace BLL.UserService
         Task<bool> UpdateAsync(UserUpdateDTO user);
         Task<bool> DeleteAsync(UserDeleteDTO dto);
         Task<UserDTO?> FindUserByEmailOrPhoneAsync(string email, string phone);
+
     }
 }

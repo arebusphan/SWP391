@@ -6,5 +6,6 @@ namespace BLL.Interfaces
     {
         Task<List<Classes>> GetAllAsync();
         Task<List<ClassDTO>> GetAllClassesAsync();
+        Task<int?> GetClassIdByNameAsync(string className);
     }
 }

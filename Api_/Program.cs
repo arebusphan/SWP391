@@ -1,4 +1,5 @@
 ﻿using BLL.AuthService;
+using BLL.ExcelService;
 using BLL.HealthCheckService;
 using BLL.HealthProfile;using BLL.IncidentService;
 using BLL.Interfaces;
@@ -132,7 +133,8 @@ namespace WebApplication6
 
             builder.Services.AddScoped<IMedicationIntakeLogRepo, MedicationIntakeLogRepo>();
             builder.Services.AddScoped<IMedicationIntakeLogService, MedicationIntakeLogService>();
-
+            
+            builder.Services.AddScoped<IExcelService, ExcelService>();
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
