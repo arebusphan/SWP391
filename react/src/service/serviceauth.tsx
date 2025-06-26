@@ -226,28 +226,25 @@ export const postIncident = async (
     description: string,
     handledBy: string,
     occurredAt: string,
-    createdAt: string
+    suppliesUsed: { supplyId: number; quantityUsed: number }[]
 ) => {
-    return axios.post("https://localhost:7195/apiIncident/post", {
+    return axios.post("https://localhost:7195/api/Incident/post", {
         studentId,
         classId,
         incidentName,
         description,
         handledBy,
         occurredAt,
-        createdAt
+        suppliesUsed
     });
 };
 export const AddSupplyToInventory = async (
-    suppliesid: number,
-    quantity: number,
-   
-  
+    supplyId: number,
+    quantity: number
 ) => {
-    return await axios.post("https://localhost:7195/api/MedicalSupplies/put", {
-        suppliesid,
-        quantity,
-         
+    return await axios.put("https://localhost:7195/api/MedicalSupplies/post/used", {
+        supplyId,
+        quantity 
     });
 };
 export const GetSupplies = async () => {
@@ -371,4 +368,11 @@ export const getMedicationIntakeLogs = async (studentId: number) => {
   );
 
   return res.data;
+};
+export const GetIncidentHistory = async () => {
+    const res = await axios.get("https://localhost:7195/api/Incident/incident-supplies-history");
+    return res.data;
+};
+export const getIncidentHistoryByGuardian = async (guardianId: number) => {
+    return axios.get(`https://localhost:7195/api/Incident/guardian/${guardianId}/incidents`);
 };

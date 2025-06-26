@@ -12,8 +12,12 @@ import IncidentHistory from "./IncidentHistory";
 
 import ParentHealthForm from "../components/ParentPage/ParentHealthForm";
 
+import { useAuth } from "../context/AuthContext";
+
 
 const ParentPage = () => {
+    
+
     return (
 
         <Routes>
@@ -24,7 +28,7 @@ const ParentPage = () => {
                 <Route path="Notificationview" element ={<Notificationview/>}/>
                 <Route path="Historyview" element={<Historyview />} />
 
-                <Route path="IncidentHistory" element={<IncidentHistory />} />
+                <Route path="IncidentHistory" element={<IncidentHistory/>} />
 
                 <Route path="SubmitHealthProfile" element={<ParentHealthForm />} />
 
