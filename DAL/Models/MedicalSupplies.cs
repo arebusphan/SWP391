@@ -16,6 +16,7 @@ namespace DAL.Models
         public DateTime? LastUsedAt { get; set; }
         public string? Notes {  get; set; }
         public string? Image {  get; set; }
+        public ICollection<IncidentSupplies> IncidentSupplies { get; set; }
 
     }
 }

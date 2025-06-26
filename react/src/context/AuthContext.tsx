@@ -2,7 +2,9 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
 
+
 type User = {
+    UserId: number;
     Name: string;
     Phone: string;
     Email: string;
@@ -22,6 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<User | null>(null);
 
     type DecodedToken = {
+        UserId?: string;
         Name?: string;
         Phone?: string;
         Email?: string;
@@ -30,8 +33,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const decodeToken = (token: string): User => {
         try {
+
             const decoded = jwtDecode<DecodedToken>(token);
             return {
+                UserId: Number(decoded.UserId ?? 0),
                 Name: decoded.Name ?? "",
                 Phone: decoded.Phone ?? "",
                 Email: decoded.Email ?? "",
@@ -39,7 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             };
         } catch (err) {
             console.error("Failed to decode JWT:", err);
-            return { Name: "", Phone:"", Email: "", Role: "" };
+            return { UserId: 0, Name: "", Phone: "", Email: "", Role: "" };
         }
     };
 
