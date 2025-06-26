@@ -32,7 +32,8 @@ namespace BLL.HealthCheckService
                 SkinStatus = dto.SkinStatus,
                 OralHealth = dto.OralHealth,
                 OtherNotes = dto.OtherNotes,
-                RecordedBy = dto.RecordedBy
+                RecordedBy = dto.RecordedBy,
+                
             };
 
             _healthRepo.AddHealthCheck(check);
@@ -45,6 +46,7 @@ namespace BLL.HealthCheckService
             return records.Select(h => new HealthCheckDto
             {
                 StudentId = h.StudentId,
+                StudentName = h.Student?.FullName ?? "",
                 CheckDate = h.CheckDate,
                 WeightKg = h.WeightKg,
                 HeightCm = h.HeightCm,
@@ -56,9 +58,15 @@ namespace BLL.HealthCheckService
                 SkinStatus = h.SkinStatus,
                 OralHealth = h.OralHealth,
                 OtherNotes = h.OtherNotes,
-                RecordedBy = h.RecordedBy
+                RecordedBy = h.RecordedBy,
+
+                // ➕ Gán thông tin lớp học nếu có
+                ClassId = h.Student?.ClassId ?? 0,
+                ClassName = h.Student?.Class?.ClassName ?? "-"
             }).ToList();
         }
+
+
 
     }
 }

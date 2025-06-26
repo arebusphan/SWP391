@@ -8,6 +8,12 @@ interface Class {
     className: string;
 }
 
+interface Notification {
+    notificationId: number;
+    eventName: string;
+    eventDate: string;
+}
+
 interface ConfirmStudent {
     studentId: number;
     studentName: string;
@@ -18,8 +24,9 @@ interface ConfirmStudent {
 
 const ConfirmStudentList = () => {
     const [classes, setClasses] = useState<Class[]>([]);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
     const [selectedClassId, setSelectedClassId] = useState<number>(0);
-    const [notificationId] = useState<number>(1);
+    const [selectedNotificationId, setSelectedNotificationId] = useState<number>(0);
     const [statusFilter, setStatusFilter] = useState<string>("");
     const [confirmStudents, setConfirmStudents] = useState<ConfirmStudent[]>([]);
     const [selectedStudent, setSelectedStudent] = useState<ConfirmStudent | null>(null);
@@ -32,14 +39,19 @@ const ConfirmStudentList = () => {
             setClasses(res.data);
             setSelectedClassId(res.data[0]?.classId || 0);
         });
+
+        axios.get("https://localhost:7195/api/notifications/list-basic").then((res) => {
+            setNotifications(res.data);
+            setSelectedNotificationId(res.data[0]?.notificationId || 0);
+        });
     }, []);
 
     useEffect(() => {
-        if (selectedClassId && notificationId) {
+        if (selectedClassId && selectedNotificationId) {
             axios
                 .get("https://localhost:7195/api/notifications/students/confirmation", {
                     params: {
-                        notificationId,
+                        notificationId: selectedNotificationId,
                         classId: selectedClassId,
                         status: statusFilter || undefined,
                     },
@@ -50,7 +62,7 @@ const ConfirmStudentList = () => {
                     setCurrentPage(1);
                 });
         }
-    }, [selectedClassId, notificationId, statusFilter]);
+    }, [selectedClassId, selectedNotificationId, statusFilter]);
 
     const filteredStudents = statusFilter
         ? confirmStudents.filter((s) => s.confirmStatus === statusFilter)
@@ -100,6 +112,18 @@ const ConfirmStudentList = () => {
             <h2 className="text-2xl font-bold mb-4 text-center">Vaccination Confirmation</h2>
 
             <div className="flex flex-wrap gap-4 mb-6 items-center justify-center">
+                <select
+                    className="border px-4 py-2 rounded"
+                    value={selectedNotificationId}
+                    onChange={(e) => setSelectedNotificationId(+e.target.value)}
+                >
+                    {notifications.map((n) => (
+                        <option key={n.notificationId} value={n.notificationId}>
+                            {n.eventName} ({new Date(n.eventDate).toLocaleDateString()})
+                        </option>
+                    ))}
+                </select>
+
                 <select
                     className="border px-4 py-2 rounded"
                     value={selectedClassId}
@@ -203,24 +227,32 @@ const ConfirmStudentList = () => {
             </div>
 
             {selectedStudent && (
-                <div className="fixed inset-0 backdrop-blur-[2px] bg-white/10 flex items-center justify-center z-50">
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    {/* CHỈ nền đen mờ, KHÔNG BLUR */}
+                    <div className="absolute inset-0 bg-black/20"></div>
 
-                    <div className="bg-white p-6 rounded-lg w-[400px] shadow-lg relative">
+                    {/* Modal hộp trắng nổi bật */}
+                    <div className="relative bg-white rounded-xl shadow-xl p-6 w-[420px] max-w-full z-10">
                         <button
                             onClick={() => setSelectedStudent(null)}
-                            className="absolute top-2 right-3 text-xl text-gray-600"
+                            className="absolute top-2 right-3 text-xl text-gray-600 hover:text-red-500"
                         >
                             &times;
                         </button>
-                        <h3 className="text-lg font-semibold mb-4">Confirmation Details</h3>
-                        <p><strong>Student ID:</strong> {selectedStudent.studentId}</p>
-                        <p><strong>Full Name:</strong> {selectedStudent.studentName}</p>
-                        <p><strong>Status:</strong> {selectedStudent.confirmStatus}</p>
-                        <p><strong>Decline Reason:</strong> {selectedStudent.declineReason || "-"}</p>
-                        <p><strong>Parent Phone:</strong> {selectedStudent.parentPhone || "-"}</p>
+                        <h3 className="text-base font-semibold mb-4">📋 Confirmation Details</h3>
+                        <div className="space-y-2 text-sm">
+                            <div><strong>Student ID:</strong> {selectedStudent.studentId}</div>
+                            <div><strong>Full Name:</strong> {selectedStudent.studentName}</div>
+                            <div><strong>Status:</strong> {selectedStudent.confirmStatus}</div>
+                            <div><strong>Decline Reason:</strong> {selectedStudent.declineReason || "—"}</div>
+                            <div><strong>Parent Phone:</strong> {selectedStudent.parentPhone || "—"}</div>
+                        </div>
                     </div>
                 </div>
             )}
+
+
+
 
         </div>
     );

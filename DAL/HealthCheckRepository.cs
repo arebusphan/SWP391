@@ -34,10 +34,14 @@ namespace DAL.Repositories
         public List<HealthChecks> GetByStudentIds(List<int> studentIds)
         {
             return _context.HealthChecks
+                .Include(h => h.Student)
+                    .ThenInclude(s => s.Class) // 👉 join thêm Class
                 .Where(h => studentIds.Contains(h.StudentId))
                 .OrderByDescending(h => h.CheckDate)
                 .ToList();
         }
+
+
 
     }
 }

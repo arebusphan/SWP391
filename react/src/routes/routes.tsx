@@ -7,6 +7,10 @@ import AboutPage from "../pages/AboutPage";
 import DashboardRedirect from "../pages/NavigateDashboard";
 import Unauthorized from "../pages/Unauthorized";
 import StudentDetailPage from "../pages/StudentDetailPage";
+import ParentHealthCheck from "../components//ParentPage/ParentHealthCheck"; 
+
+
+import LeftSideParent from "../components/LeftSideParent";
 
 // Route bảo vệ quyền truy cập theo vai trò
 import ProtectedRoute from "./ProtectedRoute";
@@ -49,6 +53,10 @@ const AppRoutes = () => {
                 <Route element={<ProtectedRoute allowedRoles={["Manager"]} />}>
                     <Route path="/ManagerPage/*" element={<ManagerPage />} />
                 </Route>
+                <Route path="/ParentPage" element={<LeftSideParent />}>
+                    <Route path="parent-health-check" element={<ParentHealthCheck />} />
+                </Route>
+               
 
             </Route>
         </Routes>

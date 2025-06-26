@@ -34,4 +34,11 @@ public class HealthNotificationController : ControllerBase
         var histories = await _service.GetNotificationHistoriesAsync();
         return Ok(histories);
     }
+    [HttpGet("list-basic")]
+    public async Task<IActionResult> GetBasicList()
+    {
+        var result = await _service.GetAllBasicNotificationsAsync();
+        return Ok(result);
+    }
+
 }

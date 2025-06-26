@@ -8,6 +8,13 @@ interface Class {
     className: string;
 }
 
+interface NotificationBasic {
+    notificationId: number;
+    eventName: string;
+    eventDate: string;
+}
+
+
 interface VaccinationStudent {
     studentId: number;
     studentName: string;
@@ -21,8 +28,9 @@ interface VaccinationStudent {
 
 const VaccineResultForm = () => {
     const [classes, setClasses] = useState<Class[]>([]);
+    const [notifications, setNotifications] = useState<NotificationBasic[]>([]);
     const [selectedClassId, setSelectedClassId] = useState<number>(0);
-    const [notificationId] = useState<number>(1);
+    const [selectedNotificationId, setSelectedNotificationId] = useState<number>(0);
     const [students, setStudents] = useState<VaccinationStudent[]>([]);
     const [selectedStudent, setSelectedStudent] = useState<VaccinationStudent | null>(null);
     const [vaccinated, setVaccinated] = useState<boolean | null>(null);
@@ -37,24 +45,28 @@ const VaccineResultForm = () => {
             setClasses(res.data);
             setSelectedClassId(res.data[0]?.classId);
         });
+        axios.get("https://localhost:7195/api/notifications/list-basic").then((res) => {
+            setNotifications(res.data);
+            setSelectedNotificationId(res.data[0]?.notificationId);
+        });
     }, []);
 
     useEffect(() => {
-        if (selectedClassId) {
+        if (selectedClassId && selectedNotificationId) {
             axios
                 .get("https://localhost:7195/api/vaccinations/by-notification", {
-                    params: { notificationId, classId: selectedClassId },
+                    params: { notificationId: selectedNotificationId, classId: selectedClassId },
                 })
                 .then((res) => setStudents(res.data));
         }
-    }, [selectedClassId]);
+    }, [selectedClassId, selectedNotificationId]);
 
     const handleSave = async () => {
         if (!selectedStudent || vaccinated === null) return;
 
         await axios.post("https://localhost:7195/api/vaccinations/record", {
             studentId: selectedStudent.studentId,
-            notificationId,
+            notificationId: selectedNotificationId,
             vaccinated,
             vaccinatedDate: new Date().toISOString(),
             observationStatus,
@@ -66,7 +78,7 @@ const VaccineResultForm = () => {
         setObservationStatus("");
 
         const res = await axios.get("https://localhost:7195/api/vaccinations/by-notification", {
-            params: { notificationId, classId: selectedClassId },
+            params: { notificationId: selectedNotificationId, classId: selectedClassId },
         });
         setStudents(res.data);
     };
@@ -76,8 +88,8 @@ const VaccineResultForm = () => {
             filterVaccine === "Vaccinated"
                 ? s.vaccinated === true
                 : filterVaccine === "NotVaccinated"
-                    ? !s.vaccinated
-                    : true;
+                ? !s.vaccinated
+                : true;
         return s.confirmStatus === "Confirmed" && matchVaccine;
     });
 
@@ -107,10 +119,7 @@ const VaccineResultForm = () => {
     };
 
     const toggleSelectAllVaccinated = () => {
-        const vaccinatedIds = filtered
-            .filter((s) => s.vaccinated)
-            .map((s) => s.studentId);
-
+        const vaccinatedIds = filtered.filter((s) => s.vaccinated).map((s) => s.studentId);
         const isAllSelected = vaccinatedIds.every((id) => selectedIds.includes(id));
         setSelectedIds(isAllSelected ? [] : vaccinatedIds);
     };
@@ -120,6 +129,22 @@ const VaccineResultForm = () => {
             <h2 className="text-3xl font-bold mb-6 text-center">Vaccine Result</h2>
 
             <div className="flex flex-wrap gap-4 mb-6 justify-center items-center">
+                <select
+                    className="border px-4 py-2 rounded"
+                    value={selectedNotificationId}
+                    onChange={(e) => {
+                        setSelectedNotificationId(+e.target.value);
+                        setCurrentPage(1);
+                    }}
+                >
+                    {notifications.map((n) => (
+                        <option key={n.notificationId} value={n.notificationId}>
+                            {n.eventName} ({n.eventDate})
+                        </option>
+                    ))}
+                </select>
+
+
                 <select
                     className="border px-4 py-2 rounded"
                     value={selectedClassId}
@@ -167,7 +192,9 @@ const VaccineResultForm = () => {
                                         type="checkbox"
                                         onChange={toggleSelectAllVaccinated}
                                         checked={
-                                            filtered.filter((s) => s.vaccinated).every((s) => selectedIds.includes(s.studentId)) &&
+                                            filtered
+                                                .filter((s) => s.vaccinated)
+                                                .every((s) => selectedIds.includes(s.studentId)) &&
                                             filtered.some((s) => s.vaccinated)
                                         }
                                     />
@@ -211,7 +238,9 @@ const VaccineResultForm = () => {
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                         <button
                             key={page}
-                            className={`px-3 py-1 rounded ${page === currentPage ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+                            className={`px-3 py-1 rounded ${
+                                page === currentPage ? "bg-blue-600 text-white" : "bg-gray-200"
+                            }`}
                             onClick={() => setCurrentPage(page)}
                         >
                             {page}
@@ -227,51 +256,68 @@ const VaccineResultForm = () => {
             </div>
 
             {selectedStudent && (
-                <div className="fixed inset-0 backdrop-blur-[2px] bg-white/20 flex items-center justify-center z-50">
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    {/* Nền đen mờ nhẹ */}
+                    <div className="absolute inset-0 bg-black/20"></div>
 
-
-                    <div className="bg-white p-6 rounded-lg w-[400px] shadow-lg relative">
+                    {/* Modal nội dung */}
+                    <div className="relative bg-white rounded-xl shadow-xl p-6 w-[440px] max-w-full z-10">
                         <button
                             onClick={() => setSelectedStudent(null)}
-                            className="absolute top-2 right-3 text-xl text-gray-600"
+                            className="absolute top-2 right-3 text-xl text-gray-600 hover:text-red-500"
                         >
                             &times;
                         </button>
-                        <h3 className="text-lg font-semibold mb-4">Confirmation Details</h3>
-                        <p><strong>Name:</strong> {selectedStudent.studentName}</p>
-                        <p><strong>Class:</strong> {selectedStudent.className}</p>
-                        <p><strong>Phone:</strong> {selectedStudent.parentPhone}</p>
 
-                        <div className="mt-4">
-                            <label className="block font-medium">Vaccination Status:</label>
-                            <div className="mt-1 flex gap-4">
-                                <label className="inline-flex items-center">
-                                    <input type="radio" name="vaccinated" checked={vaccinated === true} onChange={() => setVaccinated(true)} />
-                                    <span className="ml-2">Vaccinated</span>
-                                </label>
-                                <label className="inline-flex items-center">
-                                    <input type="radio" name="vaccinated" checked={vaccinated === false} onChange={() => setVaccinated(false)} />
-                                    <span className="ml-2">Not Vaccinated</span>
-                                </label>
+                        <h3 className="text-base font-semibold mb-4">📋 Confirmation Details</h3>
+                        <div className="space-y-3 text-sm">
+                            <div><strong>Name:</strong> {selectedStudent.studentName}</div>
+                            <div><strong>Class:</strong> {selectedStudent.className}</div>
+                            <div><strong>Phone:</strong> {selectedStudent.parentPhone}</div>
+
+                            <div>
+                                <label className="block font-medium mb-1">Vaccination Status:</label>
+                                <div className="flex gap-4">
+                                    <label className="inline-flex items-center">
+                                        <input type="radio" name="vaccinated" checked={vaccinated === true} onChange={() => setVaccinated(true)} />
+                                        <span className="ml-2">Vaccinated</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <input type="radio" name="vaccinated" checked={vaccinated === false} onChange={() => setVaccinated(false)} />
+                                        <span className="ml-2">Not Vaccinated</span>
+                                    </label>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="mt-4">
-                            <label className="block font-medium">Observation:</label>
-                            <textarea
-                                value={observationStatus}
-                                onChange={(e) => setObservationStatus(e.target.value)}
-                                className="w-full border mt-1 p-2 rounded"
-                            ></textarea>
-                        </div>
+                            <div>
+                                <label className="block font-medium mb-1">Observation:</label>
+                                <textarea
+                                    value={observationStatus}
+                                    onChange={(e) => setObservationStatus(e.target.value)}
+                                    className="w-full border mt-1 p-2 rounded"
+                                    rows={3}
+                                ></textarea>
+                            </div>
 
-                        <div className="mt-4 flex justify-end gap-2">
-                            <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
-                            <button onClick={() => setSelectedStudent(null)} className="bg-gray-300 px-4 py-2 rounded">Cancel</button>
+                            <div className="flex justify-end gap-2 pt-2">
+                                <button
+                                    onClick={handleSave}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    onClick={() => setSelectedStudent(null)}
+                                    className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
+
         </div>
     );
 };

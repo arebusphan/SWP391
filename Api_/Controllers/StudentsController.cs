@@ -96,24 +96,26 @@ namespace API.Controllers
 
         [HttpGet("my-health-checks")]
         [Authorize(Roles = "Parent")]
-        public IActionResult GetMyChildrenHealthChecks()
+        public ActionResult<List<HealthCheckDto>> GetMyChildrenHealthChecks()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
-                return Unauthorized();
+            {
+                return Unauthorized("User is not authenticated.");
+            }
 
             int guardianId = int.Parse(userIdClaim.Value);
 
-            try
+            var result = _healthCheckService.GetHealthChecksByGuardian(guardianId);
+
+            if (result == null || result.Count == 0)
             {
-                var healthChecks = _healthCheckService.GetHealthChecksByGuardian(guardianId);
-                return Ok(healthChecks);
+                return NotFound("No health checks found.");
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
+
+            return Ok(result);
         }
+
 
         [HttpGet("get-detail/{studentId}")]
         [Authorize(Roles = "MedicalStaff,Parent")]

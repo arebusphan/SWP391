@@ -14,6 +14,7 @@ namespace BLL.HealthProfile
         Task<HealthProfileDTO?> GetByStudentIdAsync(int studentId);
         Task<List<HealthProfileDTO>> GetProfilesByUserAsync(int userId);  // Lấy danh sách đã submit bởi phụ huynh
         Task UpdateAsync(int declarationId, HealthProfileDTO dto, int userId); // Cập nhật hồ sơ đã gửi
+        Task SendReminderToGuardianAsync(int studentId);
 
     }
 }

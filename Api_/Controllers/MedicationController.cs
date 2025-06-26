@@ -66,12 +66,13 @@ namespace API.Controllers
         {
             public string Status { get; set; }
             public int ReviewedBy { get; set; }
+            public string? rejectReason { get; set; }
         }
 
         [HttpPut("{id}/updateStatus")]
         public IActionResult UpdateRequestStatus(int id, [FromBody] UpdateStatusDTO dto)
         {
-            var success = _medicationService.UpdateRequestStatus(id, dto.Status, dto.ReviewedBy);
+            var success = _medicationService.UpdateRequestStatus(id, dto.Status, dto.ReviewedBy,dto.rejectReason);
             if (!success) return BadRequest("Update failed.");
 
             return Ok(new { message = "Status updated successfully" });
@@ -95,6 +96,12 @@ namespace API.Controllers
         {
             var logs = await _logService.GetLogsByStudentIdAsync(studentId);
             return Ok(logs);
+        }
+        [HttpGet("approved")]
+        public IActionResult GetApprovedRequests()
+        {
+            var result = _medicationService.GetApprovedRequests();
+            return Ok(result);
         }
     }
 }

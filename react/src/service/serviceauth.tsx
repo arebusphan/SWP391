@@ -66,14 +66,17 @@ export const getuser = (params?: {
     return axios.get("https://localhost:7195/api/User/get", { params });
 };
 
-export const sendingmedicine = (studentId: number, medicineName: string, prescriptionImageUrl: string) => {
+
+interface MedicationRequestPayload {
+  studentId: number;
+  medicineName: string;
+  prescriptionImage: string;
+  healthStatus: string;
+  note: string;
+}
+
+export const sendingmedicine = (payload: MedicationRequestPayload) => {
   const token = localStorage.getItem("token");
-  const payload = {
-    studentId,
-    medicineName,
-    prescriptionImage: prescriptionImageUrl,
-  };
-  console.log("Sending medicine payload:", payload);
 
   return axios.post(
     "https://localhost:7195/api/medication-requests/parent-request",
@@ -86,6 +89,7 @@ export const sendingmedicine = (studentId: number, medicineName: string, prescri
     }
   );
 };
+
 
 
 export const update = (userId: number, fullName: string, email: string, phoneNumber: string) => {
@@ -126,17 +130,35 @@ export const getMedicationRequestsForNurse = () => {
     });
 };
 
-export const updateMedicationStatus = (id: number, status: string, reviewedBy: number) => {
-    const token = localStorage.getItem("token");
-    return axios.put(`https://localhost:7195/api/medication-requests/${id}/updateStatus`, {
-        status,
-        reviewedBy,
-    }, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
+export const updateMedicationStatus = (
+  id: number,
+  status: string,
+  reviewedBy: number,
+  rejectReason?: string
+) => {
+  const token = localStorage.getItem("token");
+
+  const payload: any = {
+    status,
+    reviewedBy,
+  };
+
+  if (status === "Rejected") {
+    payload.rejectReason = rejectReason?.trim() || "";
+  }
+
+  return axios.put(
+    `https://localhost:7195/api/medication-requests/${id}/updateStatus`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 };
+
+
 export const getAllStudentHealthStatus = () => {
     const token = localStorage.getItem("token");
     return axios.get("https://localhost:7195/api/students/all-health-status", {
@@ -369,6 +391,7 @@ export const getMedicationIntakeLogs = async (studentId: number) => {
 
   return res.data;
 };
+
 export const GetIncidentHistory = async () => {
     const res = await axios.get("https://localhost:7195/api/Incident/incident-supplies-history");
     return res.data;
@@ -376,3 +399,70 @@ export const GetIncidentHistory = async () => {
 export const getIncidentHistoryByGuardian = async (guardianId: number) => {
     return axios.get(`https://localhost:7195/api/Incident/guardian/${guardianId}/incidents`);
 };
+
+export const confirmVaccination = async (
+  notificationStudentId: number,
+  confirmStatus: "Confirmed" | "Declined",
+  parentPhone: string,
+  declineReason?: string
+) => {
+  const token = localStorage.getItem("token");
+
+  const payload = {
+    notificationStudentId,
+    confirmStatus,
+    parentPhone,
+    declineReason: confirmStatus === "Declined" ? declineReason || "" : null,
+  };
+
+  return await axios.post(
+    "https://localhost:7195/api/notifications/students/confirm",
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+export const getPendingVaccinationConfirmations = async () => {
+  const token = localStorage.getItem("token");
+
+  const res = await axios.get("https://localhost:7195/api/notifications/students/pending", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+export const getApprovedMedicationRequests = () => {
+  const token = localStorage.getItem("token");
+
+  return axios.get("https://localhost:7195/api/medication-requests/approved", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+export const createMedicationIntakeLog = async (payload: {
+  requestId: number;
+  studentId: number;
+  givenBy: string;
+  notes: string;
+}) => {
+  const token = localStorage.getItem("token");
+
+  return await axios.post(
+    "https://localhost:7195/api/medication-requests/logs",
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+
