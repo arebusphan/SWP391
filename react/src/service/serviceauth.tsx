@@ -172,12 +172,13 @@ export const uploadExcelFile = (file: File) => {
   const formData = new FormData();
   formData.append("file", file);
 
-  return axios.post("https://localhost:7195/api/User/upload-excel", formData, {
+  return axios.post("https://localhost:7195/api/User/importExcel", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   });
 };
+
 export const postBanner = async (title: string, imageUrl: string) => {
     return await axios.post("https://localhost:7195/api/Banners/post", { title, imageUrl })
 }

@@ -1,5 +1,11 @@
 ﻿import { useEffect, useState } from "react";
 import axios from "axios";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 type StudentProfile = {
     studentId: number;
@@ -53,7 +59,7 @@ const StudentProfileList = () => {
                         );
                         healthMapTemp[stu.studentId] = profileRes.data;
                     } catch {
-                        // no profile for student
+                        // No profile found
                     }
                 }
                 setHealthMap(healthMapTemp);
@@ -102,6 +108,7 @@ const StudentProfileList = () => {
                         className="border border-gray-300 rounded-xl px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                         value={classFilter}
                         onChange={(e) => setClassFilter(e.target.value)}
+                        aria-label="Filter by class"
                     >
                         <option value="">-- All Classes --</option>
                         {uniqueClasses.map((cls) => (
@@ -121,10 +128,11 @@ const StudentProfileList = () => {
                         className="border border-gray-300 rounded-xl px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                         value={filterByProfile}
                         onChange={(e) => setFilterByProfile(e.target.value)}
+                        aria-label="Filter by health profile status"
                     >
                         <option value="all">-- All --</option>
-                        <option value="has">☑ Has Profile</option>
-                        <option value="missing">❌ Missing Profile</option>
+                        <option value="has">Has Profile</option>
+                        <option value="missing">Missing Profile</option>
                     </select>
                 </div>
 
@@ -162,42 +170,37 @@ const StudentProfileList = () => {
                 </div>
             </div>
 
-            {/* Modal */}
-            {selectedStudent && (
-                <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center px-4">
-                    <div className="relative bg-white p-8 rounded-2xl shadow-2xl w-full max-w-xl animate-fade-in">
-                        <button
-                            onClick={() => setSelectedStudent(null)}
-                            className="absolute top-3 right-4 text-2xl text-gray-400 hover:text-gray-700"
-                        >
-                            &times;
-                        </button>
-                        <h2 className="text-2xl font-bold mb-4 text-blue-700">📋 Student Detail</h2>
+            {/* Dialog Modal */}
+            <Dialog open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
+                <DialogContent className="max-w-lg" showCloseButton={false}>
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold text-blue-700">Student Detail</DialogTitle>
+                    </DialogHeader>
+                    {selectedStudent && (
                         <div className="space-y-2 text-gray-700">
                             <p><strong>Name:</strong> {selectedStudent.student.fullName}</p>
                             <p><strong>Gender:</strong> {selectedStudent.student.gender}</p>
                             <p><strong>DOB:</strong> {formatDate(selectedStudent.student.dateOfBirth)}</p>
                             <p><strong>Guardian:</strong> {selectedStudent.student.guardianName} ({selectedStudent.student.guardianPhone})</p>
-                        </div>
 
-                        <div className="mt-6">
-                            <h3 className="font-semibold text-lg mb-2 text-blue-600">🩺 Health Profile</h3>
-                            {!selectedStudent.profile ? (
-                                <p className="italic text-gray-500">No profile submitted.</p>
-                            ) : (
-                                <div className="space-y-2 text-gray-700">
-                                    <p><strong>Allergies:</strong> {selectedStudent.profile.allergies}</p>
-                                    <p><strong>Chronic Diseases:</strong> {selectedStudent.profile.chronicDiseases}</p>
-                                    <p><strong>Vision:</strong> {selectedStudent.profile.vision}</p>
-                                    <p><strong>Hearing:</strong> {selectedStudent.profile.hearing}</p>
-                                    <p><strong>Notes:</strong> {selectedStudent.profile.otherNotes}</p>
-                                </div>
-                            )}
+                            <div className="mt-6">
+                                <h3 className="font-semibold text-lg mb-2 text-blue-600">🩺 Health Profile</h3>
+                                {!selectedStudent.profile ? (
+                                    <p className="italic text-gray-500">No profile submitted.</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        <p><strong>Allergies:</strong> {selectedStudent.profile.allergies}</p>
+                                        <p><strong>Chronic Diseases:</strong> {selectedStudent.profile.chronicDiseases}</p>
+                                        <p><strong>Vision:</strong> {selectedStudent.profile.vision}</p>
+                                        <p><strong>Hearing:</strong> {selectedStudent.profile.hearing}</p>
+                                        <p><strong>Notes:</strong> {selectedStudent.profile.otherNotes}</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </div>
-            )}
-
+                    )}
+                </DialogContent>
+            </Dialog>
         </>
     );
 };
