@@ -1,6 +1,9 @@
 ﻿using BLL.AuthService;
+using BLL.ExcelService;
 using BLL.HealthCheckService;
-using BLL.HealthProfile;using BLL.IncidentService;
+using BLL.HealthProfile;
+using BLL.IncidentService;
+
 using BLL.Interfaces;
 using BLL.MedicalSuppliesService;
 using BLL.MedicationIntakeLogsService;
@@ -12,6 +15,7 @@ using BLL.StudentService;
 using BLL.UserService;
 using DAL;
 using DAL.Incident;
+
 using DAL.Interfaces;
 using DAL.MedicationIntakeLogs;
 using DAL.Repositories;
@@ -97,7 +101,7 @@ namespace WebApplication6
             builder.Services.AddScoped<IHealthEventSupplyRepository, HealthEventSupplyRepository>();
             builder.Services.AddScoped<IHealthEventSupplyService, HealthEventSupplyService>();
 
-            
+        
             builder.Services.AddScoped<IIncidentRepository, IncidentRepository>();
             builder.Services.AddScoped<IIncidentService, IncidentService>();
 
@@ -132,7 +136,8 @@ namespace WebApplication6
 
             builder.Services.AddScoped<IMedicationIntakeLogRepo, MedicationIntakeLogRepo>();
             builder.Services.AddScoped<IMedicationIntakeLogService, MedicationIntakeLogService>();
-
+            
+            builder.Services.AddScoped<IExcelService, ExcelService>();
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

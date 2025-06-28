@@ -1,21 +1,22 @@
-﻿import { useEffect, useState } from "react";
-import axios from "axios";
+﻿import React, { useState, useEffect } from "react";
 import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+    AddSupplyToInventory,
     getAllClass,
+    GetIncidentHistory,
     getStudentsByClassId,
     GetSupplies,
     postIncident
 } from "../service/serviceauth";
-
-export interface IncidentInput {
-    studentId: number;
-    classId: number;
-    incidentName: string;
-    description: string;
-    handledBy: string;
-    occurredAt: string;
-    createdAt: string;
-}
 
 interface Class {
     classId: number;
@@ -33,247 +34,404 @@ interface Supply {
     quantity: number;
 }
 
-export default function IncidentManagement() {
+interface IncidentInput {
+    id: number;
+    classId: number | "";
+    studentId: number | "";
+    students: Student[];
+    showDialog: boolean;
+    incidentName: string;
+    description: string;
+    handledBy: string;
+    suppliesUsed: { supplyId: number; supplyName: string; quantity: number }[];
+    showAddSupply: boolean;
+}
+
+let nextId = 1;
+
+const IncidentForm: React.FC = () => {
     const [classes, setClasses] = useState<Class[]>([]);
-    const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
-    const [students, setStudents] = useState<Student[]>([]);
-    const [supplies, setSupplies] = useState<Supply[]>([]);
-    const [selectedSupplyId, setSelectedSupplyId] = useState<number | null>(null);
-    const [usedQuantity, setUsedQuantity] = useState<number>(1);
-    const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
+    const [incidentInputs, setIncidentInputs] = useState<IncidentInput[]>([]);
+    const [currentEditId, setCurrentEditId] = useState<number | null>(null);
+    const [allSupplies, setAllSupplies] = useState<Supply[]>([]);
+    const [selectedSupplies, setSelectedSupplies] = useState<Record<number, { supplyId: number | ""; quantity: number }[]>>({});
+    const [incidentHistory, setIncidentHistory] = useState<any[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6; 
+    const totalPages = Math.ceil(incidentHistory.length / itemsPerPage);
 
-    const [form, setForm] = useState<IncidentInput>({
-        studentId: 0,
-        classId: 0,
-        incidentName: "",
-        description: "",
-        handledBy: "",
-        occurredAt: "",
-        createdAt: ""
-    });
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedHistoryItem, setSelectedHistoryItem] = useState<any | null>(null);
+    const filteredHistory = incidentHistory.filter(item =>
+        item.studentName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
+ 
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentItems = filteredHistory.slice(startIndex, startIndex + itemsPerPage);
     useEffect(() => {
-        const fetchClasses = async () => {
-            try {
-                const classList = await getAllClass();
-                setClasses(classList);
-            } catch (error) {
-                console.error("Lỗi khi lấy danh sách lớp:", error);
-            }
-        };
-        fetchClasses();
+        getAllClass().then(setClasses);
+        GetIncidentHistory().then(setIncidentHistory);
     }, []);
 
-    useEffect(() => {
-        const fetchSupplies = async () => {
-            try {
-                const res = await GetSupplies();
-                setSupplies(res.data);
-            } catch (error) {
-                console.error("Lỗi khi lấy danh sách thuốc:", error);
-            }
-        };
-        fetchSupplies();
-    }, []);
-
-    useEffect(() => {
-        if (selectedClassId) {
-            const fetchStudents = async () => {
-                try {
-                    const studentList = await getStudentsByClassId(selectedClassId);
-                    setStudents(studentList);
-                } catch (error) {
-                    console.error("Lỗi khi lấy học sinh:", error);
-                }
-            };
-            fetchStudents();
-        }
-    }, [selectedClassId]);
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+    const handleAddRow = () => {
+        setIncidentInputs((prev) => [
+            ...prev,
+            {
+                id: nextId++,
+                classId: "",
+                studentId: "",
+                students: [],
+                showDialog: false,
+                incidentName: "",
+                description: "",
+                handledBy: "",
+                suppliesUsed: [],
+                showAddSupply: false,
+            },
+        ]);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!selectedClassId || !selectedStudentId) {
-            alert("Vui lòng chọn lớp và học sinh.");
-            return;
+    const handleDeleteRow = (rowId: number) => {
+        if (window.confirm("Are you sure you want to delete this draft incident?")) {
+            setIncidentInputs((rows) => rows.filter((row) => row.id !== rowId));
         }
+    };
 
+    const handleClassChange = async (rowId: number, classId: number) => {
+        const students = await getStudentsByClassId(classId);
+        setIncidentInputs((rows) =>
+            rows.map((row) =>
+                row.id === rowId ? { ...row, classId, students, studentId: "" } : row
+            )
+        );
+    };
+
+    const handleStudentChange = (rowId: number, studentId: number) => {
+        setIncidentInputs((rows) =>
+            rows.map((row) =>
+                row.id === rowId ? { ...row, studentId } : row
+            )
+        );
+    };
+
+    const openDialog = async (rowId: number) => {
+        setCurrentEditId(rowId);
+        const res = await GetSupplies();
+        setAllSupplies(res.data);
+        setIncidentInputs((rows) =>
+            rows.map((row) =>
+                row.id === rowId ? { ...row, showDialog: true } : row
+            )
+        );
+        setSelectedSupplies((prev) => ({
+            ...prev,
+            [rowId]: [{ supplyId: "", quantity: 1 }],
+        }));
+    };
+
+    const closeDialog = () => {
+        if (currentEditId !== null) {
+            setIncidentInputs((rows) =>
+                rows.map((row) =>
+                    row.id === currentEditId ? { ...row, showDialog: false } : row
+                )
+            );
+            setCurrentEditId(null);
+        }
+    };
+
+    const updateIncidentDetails = () => {
+        if (currentEditId === null) return;
+        setIncidentInputs((rows) =>
+            rows.map((row) =>
+                row.id === currentEditId ? { ...row, showDialog: false } : row
+            )
+        );
+        setCurrentEditId(null);
+    };
+
+    const toggleAddSupplyUI = () => {
+        if (currentEditId === null) return;
+        setIncidentInputs((rows) =>
+            rows.map((row) =>
+                row.id === currentEditId ? { ...row, showAddSupply: !row.showAddSupply } : row
+            )
+        );
+    };
+
+    const handleSupplyChange = (index: number, field: "supplyId" | "quantity", value: number) => {
+        if (currentEditId === null) return;
+        setSelectedSupplies((prev) => {
+            const updated = [...(prev[currentEditId] || [])];
+            if (!updated[index]) updated[index] = { supplyId: "", quantity: 1 };
+            updated[index][field] = value;
+            return { ...prev, [currentEditId]: updated };
+        });
+    };
+
+    const addMoreSupplyField = () => {
+        if (currentEditId === null) return;
+        setSelectedSupplies((prev) => {
+            const updated = [...(prev[currentEditId] || [])];
+            updated.push({ supplyId: "", quantity: 1 });
+            return { ...prev, [currentEditId]: updated };
+        });
+    };
+
+    const handleAddSupply = () => {
+        if (currentEditId === null) return;
+        const currentSelections = selectedSupplies[currentEditId] || [];
+        const updatedSupplies = [...incidentInputs];
+
+        const currentRowIndex = updatedSupplies.findIndex((r) => r.id === currentEditId);
+        const row = updatedSupplies[currentRowIndex];
+
+        currentSelections.forEach(({ supplyId, quantity }) => {
+            if (supplyId === "") return;
+            const supply = allSupplies.find((s) => s.supplyId === supplyId);
+            if (supply && quantity > 0 && quantity <= supply.quantity) {
+                const existing = row.suppliesUsed.find((s) => s.supplyId === supplyId);
+                if (existing) existing.quantity += quantity;
+                else row.suppliesUsed.push({ supplyId, supplyName: supply.supplyName, quantity });
+            }
+        });
+
+        updatedSupplies[currentRowIndex] = row;
+        setIncidentInputs(updatedSupplies);
+    };
+
+    const handleSaveAll = async () => {
         try {
-            if (selectedSupplyId && usedQuantity > 0) {
-                await axios.put("/api/medicalsupplies/post/used", {
-                    supplyId: selectedSupplyId,
-                    quantity: usedQuantity
-                });
+            for (const row of incidentInputs) {
+                if (
+                    row.classId &&
+                    row.studentId &&
+                    row.incidentName &&
+                    row.handledBy
+                ) {
+                    const now = new Date().toISOString();
+                    await postIncident(
+                        row.studentId,
+                        row.classId,
+                        row.incidentName,
+                        row.description,
+                        row.handledBy,
+                        now,
+                        row.suppliesUsed.map(s => ({
+                            supplyId: s.supplyId,
+                            quantityUsed: s.quantity
+                        }))
+                    );
+
+                    for (const s of row.suppliesUsed) {
+                        try {
+                            await AddSupplyToInventory(s.supplyId, s.quantity);
+                        } catch (err) {
+                            console.error(`Error deducting supply ${s.supplyName}:`, err);
+                            alert(`Failed to deduct ${s.quantity} of supply "${s.supplyName}".`);
+                        }
+                    }
+                }
             }
 
-            await postIncident(
-                selectedStudentId,
-                selectedClassId,
-                form.incidentName,
-                form.description,
-                form.handledBy,
-                form.occurredAt,
-                form.createdAt
-            );
-
-            alert("Gửi sự cố thành công!");
+            alert("All incidents have been saved!");
+            setIncidentInputs([]);
         } catch (err) {
-            console.error("Lỗi khi gửi sự cố:", err);
-            alert("Có lỗi xảy ra!");
+            alert("Error saving incidents or supplies!");
         }
     };
 
     return (
-        <div className="p-6 bg-gray-100 min-h-screen">
-            <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-8">
-                <h2 className="text-3xl font-bold mb-6 text-blue-600 text-center">Khai báo sự cố y tế</h2>
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Lớp */}
-                    <div>
-                        <label className="block mb-1 font-semibold">Chọn lớp:</label>
+        <div className="p-4 space-y-4">
+            <Button onClick={handleAddRow}>Add Incident</Button>
+
+            {incidentInputs.map((row) => (
+                <div key={row.id} className="flex gap-4 items-end mt-2">
+                    <div className="flex-1">
+                        <label className="block mb-1 text-sm">Select Class</label>
                         <select
-                            value={selectedClassId ?? ""}
-                            onChange={(e) => setSelectedClassId(Number(e.target.value))}
-                            className="w-full border rounded-lg px-4 py-2"
-                            required
+                            className="w-full border p-2 rounded"
+                            value={row.classId}
+                            onChange={(e) => handleClassChange(row.id, Number(e.target.value))}
                         >
-                            <option value="">-- Chọn lớp --</option>
+                            <option value="">-- Select Class --</option>
                             {classes.map((cls) => (
-                                <option key={cls.classId} value={cls.classId}>
-                                    {cls.className}
-                                </option>
+                                <option key={cls.classId} value={cls.classId}>{cls.className}</option>
                             ))}
                         </select>
                     </div>
 
-                    {/* Học sinh */}
-                    <div>
-                        <label className="block mb-1 font-semibold">Chọn học sinh:</label>
+                    <div className="flex-1">
+                        <label className="block mb-1 text-sm">Select Student</label>
                         <select
-                            value={selectedStudentId ?? ""}
-                            onChange={(e) => setSelectedStudentId(Number(e.target.value))}
-                            className="w-full border rounded-lg px-4 py-2"
-                            required
+                            className="w-full border p-2 rounded"
+                            value={row.studentId}
+                            onChange={(e) => handleStudentChange(row.id, Number(e.target.value))}
+                            disabled={!row.classId}
                         >
-                            <option value="">-- Chọn học sinh --</option>
-                            {students.map((s) => (
-                                <option key={s.studentId} value={s.studentId}>
-                                    {s.fullName}
-                                </option>
+                            <option value="">-- Select Student --</option>
+                            {row.students.map((s) => (
+                                <option key={s.studentId} value={s.studentId}>{s.fullName}</option>
                             ))}
                         </select>
                     </div>
 
-                    {/* Tên sự cố */}
-                    <div className="md:col-span-2">
-                        <label className="block mb-1 font-semibold">Tên sự cố:</label>
-                        <input
-                            name="incidentName"
-                            value={form.incidentName}
-                            onChange={handleInputChange}
-                            placeholder="VD: Ngã, sốt, côn trùng cắn..."
-                            className="w-full border rounded-lg px-4 py-2"
-                            required
-                        />
-                    </div>
+                    <Button onClick={() => openDialog(row.id)} disabled={!row.studentId}>Details</Button>
+                    <Button variant="destructive" onClick={() => handleDeleteRow(row.id)}>Delete</Button>
 
-                    {/* Mô tả */}
-                    <div className="md:col-span-2">
-                        <label className="block mb-1 font-semibold">Mô tả:</label>
-                        <textarea
-                            name="description"
-                            value={form.description}
-                            onChange={handleInputChange}
-                            rows={3}
-                            placeholder="Mô tả chi tiết sự cố..."
-                            className="w-full border rounded-lg px-4 py-2"
-                            required
-                        />
-                    </div>
+                    <Dialog open={row.showDialog}>
+                        <DialogContent className="!w-full !max-w-[1000px]">
+                            <DialogHeader>
+                                <DialogTitle>Incident Details</DialogTitle>
+                                <DialogDescription>
+                                    Enter incident name, handler, description, and select supplies if used.
+                                </DialogDescription>
+                            </DialogHeader>
 
-                    {/* Người xử lý */}
-                    <div>
-                        <label className="block mb-1 font-semibold">Người xử lý:</label>
-                        <input
-                            name="handledBy"
-                            value={form.handledBy}
-                            onChange={handleInputChange}
-                            className="w-full border rounded-lg px-4 py-2"
-                            required
-                        />
-                    </div>
+                            <div className="space-y-3">
+                                <Input placeholder="Incident Name" value={row.incidentName} onChange={(e) => setIncidentInputs(rows => rows.map(r => r.id === row.id ? { ...r, incidentName: e.target.value } : r))} />
+                                <Input placeholder="Handled By" value={row.handledBy} onChange={(e) => setIncidentInputs(rows => rows.map(r => r.id === row.id ? { ...r, handledBy: e.target.value } : r))} />
+                                <textarea
+                                    placeholder="Description"
+                                    className="w-full border p-2 rounded"
+                                    rows={3}
+                                    value={row.description}
+                                    onChange={(e) => setIncidentInputs(rows => rows.map(r => r.id === row.id ? { ...r, description: e.target.value } : r))}
+                                />
 
-                    {/* Thời điểm xảy ra */}
-                    <div>
-                        <label className="block mb-1 font-semibold">Thời điểm xảy ra:</label>
-                        <input
-                            type="datetime-local"
-                            name="occurredAt"
-                            value={form.occurredAt}
-                            onChange={handleInputChange}
-                            className="w-full border rounded-lg px-4 py-2"
-                            required
-                        />
-                    </div>
+                                <div className="border-t pt-2">
+                                    <h4 className="font-medium mb-1">Used Supplies</h4>
+                                    <Button variant="outline" onClick={toggleAddSupplyUI} className="mb-2">Add Supplies</Button>
+                                    {row.showAddSupply && (
+                                        <>
+                                            {(selectedSupplies[row.id] || []).map((entry, idx) => (
+                                                <div className="flex gap-2 mb-2" key={idx}>
+                                                    <select
+                                                        className="border p-2 rounded w-full"
+                                                        value={entry.supplyId || ""}
+                                                        onChange={(e) => handleSupplyChange(idx, "supplyId", Number(e.target.value))}
+                                                    >
+                                                        <option value="">-- Select Supply --</option>
+                                                        {allSupplies.map((s) => (
+                                                            <option key={s.supplyId} value={s.supplyId}>
+                                                                {s.supplyName} (Available: {s.quantity})
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <Input
+                                                        type="number"
+                                                        min={1}
+                                                        value={entry.quantity}
+                                                        onChange={(e) => handleSupplyChange(idx, "quantity", Number(e.target.value))}
+                                                        className="w-[100px]"
+                                                    />
+                                                </div>
+                                            ))}
+                                            <Button variant="ghost" onClick={addMoreSupplyField}>Add More</Button>
+                                            <Button onClick={handleAddSupply}>Confirm Supplies</Button>
+                                        </>
+                                    )}
 
-                    {/* Thời điểm tạo */}
-                    <div className="md:col-span-2">
-                        <label className="block mb-1 font-semibold">Thời điểm tạo:</label>
-                        <input
-                            type="datetime-local"
-                            name="createdAt"
-                            value={form.createdAt}
-                            onChange={handleInputChange}
-                            className="w-full border rounded-lg px-4 py-2"
-                            required
-                        />
-                    </div>
+                                    <ul className="text-sm list-disc ml-5 mt-2">
+                                        {row.suppliesUsed.map((s, i) => (
+                                            <li key={i}>{s.supplyName} × {s.quantity}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
 
-                    {/* Vật tư */}
-                    <div>
-                        <label className="block mb-1 font-semibold">Chọn vật tư:</label>
-                        <select
-                            value={selectedSupplyId ?? ""}
-                            onChange={(e) => setSelectedSupplyId(Number(e.target.value))}
-                            className="w-full border rounded-lg px-4 py-2"
-                        >
-                            <option value="">-- Chọn vật tư --</option>
-                            {supplies.map((supply) => (
-                                <option key={supply.supplyId} value={supply.supplyId}>
-                                    {supply.supplyName} (Còn lại: {supply.quantity})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                            <DialogFooter>
+                                <Button variant="outline" onClick={closeDialog}>Cancel</Button>
+                                <Button onClick={updateIncidentDetails}>Save Details</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
+            ))}
+            <Input
+                type="text"
+                placeholder="Search by student name..."
+                value={searchTerm}
+                onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                }}
+                className="w-full max-w-md mb-4"
+            />
 
-                    {/* Số lượng */}
-                    <div>
-                        <label className="block mb-1 font-semibold">Số lượng sử dụng:</label>
-                        <input
-                            type="number"
-                            value={usedQuantity}
-                            min={1}
-                            onChange={(e) => setUsedQuantity(Number(e.target.value))}
-                            className="w-full border rounded-lg px-4 py-2"
-                        />
-                    </div>
-
-                    {/* Nút gửi */}
-                    <div className="md:col-span-2 text-center">
-                        <button
-                            type="submit"
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md transition duration-200"
-                        >
-                            Gửi sự cố
-                        </button>
-                    </div>
-                </form>
-            </div>
+            {incidentInputs.length > 0 && (
+                <div className="pt-4">
+                    <Button onClick={handleSaveAll}>Save All</Button>
+                </div>
+            )}
+            {incidentHistory.length > 0 && (
+    <div className="mt-10">
+        <h2 className="text-lg font-semibold mb-4">Incident History</h2>
+        <div className="space-y-4">
+                        {currentItems.map((item, index) => (
+                            <div key={index} className="p-4 border rounded bg-gray-50 shadow-sm flex justify-between items-center">
+                                <div>
+                                    <p><strong>Class:</strong> {item.className}</p>
+                                    <p><strong>Student:</strong> {item.studentName}</p>
+                                </div>
+                                <Button onClick={() => setSelectedHistoryItem(item)}>Detail</Button>
+                            </div>
+                        ))}
+                        <Dialog open={selectedHistoryItem !== null} onOpenChange={() => setSelectedHistoryItem(null)}>
+                            <DialogContent className="!w-full !max-w-[800px]">
+                                <DialogHeader>
+                                    <DialogTitle>Incident Details</DialogTitle>
+                                </DialogHeader>
+                                {selectedHistoryItem && (
+                                    <div className="space-y-2">
+                                        <p><strong>Class:</strong> {selectedHistoryItem.className}</p>
+                                        <p><strong>Student:</strong> {selectedHistoryItem.studentName}</p>
+                                        <p><strong>Incident:</strong> {selectedHistoryItem.incidentName}</p>
+                                        <p><strong>Handled By:</strong> {selectedHistoryItem.handledBy}</p>
+                                        <p><strong>Description:</strong> {selectedHistoryItem.description}</p>
+                                        <p><strong>Date:</strong> {new Date(selectedHistoryItem.createdAt).toLocaleString()}</p>
+                                        {selectedHistoryItem.supplies?.length > 0 && (
+                                            <div>
+                                                <strong>Supplies Used:</strong>
+                                                <ul className="list-disc ml-6">
+                                                    {selectedHistoryItem.supplies.map((s: any, idx: number) => (
+                                                        <li key={idx}>{s.supplyName} × {s.quantity}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                <DialogFooter>
+                                    <Button onClick={() => setSelectedHistoryItem(null)}>Close</Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                        <div className="flex justify-center mt-4 gap-2">
+                            <Button
+                                variant="outline"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                            >
+                                Prev
+                            </Button>
+                            <span className="flex items-center px-2">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <Button
+                                variant="outline"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                            >
+                                Next
+                            </Button>
+                        </div>
+        </div>
+    </div>
+)}
         </div>
     );
-}
+};
+
+export default IncidentForm;

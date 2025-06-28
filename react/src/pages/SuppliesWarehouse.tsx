@@ -167,8 +167,8 @@
                 {/* Danh sách vật tư */}
                 <h2 className="text-2xl font-bold mb-4">Danh sách vật tư</h2>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {supplies.map((supply) => (
-                        <div key={supply.id} className="border p-4 rounded shadow">
+                    {supplies.map((supply , index) => (
+                        <div key={supply.id ?? index} className="border p-4 rounded shadow">
                             <h3 className="text-xl font-semibold mb-2">{supply.supplyName}</h3>
                             <img src={supply.image} alt={supply.supplyName} className="w-full h-40 object-cover mb-2" />
                             <p><strong>Số lượng:</strong> {supply.quantity}</p>

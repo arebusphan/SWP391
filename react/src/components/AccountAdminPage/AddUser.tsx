@@ -123,7 +123,7 @@ export default function AccountManager() {
 
           {/* Dialog Add File */}
           <Dialog open={openAddFileDialog} onOpenChange={setOpenAddFileDialog}>
-            <DialogContent className="!w-full !max-w-[1000px]">
+            <DialogContent >
               <DialogTitle>Add multiple accounts from file</DialogTitle>
               <DialogDescription>Upload file to add multiple users</DialogDescription>
               <AddFileForm

@@ -9,7 +9,11 @@ namespace DAL.Incident
 {
     public interface IIncidentRepository
     {
-        Task<MedicalIncidents> AddAsync(IncidentDTO incident);
-    
+        Task<IncidentDTO> AddAsync(IncidentDTO incidentDto);
+        Task<List<IncidentSuppliesDTO>> GetAllIncidentSuppliesHistoryAsync();
+        Task<Students> GetStudentWithGuardianAndClassAsync(int studentId);
+        Task<IncidentDTO> GetByIdAsync(int id);
+        Task<List<IncidentDTO>> GetIncidentsByGuardianIdAsync(int guardianId);
+
     }
 }

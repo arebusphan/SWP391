@@ -1,4 +1,5 @@
-﻿using BLL.UserService;
+﻿using BLL.ExcelService;
+using BLL.UserService;
 using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +12,11 @@ namespace API_.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _service;
-
-        public UserController(IUserService service)
+        private readonly IExcelService _excelService;
+        public UserController(IUserService service,IExcelService excelService)
         {
             _service = service;
+            _excelService = excelService;
         }
 
         [HttpPost("add")]
@@ -70,6 +72,39 @@ namespace API_.Controllers
             return Ok(user);
         }
 
+        [HttpPost("importExcel")]
+        public async Task<IActionResult> ImportFromExcel()
+        {
+            var file = Request.Form.Files.FirstOrDefault();
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded");
+
+            using var stream = file.OpenReadStream();
+            var result = await _excelService.ProcessExcelAsync(stream);
+
+            return Ok(result);
+        }
+        [HttpGet("download-error/{fileName}")]
+        public IActionResult DownloadErrorFile(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                return BadRequest("File name is required.");
+
+            if (fileName.Contains("..") || Path.GetInvalidFileNameChars().Any(fileName.Contains))
+                return BadRequest("Invalid file name.");
+
+            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "TempStorage");
+            var filePath = Path.Combine(folderPath, fileName);
+
+            if (!System.IO.File.Exists(filePath))
+                return NotFound("File not found");
+
+            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.Delete(filePath); // ✅ Xoá file ngay sau khi đọc xong
+
+            var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            return File(fileBytes, contentType, fileName);
+        }
 
     }
 }

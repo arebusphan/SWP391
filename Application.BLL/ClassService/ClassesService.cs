@@ -26,5 +26,10 @@ namespace BLL.Services
                 ClassName = c.ClassName
             }).ToList();
         }
+        public async Task<int?> GetClassIdByNameAsync(string className)
+        {
+            var cls = await _repo.GetByNameAsync(className);
+            return cls?.ClassId;
+        }
     }
 }

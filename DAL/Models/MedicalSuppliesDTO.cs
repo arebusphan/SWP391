@@ -9,7 +9,7 @@ namespace DAL.Models
 {
     public class MedicalSuppliesDTO
     {
-
+        public int SupplyId { get; set; }
         public string? SupplyName { get; set; }
         public int? Quantity { get; set; }
      

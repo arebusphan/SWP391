@@ -175,16 +175,7 @@ export default function AddUserForm({ onExpandDialog }: AddUserFormProps) {
             ))}
           </select>
         </div>
-        <div className="flex items-center space-x-2">
-          <input
-            id="isActive"
-            type="checkbox"
-            name="isActive"
-            checked={formData.isActive}
-            onChange={handleUserChange}
-          />
-          <Label htmlFor="isActive">Active</Label>
-        </div>
+
         <Button type="submit" disabled={loading}>
           {loading ? "Saving..." : "Add"}
         </Button>
@@ -231,7 +222,6 @@ export default function AddUserForm({ onExpandDialog }: AddUserFormProps) {
                     <option value="">-- Select Gender --</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
-                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div className="w-1/3">

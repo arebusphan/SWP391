@@ -44,23 +44,21 @@ namespace DAL
                 .FirstOrDefaultAsync(x => x.SupplyId == supplies.SupplyId);
 
             if (entity == null)
-            {
                 throw new Exception($"Không tìm thấy vật tư với ID = {supplies.SupplyId}");
-            }
 
             if (supplies.Quantity.HasValue)
             {
-                if (entity.Quantity < supplies.Quantity.Value)
-                {
-                    throw new Exception("Số lượng trong kho không đủ!");
-                }
+                var quantityToTru = supplies.Quantity.Value;
 
-                entity.Quantity -= supplies.Quantity.Value;
+                if (quantityToTru > entity.Quantity)
+                    throw new Exception("Số lượng trong kho không đủ!");
+
+                entity.Quantity -= quantityToTru;
             }
 
             await _context.SaveChangesAsync();
-
             return entity;
         }
+
     }
 }
