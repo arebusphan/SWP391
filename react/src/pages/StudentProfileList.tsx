@@ -1,5 +1,11 @@
 ﻿import { useEffect, useState } from "react";
 import axios from "axios";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 type StudentProfile = {
     studentId: number;
@@ -53,7 +59,7 @@ const StudentProfileList = () => {
                         );
                         healthMapTemp[stu.studentId] = profileRes.data;
                     } catch {
-                        // no profile for student
+                        // không có hồ sơ sức khỏe cho học sinh
                     }
                 }
                 setHealthMap(healthMapTemp);
@@ -93,7 +99,7 @@ const StudentProfileList = () => {
 
     return (
         <>
-            <div className={`max-w-6xl mx-auto p-6 bg-white rounded shadow ${selectedStudent ? 'blur-sm pointer-events-none select-none' : ''}`}>
+            <div className="max-w-6xl mx-auto p-6 bg-white rounded shadow">
                 <h2 className="text-2xl font-bold mb-4">Student Profiles</h2>
 
                 <div className="flex items-center gap-4 mb-4">
@@ -101,6 +107,7 @@ const StudentProfileList = () => {
                         className="border px-3 py-1 rounded"
                         value={classFilter}
                         onChange={(e) => setClassFilter(e.target.value)}
+                        aria-label="Filter by class"
                     >
                         <option value="">-- All Classes --</option>
                         {uniqueClasses.map((cls) => (
@@ -118,10 +125,11 @@ const StudentProfileList = () => {
                         className="border px-3 py-1 rounded"
                         value={filterByProfile}
                         onChange={(e) => setFilterByProfile(e.target.value)}
+                        aria-label="Filter by health profile status"
                     >
                         <option value="all">-- All --</option>
-                        <option value="has">☑ Has Profile</option>
-                        <option value="missing">❌ Missing Profile</option>
+                        <option value="has"> Has Profile</option>
+                        <option value="missing"> Missing Profile</option>
                     </select>
                 </div>
 
@@ -158,39 +166,37 @@ const StudentProfileList = () => {
                 </table>
             </div>
 
-            {/* Modal */}
-            {selectedStudent && (
-                <div className="fixed inset-0 z-50 bg-white/50 backdrop-blur-sm flex items-center justify-center">
-                    <div className="relative bg-white p-6 rounded-xl shadow-xl max-w-lg w-full">
-                        <button
-                            onClick={() => setSelectedStudent(null)}
-                            className="absolute top-2 right-4 text-2xl text-gray-500 hover:text-black"
-                        >
-                            &times;
-                        </button>
-                        <h2 className="text-2xl font-bold mb-4 text-blue-700">Student Detail</h2>
-                        <p><strong>Name:</strong> {selectedStudent.student.fullName}</p>
-                        <p><strong>Gender:</strong> {selectedStudent.student.gender}</p>
-                        <p><strong>DOB:</strong> {formatDate(selectedStudent.student.dateOfBirth)}</p>
-                        <p><strong>Guardian:</strong> {selectedStudent.student.guardianName} ({selectedStudent.student.guardianPhone})</p>
+            {/* Dialog */}
+            <Dialog open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
+                <DialogContent className="max-w-lg" showCloseButton={false}>
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold text-blue-700">Student Detail</DialogTitle>
+                    </DialogHeader>
+                    {selectedStudent && (
+                        <div className="space-y-2">
+                            <p><strong>Name:</strong> {selectedStudent.student.fullName}</p>
+                            <p><strong>Gender:</strong> {selectedStudent.student.gender}</p>
+                            <p><strong>DOB:</strong> {formatDate(selectedStudent.student.dateOfBirth)}</p>
+                            <p><strong>Guardian:</strong> {selectedStudent.student.guardianName} ({selectedStudent.student.guardianPhone})</p>
 
-                        <div className="mt-4">
-                            <h3 className="font-semibold text-lg mb-2">Health Profile</h3>
-                            {!selectedStudent.profile ? (
-                                <p className="italic text-gray-500">No profile submitted.</p>
-                            ) : (
-                                <>
-                                    <p><strong>Allergies:</strong> {selectedStudent.profile.allergies}</p>
-                                    <p><strong>Chronic Diseases:</strong> {selectedStudent.profile.chronicDiseases}</p>
-                                    <p><strong>Vision:</strong> {selectedStudent.profile.vision}</p>
-                                    <p><strong>Hearing:</strong> {selectedStudent.profile.hearing}</p>
-                                    <p><strong>Notes:</strong> {selectedStudent.profile.otherNotes}</p>
-                                </>
-                            )}
+                            <div className="mt-4">
+                                <h3 className="font-semibold text-lg mb-2">Health Profile</h3>
+                                {!selectedStudent.profile ? (
+                                    <p className="italic text-gray-500">No profile submitted.</p>
+                                ) : (
+                                    <div className="space-y-1">
+                                        <p><strong>Allergies:</strong> {selectedStudent.profile.allergies}</p>
+                                        <p><strong>Chronic Diseases:</strong> {selectedStudent.profile.chronicDiseases}</p>
+                                        <p><strong>Vision:</strong> {selectedStudent.profile.vision}</p>
+                                        <p><strong>Hearing:</strong> {selectedStudent.profile.hearing}</p>
+                                        <p><strong>Notes:</strong> {selectedStudent.profile.otherNotes}</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </div>
-            )}
+                    )}
+                </DialogContent>
+            </Dialog>
         </>
     );
 };
