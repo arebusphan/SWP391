@@ -132,25 +132,34 @@ const NotificationCreate = () => {
     const totalPages = Math.ceil(history.length / itemsPerPage);
 
     return (
-        <div className="max-w-5xl mx-auto p-6 mt-8 bg-white rounded-2xl shadow-md">
-            <h2 className="text-2xl font-bold mb-6 text-blue-800">Send Health Notification</h2>
+        <div className="max-w-5xl mx-auto p-8 mt-10 bg-white rounded-2xl shadow-xl space-y-10">
+            {/* Header */}
+            <h2 className="text-3xl font-extrabold text-blue-700 tracking-tight">📢 Send Health Notification</h2>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    {/* Event Type */}
                     <div>
-                        <label className="font-semibold">Event Type</label>
-                        <select value={eventType} onChange={(e) => setEventType(e.target.value)} className="w-full border px-4 py-2 rounded">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Event Type</label>
+                        <select
+                            value={eventType}
+                            onChange={(e) => setEventType(e.target.value)}
+                            className="w-full border border-gray-300 rounded-xl px-4 py-2 shadow-sm focus:ring-blue-300 focus:border-blue-400 bg-gray-50"
+                        >
                             <option value="vaccine">Vaccination</option>
                             <option value="healthcheck">Health Check</option>
                         </select>
                     </div>
-                    <div className="relative dropdown-wrapper">
-                        <label className="font-semibold">Select Class</label>
 
+                    {/* Class Selector */}
+                    <div className="relative">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Select Class</label>
                         <button
                             type="button"
                             onClick={() => setDropdownOpen(!dropdownOpen)}
-                            className="w-full border px-4 py-2 rounded text-left bg-white"
+                            className="w-full border border-gray-300 rounded-xl px-4 py-2 text-left shadow-sm bg-gray-50"
                         >
                             {selectedClassIds.length === 0
                                 ? "Choose classes"
@@ -158,9 +167,12 @@ const NotificationCreate = () => {
                         </button>
 
                         {dropdownOpen && (
-                            <div className="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto bg-white border rounded shadow-md">
+                            <div className="absolute z-20 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                                 {classes.map((cls) => (
-                                    <label key={cls.classId} className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                                    <label
+                                        key={cls.classId}
+                                        className="flex items-center px-4 py-2 hover:bg-blue-50 cursor-pointer text-sm"
+                                    >
                                         <input
                                             type="checkbox"
                                             value={cls.classId}
@@ -182,73 +194,113 @@ const NotificationCreate = () => {
                         )}
                     </div>
 
-
-
+                    {/* Event Name */}
                     <div>
-                        <label className="font-semibold">Event Name</label>
-                        <input type="text" value={eventName} onChange={(e) => setEventName(e.target.value)} className="w-full border px-4 py-2 rounded" required />
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Event Name</label>
+                        <input
+                            type="text"
+                            value={eventName}
+                            onChange={(e) => setEventName(e.target.value)}
+                            className="w-full border border-gray-300 rounded-xl px-4 py-2 shadow-sm focus:ring-blue-300 bg-gray-50"
+                            required
+                        />
                     </div>
 
+                    {/* Event Date */}
                     <div>
-                        <label className="font-semibold">Event Date</label>
-                        <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className="w-full border px-4 py-2 rounded" required />
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Event Date</label>
+                        <input
+                            type="date"
+                            value={eventDate}
+                            onChange={(e) => setEventDate(e.target.value)}
+                            className="w-full border border-gray-300 rounded-xl px-4 py-2 shadow-sm focus:ring-blue-300 bg-gray-50"
+                            required
+                        />
                     </div>
 
+                    {/* Image Upload */}
                     <div className="col-span-2">
-                        <label className="font-semibold">Illustration Image (optional)</label>
-                        <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} className="w-full" />
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Illustration Image (optional)</label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                            className="w-full text-gray-700 bg-white"
+                        />
                     </div>
                 </div>
 
-                <button type="submit" disabled={loading} className={`mt-4 w-full bg-blue-700 text-white font-semibold py-3 rounded hover:bg-blue-800 ${loading ? "opacity-60 cursor-not-allowed" : ""}`}>
+                {/* Submit Button */}
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition ${loading ? "opacity-60 cursor-not-allowed" : ""
+                        }`}
+                >
                     {loading ? "Sending..." : "Send Notification"}
                 </button>
             </form>
 
-            <hr className="my-8" />
+            <hr className="border-gray-200" />
 
-            <h3 className="text-xl font-bold mb-4">📜 Sent Notifications History</h3>
-            <table className="w-full table-auto border">
-                <thead className="bg-gray-100">
-                    <tr>
-                        <th className="px-4 py-2 border">Event</th>
-                        <th className="px-4 py-2 border">Type</th>
-                        <th className="px-4 py-2 border">Date</th>
-                        <th className="px-4 py-2 border">Class</th>
-                        <th className="px-4 py-2 border">Illustration Image</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {currentItems.map((item) => (
-                        <tr key={item.id}>
-                            <td className="px-4 py-2 border">{item.eventName}</td>
-                            <td className="px-4 py-2 border">{item.eventType}</td>
-                            <td className="px-4 py-2 border">{new Date(item.eventDate).toLocaleDateString()}</td>
-                            <td className="px-4 py-2 border">{item.className}</td>
-                            <td className="px-4 py-2 border">
-                                {item.eventImage ? (
-                                    <img src={item.eventImage} alt={item.eventName} className="w-20 h-20 object-cover rounded" />
-                                ) : (
-                                    <span>No Image</span>
-                                )}
-                            </td>
-                        </tr>
+            {/* History */}
+            <div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">📜 Sent Notifications History</h3>
+
+                <div className="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
+                    <table className="min-w-full text-sm text-left">
+                        <thead className="bg-gray-100 text-gray-700">
+                            <tr>
+                                <th className="px-4 py-2">Event</th>
+                                <th className="px-4 py-2">Type</th>
+                                <th className="px-4 py-2">Date</th>
+                                <th className="px-4 py-2">Class</th>
+                                <th className="px-4 py-2 text-center">Image</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white">
+                            {currentItems.map((item) => (
+                                <tr key={item.id} className="hover:bg-blue-50 transition">
+                                    <td className="px-4 py-2 border-t">{item.eventName}</td>
+                                    <td className="px-4 py-2 border-t capitalize">{item.eventType}</td>
+                                    <td className="px-4 py-2 border-t">{new Date(item.eventDate).toLocaleDateString()}</td>
+                                    <td className="px-4 py-2 border-t">{item.className}</td>
+                                    <td className="px-4 py-2 border-t text-center">
+                                        {item.eventImage ? (
+                                            <img
+                                                src={item.eventImage}
+                                                alt={item.eventName}
+                                                className="w-14 h-14 object-cover mx-auto rounded-md shadow"
+                                            />
+                                        ) : (
+                                            <span className="text-gray-400 italic">No Image</span>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="flex justify-center mt-6 gap-2">
+                    {Array.from({ length: totalPages }, (_, index) => (
+                        <button
+                            key={index + 1}
+                            onClick={() => setCurrentPage(index + 1)}
+                            className={`px-3 py-1 rounded-lg font-medium text-sm transition ${currentPage === index + 1
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                }`}
+                        >
+                            {index + 1}
+                        </button>
                     ))}
-                </tbody>
-            </table>
-
-            <div className="flex justify-center mt-4 gap-2">
-                {Array.from({ length: totalPages }, (_, index) => (
-                    <button
-                        key={index + 1}
-                        onClick={() => setCurrentPage(index + 1)}
-                        className={`px-3 py-1 rounded ${currentPage === index + 1 ? "bg-blue-600 text-white" : "bg-gray-200"}`}
-                    >
-                        {index + 1}
-                    </button>
-                ))}
+                </div>
             </div>
         </div>
+
+
     );
 };
 

@@ -142,98 +142,116 @@ const ParentHealthForm = () => {
     if (loading) return <p>Loading data...</p>;
 
     return (
-        <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow">
-            <h2 className="text-2xl font-bold mb-4 text-blue-700">Health Profile Management</h2>
+       <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-xl space-y-6">
+  <h2 className="text-3xl font-bold text-blue-700 text-center">🩺 Health Profile Management</h2>
 
+  <div className="flex justify-end">
+    <button
+      onClick={startNewForm}
+      className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition-transform hover:scale-105"
+    >
+      ➕ Submit New Profile
+    </button>
+  </div>
+
+  <div>
+    <h3 className="text-xl font-bold mb-3 text-gray-800">📄 Submitted Profiles</h3>
+    {submitted.length === 0 ? (
+      <p className="text-gray-500 italic">No profiles submitted yet.</p>
+    ) : (
+      <ul className="space-y-3">
+        {submitted.map((p) => (
+          <li key={p.declarationId} className="border border-gray-200 p-4 rounded-lg bg-gray-50 shadow-sm">
+            <div className="font-medium text-gray-800">
+              👩‍🎓 Student: {students.find(s => s.studentId === p.studentId)?.fullName}
+            </div>
+            <div className="text-gray-700 text-sm mt-1">
+              👁️ Vision: {p.vision} &nbsp;&nbsp; | &nbsp;&nbsp; 👂 Hearing: {p.hearing}
+            </div>
             <button
-                onClick={startNewForm}
-                className="mb-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={() => handleEdit(p)}
+              className="text-blue-600 text-sm underline mt-2 hover:text-blue-800"
             >
-                ➕ Submit New Profile
+              ✏️ Edit
             </button>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
 
-            <h3 className="text-xl font-bold mt-6 mb-2 text-gray-800">Submitted Profiles</h3>
-            <ul className="space-y-3">
-                {submitted.map((p) => (
-                    <li key={p.declarationId} className="border p-3 rounded bg-gray-50">
-                        <div><strong>Student:</strong> {students.find(s => s.studentId === p.studentId)?.fullName}</div>
-                        <div><strong>Vision:</strong> {p.vision} | <strong>Hearing:</strong> {p.hearing}</div>
-                        <button onClick={() => handleEdit(p)} className="text-blue-600 underline mt-1">✏️ Edit</button>
-                    </li>
-                ))}
-            </ul>
+  {showForm && (
+    <div className="mt-8">
+      <h3 className="text-xl font-bold mb-4 text-gray-800">
+        {editingId ? "✏️ Edit Health Profile" : "➕ New Health Profile"}
+      </h3>
 
-            {showForm && (
-                <>
-                    <h3 className="text-xl font-bold mt-8 text-gray-800">
-                        {editingId ? "Edit Health Profile" : "New Health Profile"}
-                    </h3>
-
-                    <div className="mb-4 mt-2">
-                        <label className="block font-semibold mb-1">Select Student</label>
-                        <select
-                            name="studentId"
-                            value={formData.studentId}
-                            onChange={handleChange}
-                            className="w-full border px-3 py-2 rounded"
-                            disabled={!!editingId}
-                        >
-                            <option value="">-- Select Student --</option>
-                            {students
-                                .filter(s =>
-                                    editingId || !submitted.some(p => p.studentId === s.studentId)
-                                )
-                                .map((s) => (
-                                    <option key={s.studentId} value={s.studentId}>
-                                        {s.fullName}
-                                    </option>
-                                ))}
-                        </select>
-                    </div>
-
-                    {["allergies", "chronicDiseases", "vision", "hearing", "otherNotes"].map((field) => (
-                        <div className="mb-4" key={field}>
-                            <label className="block font-semibold mb-1 capitalize">{field}</label>
-                            <input
-                                type="text"
-                                name={field}
-                                value={formData[field as keyof HealthProfileDTO]}
-                                onChange={handleChange}
-                                className="w-full border px-3 py-2 rounded"
-                            />
-                        </div>
-                    ))}
-
-                    <div className="flex gap-4">
-                        <button
-                            onClick={handleSubmit}
-                            className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-                            disabled={submitting}
-                        >
-                            {submitting ? "Submitting..." : editingId ? "Update" : "Submit"}
-                        </button>
-                        <button
-                            onClick={() => {
-                                setShowForm(false);
-                                setEditingId(null);
-                                setFormData({
-                                    studentId: 0,
-                                    allergies: "",
-                                    chronicDiseases: "",
-                                    vision: "",
-                                    hearing: "",
-                                    otherNotes: "",
-                                });
-                            }}
-                            className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
-                            disabled={submitting}
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </>
-            )}
+      <div className="space-y-4">
+        <div>
+          <label className="block font-medium mb-1">Select Student</label>
+          <select
+            name="studentId"
+            value={formData.studentId}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 shadow-sm bg-gray-50"
+            disabled={!!editingId}
+          >
+            <option value="">-- Select Student --</option>
+            {students
+              .filter(s => editingId || !submitted.some(p => p.studentId === s.studentId))
+              .map((s) => (
+                <option key={s.studentId} value={s.studentId}>
+                  {s.fullName}
+                </option>
+              ))}
+          </select>
         </div>
+
+        {["allergies", "chronicDiseases", "vision", "hearing", "otherNotes"].map((field) => (
+          <div key={field}>
+            <label className="block font-medium mb-1 capitalize">{field.replace(/([A-Z])/g, " $1")}</label>
+            <input
+              type="text"
+              name={field}
+              value={formData[field as keyof HealthProfileDTO]}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 shadow-sm"
+            />
+          </div>
+        ))}
+
+        <div className="flex gap-4 justify-end pt-2">
+          <button
+            onClick={handleSubmit}
+            className="bg-green-600 text-white px-6 py-2 rounded-lg shadow hover:bg-green-700 transition-transform hover:scale-105"
+            disabled={submitting}
+          >
+            {submitting ? "Submitting..." : editingId ? "Update" : "Submit"}
+          </button>
+          <button
+            onClick={() => {
+              setShowForm(false);
+              setEditingId(null);
+              setFormData({
+                studentId: 0,
+                allergies: "",
+                chronicDiseases: "",
+                vision: "",
+                hearing: "",
+                otherNotes: "",
+              });
+            }}
+            className="bg-gray-400 text-white px-6 py-2 rounded-lg hover:bg-gray-500 transition"
+            disabled={submitting}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
+</div>
+
     );
 };
 

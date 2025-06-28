@@ -143,3 +143,7 @@ react/package.json
 Api_/appsettings.json
 react/package-lock.json
 react/package.json
+*.cmd
+*.ps1
+*.ts
+/node_modules

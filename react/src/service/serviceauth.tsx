@@ -465,4 +465,39 @@ export const createMedicationIntakeLog = async (payload: {
     }
   );
 };
+export const createArticle = async (payload: {
+    title: string;
+    imageUrl: string;
+    htmlContent: string;
+}) => {
+    const token = localStorage.getItem("token");
 
+    return await axios.post("https://localhost:7195/api/article/post", payload, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+    });
+};
+export const getAllArticles = async () => {
+    const token = localStorage.getItem("token");
+
+    const res = await axios.get("https://localhost:7195/api/article/get", {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    return res.data;
+};
+export const getArticleById = async (id: number) => {
+    const token = localStorage.getItem("token");
+
+    const res = await axios.get(`https://localhost:7195/api/article/get${id}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    return res.data;
+};

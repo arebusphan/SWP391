@@ -16,6 +16,8 @@ import LeftSideParent from "../components/LeftSideParent";
 import ProtectedRoute from "./ProtectedRoute";
 import ManagerPage from "../pages/ManagerPage";
 import HomePage from "../pages/HomePage";
+import BlogPage from "../pages/BlogPage";
+import BlogDetail from "../pages/BLogDetails";
 
 const AppRoutes = () => {
     return (
@@ -30,7 +32,7 @@ const AppRoutes = () => {
 
             
                 <Route path="/about" element={<AboutPage />} />
-
+                <Route path="/blog" element={<BlogPage />} />
                 <Route path="/unauthorized" element={<Unauthorized />} />
 
                 
@@ -41,7 +43,7 @@ const AppRoutes = () => {
                 <Route element={<ProtectedRoute allowedRoles={["Parent"]} />}>
                     <Route path="/ParentPage/*" element={<ParentPage />} />
                 </Route>
-
+                <Route path="/blogs/:id" element={<BlogDetail />} />
                 <Route element={<ProtectedRoute allowedRoles={["MedicalStaff"]} />}>
                     <Route path="/MedicalStaffPage/*" element={<MedicalStaffPage />} />
                 </Route>

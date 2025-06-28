@@ -45,49 +45,55 @@ const IncidentHistory = () => {
     }
 
     return (
-        <div className="p-4">
-            <h2 className="text-lg font-semibold mb-4">Lịch sử sự cố của học sinh</h2>
+        <div className="p-6 bg-gray-50 rounded-2xl shadow-inner space-y-6">
+            <h2 className="text-2xl font-bold text-blue-700">📘 Lịch sử sự cố của học sinh</h2>
+
             {incidents.length === 0 ? (
-                <p>Chưa có sự cố nào.</p>
+                <div className="text-gray-500 italic">Chưa có sự cố nào được ghi nhận.</div>
             ) : (
                 <div className="space-y-4">
                     {incidents.map((incident, index) => (
                         <div
                             key={index}
-                            className="p-4 border rounded shadow flex justify-between items-center bg-white"
+                            className="p-4 bg-white rounded-xl shadow-md border border-gray-200 flex justify-between items-start hover:bg-blue-50 transition duration-200"
                         >
                             <div>
-                                <p><strong>Sự cố:</strong> {incident.incidentName}</p>
-                                <p><strong>Ngày:</strong> {formatDate(incident.occurredAt)}</p>
+                                <p className="font-semibold text-gray-800">🔹 {incident.incidentName}</p>
+                                <p className="text-sm text-gray-600 mt-1"><strong>📅 Ngày:</strong> {formatDate(incident.occurredAt)}</p>
                             </div>
-                            <Button onClick={() => setSelectedIncident(incident)}>Chi tiết</Button>
+                            <Button variant="outline" size="sm" onClick={() => setSelectedIncident(incident)}>
+                                Chi tiết
+                            </Button>
                         </div>
                     ))}
                 </div>
             )}
 
+            {/* Dialog: Chi tiết sự cố */}
             <Dialog open={!!selectedIncident} onOpenChange={() => setSelectedIncident(null)}>
-                <DialogContent className="!max-w-[600px]">
+                <DialogContent className="!max-w-[600px] bg-white rounded-xl p-6 shadow-xl space-y-4">
                     <DialogHeader>
-                        <DialogTitle>Chi tiết sự cố</DialogTitle>
+                        <DialogTitle className="text-xl font-bold text-blue-700">🔍 Chi tiết sự cố</DialogTitle>
                     </DialogHeader>
+
                     {selectedIncident && (
-                        <div className="space-y-2">
+                        <div className="space-y-2 text-[15px] text-gray-700">
                             <p><strong>Lớp:</strong> {selectedIncident.className || "Không rõ"}</p>
                             <p><strong>Học sinh:</strong> {selectedIncident.studentName || "Không rõ"}</p>
                             <p><strong>Sự cố:</strong> {selectedIncident.incidentName}</p>
                             <p><strong>Người xử lý:</strong> {selectedIncident.handledBy}</p>
                             <p><strong>Mô tả:</strong> {selectedIncident.description}</p>
                             <p><strong>Ngày xảy ra:</strong> {formatDate(selectedIncident.occurredAt)}</p>
-                            
                         </div>
                     )}
+
                     <DialogFooter>
                         <Button onClick={() => setSelectedIncident(null)}>Đóng</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>
+
     );
 };
 
