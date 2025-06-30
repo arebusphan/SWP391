@@ -55,162 +55,159 @@ export default function SendMedicineView() {
   };
 
   return (
-    <div className="p-5">
-      {/* Send medicine button */}
-      <div className="flex justify-end mb-10">
-        <Button
-          className="flex items-center"
-          onClick={() => setOpenSendMedicineDialog(true)}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Send Medicine
-        </Button>
-      </div>
-
-      {/* Dialog gửi thuốc */}
-      <Dialog open={openSendMedicineDialog} onOpenChange={setOpenSendMedicineDialog}>
-        <DialogContent className="!p-6 !max-w-fit">
-          <div className="flex flex-row items-start gap-6">
-            <div className="flex flex-col gap-2 w-[400px]">
-              <DialogTitle>Send Medicine</DialogTitle>
-              <DialogDescription>Provide medicine request details</DialogDescription>
-              <SendMedicineForm
-                onSuccess={() => {
-                  setOpenSendMedicineDialog(false);
-                  refreshRequests();
-                }}
-                onPreviewChange={(preview, url) => {
-                  setHasPreviewImage(preview);
-                  setPreviewUrl(url || "");
-                }}
-              />
-            </div>
-
-            {hasPreviewImage && previewUrl && (
-              <div className="w-[300px] min-h-[420px] flex items-center justify-center border border-gray-300 rounded overflow-hidden">
-                <img
-                  src={previewUrl}
-                  alt="Preview"
-                  className="object-contain max-h-[400px] w-full"
-                />
-              </div>
-            )}
+      <div className="p-6 bg-gray-50 min-h-screen text-[16px] md:text-[17px]">
+          {/* Send medicine button */}
+          <div className="flex justify-end mb-8">
+              <Button
+                  className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg shadow-md transition-transform hover:scale-105"
+                  onClick={() => setOpenSendMedicineDialog(true)}
+              >
+                  <Plus className="w-5 h-5 mr-2" />
+                  Send Medicine
+              </Button>
           </div>
-        </DialogContent>
-      </Dialog>
 
-      <h2 className="text-xl font-bold mb-4">Medication Request History</h2>
+          {/* Dialog gửi thuốc */}
+          <Dialog open={openSendMedicineDialog} onOpenChange={setOpenSendMedicineDialog}>
+              <DialogContent className="!p-8 !max-w-4xl animate-fade-in">
+                  <div className="flex flex-row items-start gap-8">
+                      <div className="flex flex-col gap-4 w-[420px]">
+                          <DialogTitle className="text-2xl font-semibold text-blue-700">Send Medicine</DialogTitle>
+                          <DialogDescription className="text-gray-600">Provide medicine request details</DialogDescription>
+                          <SendMedicineForm
+                              onSuccess={() => {
+                                  setOpenSendMedicineDialog(false);
+                                  refreshRequests();
+                              }}
+                              onPreviewChange={(preview, url) => {
+                                  setHasPreviewImage(preview);
+                                  setPreviewUrl(url || "");
+                              }}
+                          />
+                      </div>
 
-      <div className="border rounded-md overflow-hidden">
-        <table className="w-full text-left table-fixed">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-3">Medicine</th>
-              <th className="p-3">Image</th>
-              <th className="p-3">Initial Health</th>
-              <th className="p-3">Note</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Created At</th>
-              <th className="p-3 w-[220px]">Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            {requests.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="text-center p-5">
-                  No requests found.
-                </td>
-              </tr>
-            ) : (
-              requests.map((req) => {
-                const canViewHistory = ["Approved", "Injected", "Administered"].includes(req.status);
-                return (
-                  <tr key={req.requestId} className="border-t hover:bg-gray-50 align-top">
-                    <td className="p-3">{req.medicineName}</td>
-                    <td className="p-3">
-                      <img
-                        src={req.prescriptionImage}
-                        alt="prescription"
-                        className="w-20 h-20 object-cover rounded cursor-pointer transition-transform duration-200 hover:scale-105"
-                        onClick={() => setSelectedImage(req.prescriptionImage)}
-                      />
-                    </td>
-                    <td className="p-3">{req.healthStatus}</td>
-                    <td className="p-3">{req.note}</td>
-                    <td className="p-3">
-                      <span
-                        className={`px-2 py-1 rounded text-white ${
-                         req.status === "Pending"
-      ? "bg-yellow-500"
-      : req.status === "Approved"
-      ? "bg-green-500"
-      : req.status === "Injected"
-      ? "bg-blue-500"
-      : req.status === "Administered"
-      ? "bg-cyan-600"
-      : "bg-red-500"
-                        }`}
-                      >
-                        {req.status}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      {new Date(req.createdAt).toLocaleString()}
-                    </td>
-                    <td className="p-3 w-[220px] align-top">
-                      {canViewHistory ? (
-                        <Button
-                          variant="outline"
-                          onClick={() =>
-                            handleViewHistory(req.requestId, req.studentId)
-                          }
-                        >
-                          View History
-                        </Button>
-                      ) : req.status === "Rejected" && req.rejectReason ? (
-                        <div className="text-black text-sm whitespace-pre-line break-words">
-                          <span className="font-semibold">Reason:</span>{" "}
-                          {req.rejectReason}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400 italic">—</span>
+                      {hasPreviewImage && previewUrl && (
+                          <div className="w-[320px] min-h-[440px] flex items-center justify-center border border-gray-300 rounded-xl overflow-hidden shadow-md">
+                              <img
+                                  src={previewUrl}
+                                  alt="Preview"
+                                  className="object-contain max-h-[420px] w-full"
+                              />
+                          </div>
                       )}
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+                  </div>
+              </DialogContent>
+          </Dialog>
 
-      {/* Dialog xem ảnh đơn thuốc */}
-      <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-        <DialogContent className="!max-w-[70vw] !max-h-[70vh] p-0 overflow-hidden">
-          <div className="relative w-full h-full flex justify-center items-center bg-black">
-            <img
-              src={selectedImage ?? ""}
-              alt="Zoomed Prescription"
-              className="object-contain w-full h-full max-w-full max-h-full"
-              style={{ maxHeight: "70vh", maxWidth: "70vw" }}
-            />
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute top-2 right-2 text-white text-2xl font-bold bg-black bg-opacity-60 rounded-full px-3 py-1 hover:bg-opacity-90"
-            >
-              ×
-            </button>
+          <h2 className="text-3xl font-bold text-blue-700 mb-6">Medication Request History</h2>
+
+          <div className="overflow-x-auto rounded-xl shadow border border-gray-200">
+              <table className="w-full text-base text-left border-collapse">
+                  <thead className="bg-blue-600 text-white text-[15px]">
+                      <tr>
+                          <th className="p-4">Medicine</th>
+                          <th className="p-4">Image</th>
+                          <th className="p-4">Initial Health</th>
+                          <th className="p-4">Note</th>
+                          <th className="p-4">Status</th>
+                          <th className="p-4">Created At</th>
+                          <th className="p-4 w-[240px]">Details</th>
+                      </tr>
+                  </thead>
+                  <tbody className="bg-white">
+                      {requests.length === 0 ? (
+                          <tr>
+                              <td colSpan={7} className="text-center p-6 text-gray-500 text-lg">
+                                  No requests found.
+                              </td>
+                          </tr>
+                      ) : (
+                          requests.map((req) => {
+                              const canViewHistory = ["Approved", "Injected", "Administered"].includes(req.status);
+                              return (
+                                  <tr key={req.requestId} className="border-t hover:bg-blue-50 transition duration-200 ease-in-out">
+                                      <td className="p-4 align-top font-medium">{req.medicineName}</td>
+                                      <td className="p-4 align-top">
+                                          <img
+                                              src={req.prescriptionImage}
+                                              alt="prescription"
+                                              className="w-24 h-24 object-cover rounded-lg cursor-pointer transition-transform duration-300 hover:scale-110 ring-2 ring-blue-400"
+                                              onClick={() => setSelectedImage(req.prescriptionImage)}
+                                          />
+                                      </td>
+                                      <td className="p-4 align-top">{req.healthStatus}</td>
+                                      <td className="p-4 align-top">{req.note}</td>
+                                      <td className="p-4 align-top">
+                                          <span
+                                              className={`px-3 py-1 rounded-full text-white text-sm font-semibold transition-colors duration-200 ${req.status === "Pending"
+                                                      ? "bg-yellow-500"
+                                                      : req.status === "Approved"
+                                                          ? "bg-green-500"
+                                                          : req.status === "Injected"
+                                                              ? "bg-blue-500"
+                                                              : req.status === "Administered"
+                                                                  ? "bg-cyan-600"
+                                                                  : "bg-red-500"
+                                                  }`}
+                                          >
+                                              {req.status}
+                                          </span>
+                                      </td>
+                                      <td className="p-4 align-top text-gray-700">
+                                          {new Date(req.createdAt).toLocaleString()}
+                                      </td>
+                                      <td className="p-4 w-[240px] align-top">
+                                          {canViewHistory ? (
+                                              <Button
+                                                  variant="outline"
+                                                  onClick={() => handleViewHistory(req.requestId, req.studentId)}
+                                                  className="hover:scale-[1.03] transition-transform"
+                                              >
+                                                  View History
+                                              </Button>
+                                          ) : req.status === "Rejected" && req.rejectReason ? (
+                                              <div className="text-sm whitespace-pre-line break-words">
+                                                  <span className="font-semibold">Reason:</span> {req.rejectReason}
+                                              </div>
+                                          ) : (
+                                              <span className="text-gray-400 italic">—</span>
+                                          )}
+                                      </td>
+                                  </tr>
+                              );
+                          })
+                      )}
+                  </tbody>
+              </table>
           </div>
-        </DialogContent>
-      </Dialog>
 
-      {/* Dialog xem lịch sử uống thuốc */}
-      <ViewMedicationHistory
-        open={openHistoryDialog}
-        onClose={() => setOpenHistoryDialog(false)}
-        requestId={selectedRequestId}
-        studentId={selectedStudentId}
-      />
-    </div>
+          {/* Dialog xem ảnh đơn thuốc */}
+          <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+              <DialogContent className="!max-w-[70vw] !max-h-[70vh] p-0 overflow-hidden">
+                  <div className="relative w-full h-full flex justify-center items-center bg-black">
+                      <img
+                          src={selectedImage ?? ""}
+                          alt="Zoomed Prescription"
+                          className="object-contain w-full h-full max-w-full max-h-full transition-opacity duration-300"
+                          style={{ maxHeight: "70vh", maxWidth: "70vw" }}
+                      />
+                      <button
+                          onClick={() => setSelectedImage(null)}
+                          className="absolute top-2 right-2 text-white text-3xl font-bold bg-black bg-opacity-60 rounded-full px-3 py-1 hover:bg-opacity-90"
+                      >
+                          ×
+                      </button>
+                  </div>
+              </DialogContent>
+          </Dialog>
+
+          {/* Dialog xem lịch sử uống thuốc */}
+          <ViewMedicationHistory
+              open={openHistoryDialog}
+              onClose={() => setOpenHistoryDialog(false)}
+              requestId={selectedRequestId}
+              studentId={selectedStudentId}
+          />
+      </div>
   );
 }

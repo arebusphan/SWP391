@@ -1,5 +1,10 @@
-﻿using BLL.AuthService;
+
+﻿using BLL;
+using BLL.AuthService;
+
+
 using BLL.ExcelService;
+
 using BLL.HealthCheckService;
 using BLL.HealthProfile;
 using BLL.IncidentService;
@@ -103,7 +108,8 @@ namespace WebApplication6
             builder.Services.AddScoped<IHealthEventSupplyRepository, HealthEventSupplyRepository>();
             builder.Services.AddScoped<IHealthEventSupplyService, HealthEventSupplyService>();
 
-        
+            builder.Services.AddControllers();
+            builder.Services.AddScoped<BlogService>();
             builder.Services.AddScoped<IIncidentRepository, IncidentRepository>();
             builder.Services.AddScoped<IIncidentService, IncidentService>();
 

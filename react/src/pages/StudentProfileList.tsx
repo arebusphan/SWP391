@@ -1,5 +1,11 @@
 ﻿import { useEffect, useState } from "react";
 import axios from "axios";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 type StudentProfile = {
     studentId: number;
@@ -53,7 +59,7 @@ const StudentProfileList = () => {
                         );
                         healthMapTemp[stu.studentId] = profileRes.data;
                     } catch {
-                        // no profile for student
+                        // No profile found
                     }
                 }
                 setHealthMap(healthMapTemp);
@@ -93,104 +99,108 @@ const StudentProfileList = () => {
 
     return (
         <>
-            <div className={`max-w-6xl mx-auto p-6 bg-white rounded shadow ${selectedStudent ? 'blur-sm pointer-events-none select-none' : ''}`}>
-                <h2 className="text-2xl font-bold mb-4">Student Profiles</h2>
+            <div className={`max-w-6xl mx-auto p-6 bg-white rounded-2xl shadow-lg transition-all duration-300 ${selectedStudent ? 'blur-sm pointer-events-none select-none' : ''}`}>
+                <h2 className="text-3xl font-extrabold text-gray-800 mb-6">🎓 Student Profiles</h2>
 
-                <div className="flex items-center gap-4 mb-4">
+                {/* Filters */}
+                <div className="flex flex-wrap gap-4 mb-6 items-center">
                     <select
-                        className="border px-3 py-1 rounded"
+                        className="border border-gray-300 rounded-xl px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                         value={classFilter}
                         onChange={(e) => setClassFilter(e.target.value)}
+                        aria-label="Filter by class"
                     >
                         <option value="">-- All Classes --</option>
                         {uniqueClasses.map((cls) => (
                             <option key={cls} value={cls}>{cls}</option>
                         ))}
                     </select>
+
                     <input
                         type="text"
-                        placeholder="Search by name"
-                        className="border px-3 py-1 rounded w-60"
+                        placeholder="🔍 Search by name"
+                        className="border border-gray-300 rounded-xl px-4 py-2 w-64 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                         value={searchName}
                         onChange={(e) => setSearchName(e.target.value)}
                     />
+
                     <select
-                        className="border px-3 py-1 rounded"
+                        className="border border-gray-300 rounded-xl px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                         value={filterByProfile}
                         onChange={(e) => setFilterByProfile(e.target.value)}
+                        aria-label="Filter by health profile status"
                     >
                         <option value="all">-- All --</option>
-                        <option value="has">☑ Has Profile</option>
-                        <option value="missing">❌ Missing Profile</option>
+                        <option value="has">Has Profile</option>
+                        <option value="missing">Missing Profile</option>
                     </select>
                 </div>
 
-                <table className="w-full table-fixed border-collapse shadow rounded-lg overflow-hidden text-sm">
-                    <thead>
-                        <tr className="bg-gray-100 text-gray-700">
-                            <th className="p-3 text-center">Name</th>
-                            <th className="p-3 text-center">Gender</th>
-                            <th className="p-3 text-center">DOB</th>
-                            <th className="p-3 text-center">Guardian</th>
-                            <th className="p-3 text-center">Phone</th>
-                            <th className="p-3 text-center">Class</th>
-                            <th className="p-3 text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredStudents.map((s) => (
-                            <tr key={s.studentId} className="hover:bg-gray-50">
-                                <td className="p-3 text-center">{s.fullName}</td>
-                                <td className="p-3 text-center">{s.gender}</td>
-                                <td className="p-3 text-center">{formatDate(s.dateOfBirth)}</td>
-                                <td className="p-3 text-center">{s.guardianName}</td>
-                                <td className="p-3 text-center">{s.guardianPhone}</td>
-                                <td className="p-3 text-center">{s.className}</td>
-                                <td className="p-3 text-center">
-                                    <button
-                                        onClick={() => handleView(s)}
-                                        className="text-blue-600 hover:underline"
-                                    >View</button>
-                                </td>
+                {/* Table */}
+                <div className="overflow-auto rounded-xl shadow-sm">
+                    <table className="min-w-full table-auto text-sm border border-gray-200 rounded-lg overflow-hidden">
+                        <thead className="bg-blue-50 text-blue-800">
+                            <tr>
+                                {["Name", "Gender", "DOB", "Guardian", "Phone", "Class", "Action"].map((heading) => (
+                                    <th key={heading} className="p-3 text-center font-semibold">{heading}</th>
+                                ))}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="text-gray-700">
+                            {filteredStudents.map((s, idx) => (
+                                <tr key={s.studentId} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition`}>
+                                    <td className="p-3 text-center">{s.fullName}</td>
+                                    <td className="p-3 text-center">{s.gender}</td>
+                                    <td className="p-3 text-center">{formatDate(s.dateOfBirth)}</td>
+                                    <td className="p-3 text-center">{s.guardianName}</td>
+                                    <td className="p-3 text-center">{s.guardianPhone}</td>
+                                    <td className="p-3 text-center">{s.className}</td>
+                                    <td className="p-3 text-center">
+                                        <button
+                                            onClick={() => handleView(s)}
+                                            className="text-blue-600 hover:text-blue-800 font-medium underline"
+                                        >
+                                            View
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            {/* Modal */}
-            {selectedStudent && (
-                <div className="fixed inset-0 z-50 bg-white/50 backdrop-blur-sm flex items-center justify-center">
-                    <div className="relative bg-white p-6 rounded-xl shadow-xl max-w-lg w-full">
-                        <button
-                            onClick={() => setSelectedStudent(null)}
-                            className="absolute top-2 right-4 text-2xl text-gray-500 hover:text-black"
-                        >
-                            &times;
-                        </button>
-                        <h2 className="text-2xl font-bold mb-4 text-blue-700">Student Detail</h2>
-                        <p><strong>Name:</strong> {selectedStudent.student.fullName}</p>
-                        <p><strong>Gender:</strong> {selectedStudent.student.gender}</p>
-                        <p><strong>DOB:</strong> {formatDate(selectedStudent.student.dateOfBirth)}</p>
-                        <p><strong>Guardian:</strong> {selectedStudent.student.guardianName} ({selectedStudent.student.guardianPhone})</p>
+            {/* Dialog Modal */}
+            <Dialog open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
+                <DialogContent className="max-w-lg" showCloseButton={false}>
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold text-blue-700">Student Detail</DialogTitle>
+                    </DialogHeader>
+                    {selectedStudent && (
+                        <div className="space-y-2 text-gray-700">
+                            <p><strong>Name:</strong> {selectedStudent.student.fullName}</p>
+                            <p><strong>Gender:</strong> {selectedStudent.student.gender}</p>
+                            <p><strong>DOB:</strong> {formatDate(selectedStudent.student.dateOfBirth)}</p>
+                            <p><strong>Guardian:</strong> {selectedStudent.student.guardianName} ({selectedStudent.student.guardianPhone})</p>
 
-                        <div className="mt-4">
-                            <h3 className="font-semibold text-lg mb-2">Health Profile</h3>
-                            {!selectedStudent.profile ? (
-                                <p className="italic text-gray-500">No profile submitted.</p>
-                            ) : (
-                                <>
-                                    <p><strong>Allergies:</strong> {selectedStudent.profile.allergies}</p>
-                                    <p><strong>Chronic Diseases:</strong> {selectedStudent.profile.chronicDiseases}</p>
-                                    <p><strong>Vision:</strong> {selectedStudent.profile.vision}</p>
-                                    <p><strong>Hearing:</strong> {selectedStudent.profile.hearing}</p>
-                                    <p><strong>Notes:</strong> {selectedStudent.profile.otherNotes}</p>
-                                </>
-                            )}
+                            <div className="mt-6">
+                                <h3 className="font-semibold text-lg mb-2 text-blue-600">🩺 Health Profile</h3>
+                                {!selectedStudent.profile ? (
+                                    <p className="italic text-gray-500">No profile submitted.</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        <p><strong>Allergies:</strong> {selectedStudent.profile.allergies}</p>
+                                        <p><strong>Chronic Diseases:</strong> {selectedStudent.profile.chronicDiseases}</p>
+                                        <p><strong>Vision:</strong> {selectedStudent.profile.vision}</p>
+                                        <p><strong>Hearing:</strong> {selectedStudent.profile.hearing}</p>
+                                        <p><strong>Notes:</strong> {selectedStudent.profile.otherNotes}</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </div>
-            )}
+                    )}
+                </DialogContent>
+            </Dialog>
         </>
     );
 };

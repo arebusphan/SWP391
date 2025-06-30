@@ -95,17 +95,21 @@ const HealthCheckForm = () => {
     };
 
     return (
-        <div className="p-6 bg-gray-100 min-h-screen">
-            <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-8">
-                <h2 className="text-3xl font-bold mb-6 text-blue-600 text-center">Periodic Health Check</h2>
+        <div className="p-6 bg-gray-50 min-h-screen">
+            <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-8 space-y-8">
+                <h2 className="text-3xl font-extrabold text-blue-700 text-center tracking-tight">
+                    🩺 Periodic Health Check
+                </h2>
+
                 <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
+                    {/* Select Class */}
                     <div>
-                        <label className="block mb-1 font-semibold">Select Class:</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Select Class</label>
                         <select
                             value={selectedClassId ?? ""}
-                            onChange={e => setSelectedClassId(Number(e.target.value))}
-                            className="w-full border rounded-lg px-4 py-2"
+                            onChange={(e) => setSelectedClassId(Number(e.target.value))}
+                            className="w-full border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 bg-gray-50"
                             required
                         >
                             <option value="">-- Select Class --</option>
@@ -117,12 +121,13 @@ const HealthCheckForm = () => {
                         </select>
                     </div>
 
+                    {/* Select Student */}
                     <div>
-                        <label className="block mb-1 font-semibold">Select Student:</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Select Student</label>
                         <select
                             value={studentId}
-                            onChange={e => setStudentId(e.target.value)}
-                            className="w-full border rounded-lg px-4 py-2"
+                            onChange={(e) => setStudentId(e.target.value)}
+                            className="w-full border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 bg-gray-50"
                             required
                         >
                             <option value="">-- Select Student --</option>
@@ -134,24 +139,100 @@ const HealthCheckForm = () => {
                         </select>
                     </div>
 
-                    <input className="input" name="heightCm" placeholder="Height (cm)" value={form.heightCm} onChange={handleChange} />
-                    <input className="input" name="weightKg" placeholder="Weight (kg)" value={form.weightKg} onChange={handleChange} />
-                    <input className="input" name="leftEyeVision" placeholder="Left Eye Vision" value={form.leftEyeVision} onChange={handleChange} />
-                    <input className="input" name="rightEyeVision" placeholder="Right Eye Vision" value={form.rightEyeVision} onChange={handleChange} />
-                    <input className="input" name="leftEarHearing" placeholder="Left Ear Hearing" value={form.leftEarHearing} onChange={handleChange} />
-                    <input className="input" name="rightEarHearing" placeholder="Right Ear Hearing" value={form.rightEarHearing} onChange={handleChange} />
-                    <input className="input" name="spineStatus" placeholder="Spine Status" value={form.spineStatus} onChange={handleChange} />
-                    <input className="input" name="skinStatus" placeholder="Skin Status" value={form.skinStatus} onChange={handleChange} />
-                    <input className="input md:col-span-2" name="oralHealth" placeholder="Oral Health" value={form.oralHealth} onChange={handleChange} />
-                    <textarea className="input col-span-2 resize-none h-24" name="otherNotes" placeholder="Other Notes" value={form.otherNotes} onChange={handleChange} />
+                    {/* Form Fields */}
+                    <input
+                        name="heightCm"
+                        placeholder="Height (cm)"
+                        value={form.heightCm}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 bg-gray-50"
+                    />
+
+                    <input
+                        name="weightKg"
+                        placeholder="Weight (kg)"
+                        value={form.weightKg}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 bg-gray-50"
+                    />
+
+                    <input
+                        name="leftEyeVision"
+                        placeholder="Left Eye Vision"
+                        value={form.leftEyeVision}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 bg-gray-50"
+                    />
+
+                    <input
+                        name="rightEyeVision"
+                        placeholder="Right Eye Vision"
+                        value={form.rightEyeVision}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 bg-gray-50"
+                    />
+
+                    <input
+                        name="leftEarHearing"
+                        placeholder="Left Ear Hearing"
+                        value={form.leftEarHearing}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 bg-gray-50"
+                    />
+
+                    <input
+                        name="rightEarHearing"
+                        placeholder="Right Ear Hearing"
+                        value={form.rightEarHearing}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 bg-gray-50"
+                    />
+
+                    <input
+                        name="spineStatus"
+                        placeholder="Spine Status"
+                        value={form.spineStatus}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 bg-gray-50"
+                    />
+
+                    <input
+                        name="skinStatus"
+                        placeholder="Skin Status"
+                        value={form.skinStatus}
+                        onChange={handleChange}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 bg-gray-50"
+                    />
+
+                    <input
+                        name="oralHealth"
+                        placeholder="Oral Health"
+                        value={form.oralHealth}
+                        onChange={handleChange}
+                        className="w-full md:col-span-2 border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 bg-gray-50"
+                    />
+
+                    <textarea
+                        name="otherNotes"
+                        placeholder="Other Notes"
+                        value={form.otherNotes}
+                        onChange={handleChange}
+                        className="w-full col-span-2 border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 bg-gray-50 resize-none h-24"
+                    />
+
+                    {/* Submit Button */}
                     <div className="md:col-span-2 text-center">
-                        <button type="submit" className="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-md transition duration-200">
+                        <button
+                            type="submit"
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md transition"
+                        >
                             Submit Report
                         </button>
                     </div>
                 </form>
             </div>
         </div>
+
     );
 };
 

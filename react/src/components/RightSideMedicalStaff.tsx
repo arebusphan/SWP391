@@ -1,10 +1,10 @@
-import { useAuth } from "../context/AuthContext";
+﻿import { useAuth } from "../context/AuthContext";
 
 const RightSideMedicalStaff = () => {
     const { user } = useAuth();
     return (
         <div>
-            <div style={{ color: "blue" }} >e xin chao {user?.Name} a</div>
+            <div className="text-5xl text-blue-500" > Welcome {user?.Name} </div>
             <div>
 
             </div>

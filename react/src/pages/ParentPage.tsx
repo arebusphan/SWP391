@@ -10,10 +10,10 @@ import IncidentHistory from "./IncidentHistory";
 import ParentHealthForm from "../components/ParentPage/ParentHealthForm";
 
 
-import { useAuth } from "../context/AuthContext";
 
 
-import StudentHealthCheckList from "../components/ParentPage/ParentHealthCheck"; // 👈 thêm dòng này
+
+import StudentHealthCheckList from "../components/ParentPage/ParentHealthCheck"; 
 
 
 const ParentPage = () => {
@@ -27,6 +27,10 @@ const ParentPage = () => {
                 <Route path="SendingMedicine" element={<SendingMedicineView />} />
 
                 <Route path="Notificationview" element ={<Notificationview/>}/>
+<<<<<<< HEAD
+=======
+                
+>>>>>>> e3d8a56d2a5a10d28652e9db76092aa46c32c56c
              
                 <Route path="VaccinationConfirmation" element={<VaccinationConfirmation />} />
                 <Route path="IncidentHistory" element={<IncidentHistory />} />

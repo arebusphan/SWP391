@@ -243,42 +243,58 @@ const IncidentForm: React.FC = () => {
     };
 
     return (
-        <div className="p-4 space-y-4">
-            <Button onClick={handleAddRow}>Add Incident</Button>
+        <div className="p-4 space-y-6">
+            <div className="flex justify-between items-center flex-wrap gap-4">
+                <Button onClick={handleAddRow}>➕ Add Incident</Button>
+                <Input
+                    type="text"
+                    placeholder="🔍 Search by student name..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setCurrentPage(1);
+                    }}
+                    className="w-full sm:max-w-md"
+                />
+            </div>
 
             {incidentInputs.map((row) => (
-                <div key={row.id} className="flex gap-4 items-end mt-2">
-                    <div className="flex-1">
-                        <label className="block mb-1 text-sm">Select Class</label>
-                        <select
-                            className="w-full border p-2 rounded"
-                            value={row.classId}
-                            onChange={(e) => handleClassChange(row.id, Number(e.target.value))}
-                        >
-                            <option value="">-- Select Class --</option>
-                            {classes.map((cls) => (
-                                <option key={cls.classId} value={cls.classId}>{cls.className}</option>
-                            ))}
-                        </select>
-                    </div>
+                <div key={row.id} className="p-4 rounded-xl border shadow bg-white space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label className="block mb-1 text-sm font-medium">Select Class</label>
+                            <select
+                                className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200"
+                                value={row.classId}
+                                onChange={(e) => handleClassChange(row.id, Number(e.target.value))}
+                            >
+                                <option value="">-- Select Class --</option>
+                                {classes.map((cls) => (
+                                    <option key={cls.classId} value={cls.classId}>{cls.className}</option>
+                                ))}
+                            </select>
+                        </div>
 
-                    <div className="flex-1">
-                        <label className="block mb-1 text-sm">Select Student</label>
-                        <select
-                            className="w-full border p-2 rounded"
-                            value={row.studentId}
-                            onChange={(e) => handleStudentChange(row.id, Number(e.target.value))}
-                            disabled={!row.classId}
-                        >
-                            <option value="">-- Select Student --</option>
-                            {row.students.map((s) => (
-                                <option key={s.studentId} value={s.studentId}>{s.fullName}</option>
-                            ))}
-                        </select>
-                    </div>
+                        <div>
+                            <label className="block mb-1 text-sm font-medium">Select Student</label>
+                            <select
+                                className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200"
+                                value={row.studentId}
+                                onChange={(e) => handleStudentChange(row.id, Number(e.target.value))}
+                                disabled={!row.classId}
+                            >
+                                <option value="">-- Select Student --</option>
+                                {row.students.map((s) => (
+                                    <option key={s.studentId} value={s.studentId}>{s.fullName}</option>
+                                ))}
+                            </select>
+                        </div>
 
-                    <Button onClick={() => openDialog(row.id)} disabled={!row.studentId}>Details</Button>
-                    <Button variant="destructive" onClick={() => handleDeleteRow(row.id)}>Delete</Button>
+                        <div className="flex items-end gap-2">
+                            <Button onClick={() => openDialog(row.id)} disabled={!row.studentId}>Details</Button>
+                            <Button variant="destructive" onClick={() => handleDeleteRow(row.id)}>Delete</Button>
+                        </div>
+                    </div>
 
                     <Dialog open={row.showDialog}>
                         <DialogContent className="!w-full !max-w-[1000px]">
@@ -289,26 +305,37 @@ const IncidentForm: React.FC = () => {
                                 </DialogDescription>
                             </DialogHeader>
 
-                            <div className="space-y-3">
-                                <Input placeholder="Incident Name" value={row.incidentName} onChange={(e) => setIncidentInputs(rows => rows.map(r => r.id === row.id ? { ...r, incidentName: e.target.value } : r))} />
-                                <Input placeholder="Handled By" value={row.handledBy} onChange={(e) => setIncidentInputs(rows => rows.map(r => r.id === row.id ? { ...r, handledBy: e.target.value } : r))} />
+                            <div className="space-y-4 mt-4">
+                                <Input
+                                    placeholder="Incident Name"
+                                    value={row.incidentName}
+                                    onChange={(e) => setIncidentInputs(rows => rows.map(r => r.id === row.id ? { ...r, incidentName: e.target.value } : r))}
+                                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200"
+                                />
+                                <Input
+                                    placeholder="Handled By"
+                                    value={row.handledBy}
+                                    onChange={(e) => setIncidentInputs(rows => rows.map(r => r.id === row.id ? { ...r, handledBy: e.target.value } : r))}
+                                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200"
+                                />
                                 <textarea
                                     placeholder="Description"
-                                    className="w-full border p-2 rounded"
+                                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 resize-none"
                                     rows={3}
                                     value={row.description}
                                     onChange={(e) => setIncidentInputs(rows => rows.map(r => r.id === row.id ? { ...r, description: e.target.value } : r))}
                                 />
 
-                                <div className="border-t pt-2">
+                                <div className="pt-4 border-t">
                                     <h4 className="font-medium mb-1">Used Supplies</h4>
                                     <Button variant="outline" onClick={toggleAddSupplyUI} className="mb-2">Add Supplies</Button>
+
                                     {row.showAddSupply && (
                                         <>
                                             {(selectedSupplies[row.id] || []).map((entry, idx) => (
                                                 <div className="flex gap-2 mb-2" key={idx}>
                                                     <select
-                                                        className="border p-2 rounded w-full"
+                                                        className="border border-gray-300 bg-gray-50 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 w-full"
                                                         value={entry.supplyId || ""}
                                                         onChange={(e) => handleSupplyChange(idx, "supplyId", Number(e.target.value))}
                                                     >
@@ -328,8 +355,10 @@ const IncidentForm: React.FC = () => {
                                                     />
                                                 </div>
                                             ))}
-                                            <Button variant="ghost" onClick={addMoreSupplyField}>Add More</Button>
-                                            <Button onClick={handleAddSupply}>Confirm Supplies</Button>
+                                            <div className="flex gap-2">
+                                                <Button variant="ghost" onClick={addMoreSupplyField}>Add More</Button>
+                                                <Button onClick={handleAddSupply}>Confirm Supplies</Button>
+                                            </div>
                                         </>
                                     )}
 
@@ -341,7 +370,7 @@ const IncidentForm: React.FC = () => {
                                 </div>
                             </div>
 
-                            <DialogFooter>
+                            <DialogFooter className="pt-4">
                                 <Button variant="outline" onClick={closeDialog}>Cancel</Button>
                                 <Button onClick={updateIncidentDetails}>Save Details</Button>
                             </DialogFooter>
@@ -349,28 +378,19 @@ const IncidentForm: React.FC = () => {
                     </Dialog>
                 </div>
             ))}
-            <Input
-                type="text"
-                placeholder="Search by student name..."
-                value={searchTerm}
-                onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setCurrentPage(1);
-                }}
-                className="w-full max-w-md mb-4"
-            />
 
             {incidentInputs.length > 0 && (
-                <div className="pt-4">
-                    <Button onClick={handleSaveAll}>Save All</Button>
+                <div className="flex justify-end">
+                    <Button onClick={handleSaveAll}>💾 Save All</Button>
                 </div>
             )}
+
             {incidentHistory.length > 0 && (
-    <div className="mt-10">
-        <h2 className="text-lg font-semibold mb-4">Incident History</h2>
-        <div className="space-y-4">
+                <div className="mt-10">
+                    <h2 className="text-lg font-semibold mb-4">📜 Incident History</h2>
+                    <div className="space-y-4">
                         {currentItems.map((item, index) => (
-                            <div key={index} className="p-4 border rounded bg-gray-50 shadow-sm flex justify-between items-center">
+                            <div key={index} className="p-4 border rounded-xl bg-white shadow hover:shadow-md flex justify-between items-center">
                                 <div>
                                     <p><strong>Class:</strong> {item.className}</p>
                                     <p><strong>Student:</strong> {item.studentName}</p>
@@ -378,6 +398,7 @@ const IncidentForm: React.FC = () => {
                                 <Button onClick={() => setSelectedHistoryItem(item)}>Detail</Button>
                             </div>
                         ))}
+
                         <Dialog open={selectedHistoryItem !== null} onOpenChange={() => setSelectedHistoryItem(null)}>
                             <DialogContent className="!w-full !max-w-[800px]">
                                 <DialogHeader>
@@ -395,7 +416,7 @@ const IncidentForm: React.FC = () => {
                                             <div>
                                                 <strong>Supplies Used:</strong>
                                                 <ul className="list-disc ml-6">
-                                                    {selectedHistoryItem.supplies.map((s: any, idx: number) => (
+                                                    {selectedHistoryItem.supplies.map((s, idx) => (
                                                         <li key={idx}>{s.supplyName} × {s.quantity}</li>
                                                     ))}
                                                 </ul>
@@ -408,6 +429,7 @@ const IncidentForm: React.FC = () => {
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
+
                         <div className="flex justify-center mt-4 gap-2">
                             <Button
                                 variant="outline"
@@ -427,10 +449,11 @@ const IncidentForm: React.FC = () => {
                                 Next
                             </Button>
                         </div>
+                    </div>
+                </div>
+            )}
         </div>
-    </div>
-)}
-        </div>
+
     );
 };
 
