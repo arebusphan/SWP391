@@ -15,7 +15,6 @@ const LeftSideParent = () => {
 
         { label: "Incident History", path: "/ParentPage/IncidentHistory", icon: <MdHistory size={20} /> },
 
-        { label: "Health Profile", path: "/ParentPage/SubmitHealthProfile", icon: <MdLocalPharmacy size={20} /> },
         { label: "Student Health Check", path: "/ParentPage/parent-health-check", icon: <span>🩺</span> }
 
     ];

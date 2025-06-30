@@ -34,6 +34,10 @@ const StudentProfileList = () => {
     const [classFilter, setClassFilter] = useState("");
     const [searchName, setSearchName] = useState("");
     const [filterByProfile, setFilterByProfile] = useState("all");
+    
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const studentsPerPage = 10;
 
     const [selectedStudent, setSelectedStudent] = useState<{
         student: StudentProfile;
@@ -87,14 +91,26 @@ const StudentProfileList = () => {
             filtered = filtered.filter((s) => !healthMap[s.studentId]);
         }
         setFilteredStudents(filtered);
+        // Reset to first page when filters change
+        setCurrentPage(1);
     }, [students, classFilter, searchName, filterByProfile, healthMap]);
 
     const formatDate = (d: string) => new Date(d).toLocaleDateString("vi-VN");
     const uniqueClasses = Array.from(new Set(students.map((s) => s.className)));
 
+    // Pagination calculations  
+    const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
+    const startIndex = (currentPage - 1) * studentsPerPage;
+    const endIndex = startIndex + studentsPerPage;
+    const currentStudents = filteredStudents.slice(startIndex, endIndex);
+
     const handleView = (student: StudentProfile) => {
         const profile = healthMap[student.studentId] || null;
         setSelectedStudent({ student, profile });
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
     };
 
     return (
@@ -147,7 +163,7 @@ const StudentProfileList = () => {
                             </tr>
                         </thead>
                         <tbody className="text-gray-700">
-                            {filteredStudents.map((s, idx) => (
+                            {currentStudents.map((s, idx) => (
                                 <tr key={s.studentId} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition`}>
                                     <td className="p-3 text-center">{s.fullName}</td>
                                     <td className="p-3 text-center">{s.gender}</td>
@@ -167,6 +183,32 @@ const StudentProfileList = () => {
                             ))}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center mt-6">
+                        <div className="flex gap-2">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                <button
+                                    key={page}
+                                    className={`px-3 py-1 rounded-lg text-sm ${
+                                        page === currentPage
+                                            ? "bg-blue-600 text-white"
+                                            : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                    } transition`}
+                                    onClick={() => handlePageChange(page)}
+                                >
+                                    {page}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Results Info */}
+                <div className="text-center mt-4 text-gray-600">
+                    Showing {startIndex + 1} to {Math.min(endIndex, filteredStudents.length)} of {filteredStudents.length} students
                 </div>
             </div>
 
