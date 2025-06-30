@@ -27,7 +27,6 @@ const ParentPage = () => {
                 <Route path="SendingMedicine" element={<SendingMedicineView />} />
 
                 <Route path="Notificationview" element ={<Notificationview/>}/>
-                <Route path="Historyview" element={<Historyview />} />
              
                 <Route path="VaccinationConfirmation" element={<VaccinationConfirmation />} />
                 <Route path="IncidentHistory" element={<IncidentHistory />} />

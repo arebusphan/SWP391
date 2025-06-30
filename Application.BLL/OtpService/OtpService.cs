@@ -11,118 +11,67 @@ using DAL.Models;
 using DAL.Models;
 using BLL.AuthService;
 using static System.Net.WebRequestMethods;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
+using System.Security.Cryptography;
 namespace BLL.OtpService
 
 {
     public class OtpService
     {
-        private readonly IAuthService _authservice;
+        private readonly EmailService _emailService;
+        private readonly IMemoryCache _memoryCache;
         private readonly AppDbContext _context;
+        private readonly IAuthService _authService;
 
-        public OtpService(AppDbContext context, IAuthService authService)
+        public OtpService(IConfiguration config, IMemoryCache memoryCache, AppDbContext context, IAuthService authService)
         {
-            _authservice = authService;
+            var settings = EmailConfigHelper.GetEmailSettings(config);
+            _emailService = new EmailService(settings);
+            _memoryCache = memoryCache;
             _context = context;
+            _authService = authService;
         }
 
-        public string SaveOtp(string gmail, string otpcode, DateTime expireat)
+    private string GenerateSecureOtp()
+    {
+        var otpBuilder = new StringBuilder();
+        byte[] randomBytes = new byte[1];
+
+        while (otpBuilder.Length < 6)
         {
-            var user = _context.Users.FirstOrDefault(x => x.Email == gmail);
-            if (user == null)
-                throw new Exception("User not found");
-            var otp = new Otps
-            {
-                
-                Code = otpcode,
-                ExpiredAt = expireat,
-                UserId =  user.UserId
-
-            };
-            _context.Otps.Add(otp);
-            _context.SaveChanges();
-            return gmail;
-        }
-        public string GenerateOtp()
-        {
-            var random = new Random();
-            return random.Next(100000, 999999).ToString();
-        }
-        public string SendOtpEmail(string toEmail, string otp)
-        {
-            try
-            {
-                var fromEmail = "dungarebus@gmail.com";
-                var appPassword = "upuh qnjm qbct pryp";
-
-                var client = new SmtpClient("smtp.gmail.com", 587)
-                {
-                    EnableSsl = true,
-                    Credentials = new NetworkCredential(fromEmail, appPassword)
-                };
-
-                var mail = new MailMessage(fromEmail, toEmail)
-                {
-                    Subject = "Your Otp ",
-                    Body = $"Your Otp is: {otp}",
-                    IsBodyHtml = false
-                };
-
-                client.Send(mail);
-                return "OTP sent";
-            }
-            catch (Exception ex)
-            {
-                return $"Lỗi gửi OTP: {ex.Message}";
-            }
-        }
-        public string SendOtpByPhone(string phone)
-        {
-            var user = _context.Users.FirstOrDefault(u => u.PhoneNumber == phone);
-
-            if (user == null || string.IsNullOrEmpty(user.Email))
-            {
-                return "Cant find this pople use this phone.";
-            }
-
-            var otp = GenerateOtp();
-            var expireAt = DateTime.Now.AddMinutes(5);
-
-            SaveOtp(user.Email, otp, expireAt);
-
-
-            var sendResult = SendOtpEmail(user.Email, otp);
-            return sendResult;
-        }
-        public string VerifyOtpAndReturnToken(string email, string otpcode)
-        {
-            var otpRecord = _context.Otps
-    .Include(o => o.User) 
-    .OrderByDescending(o => o.UserId)
-    .FirstOrDefault(o =>
-        o.User.Email.ToLower() == email.ToLower() &&
-        o.Code == otpcode.Trim());
-            if (otpRecord == null)
-            {
-                Console.WriteLine("OTP not found.");
-                return null;
-            }
-            if (otpRecord.ExpiredAt < DateTime.UtcNow)
-            {
-                Console.WriteLine("OTP expired.");
-                return null;
-            }
-
-            var user = _context.Users.Include(u=>u.Role).FirstOrDefault(u => u.UserId == otpRecord.UserId);
-            if (user == null)
-            {
-                Console.WriteLine("User not exist this.");
-                return null;
-            }
-
-            var token = _authservice.CreateToken(user);
-            return token;
+            RandomNumberGenerator.Fill(randomBytes);
+            int digit = randomBytes[0] % 10;
+            otpBuilder.Append(digit);
         }
 
+        return otpBuilder.ToString(); // e.g., "048392"
     }
 
-}
+    public string SendOtp(string email)
+    {
+        string otp = GenerateSecureOtp();
+        TimeSpan expiryTime = TimeSpan.FromSeconds(90); // 1 phút 30 giây
+
+        _memoryCache.Set($"otp_{email}", otp, expiryTime);
+
+        string message = $"Your OTP code is: {otp}\nThis code is valid for 1 minute 30 seconds.";
+        return _emailService.SendEmail(email, "Your OTP", message);
+    }
+    public string VerifyOtpAndReturnToken(string email, string inputOtp)
+        {
+            if (_memoryCache.TryGetValue($"otp_{email}", out string correctOtp))
+            {
+                if (correctOtp == inputOtp)
+                {
+                    var user = _context.Users.Include(u => u.Role).FirstOrDefault(u => u.Email == email);
+                    if (user != null)
+                    {
+                        return _authService.CreateToken(user); // ✅ tạo token tại đây
+                    }
+                }
+            }
+            return null;
+        }
+    }
+ }

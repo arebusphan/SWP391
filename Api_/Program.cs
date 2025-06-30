@@ -76,6 +76,8 @@ namespace WebApplication6
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            
+            builder.Services.AddMemoryCache();
 
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<OtpService>();

@@ -2,6 +2,7 @@
 using BLL.OtpService;
 using DAL;
 using DAL.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace YourApp.Controllers
 {
@@ -12,45 +13,50 @@ namespace YourApp.Controllers
         private readonly AppDbContext _context;
         private readonly OtpService _otpService;
 
-        public OtpController(AppDbContext context,
-            OtpService otpService)
+        public OtpController(AppDbContext context, OtpService otpService)
         {
             _context = context;
             _otpService = otpService;
         }
+
+        // Gửi OTP: truyền phone → tìm email trong DB → gửi OTP qua email
         [HttpPost("send")]
         public IActionResult SendOtp([FromBody] SendOtpRequest request)
         {
-            var result = _otpService.SendOtpByPhone(request.phone);
+            if (string.IsNullOrWhiteSpace(request.Phone))
+                return BadRequest(new { message = "Phone is required." });
 
+            var user = _context.Users.FirstOrDefault(u => u.PhoneNumber == request.Phone);
+            if (user == null || string.IsNullOrWhiteSpace(user.Email))
+                return BadRequest(new { message = "User not found or email missing." });
 
-            var user = _context.Users.FirstOrDefault(u => u.PhoneNumber == request.phone);
-
-            if (user == null)
-            {
-
-                return BadRequest(new { message = "User not found" });
-            }
-
-
-            return Ok(new { message = result, gmail = user.Email });
+            var result = _otpService.SendOtp(user.Email);
+            return Ok(new { message = result, phone = request.Phone, gmail = user.Email });
         }
+
+        // Xác thực OTP
         [HttpPost("verify-otp")]
+        [AllowAnonymous]
         public IActionResult VerifyOtp([FromBody] VerifyOtpDTO request)
         {
             var token = _otpService.VerifyOtpAndReturnToken(request.Email, request.Otpcode);
 
             if (token == null)
-                return BadRequest("OTP invalid or time out.");
+                return BadRequest(new { message = "OTP invalid, expired, or user not found." });
 
-            return Ok(new { Token = token });
+            return Ok(new { token }); // ✅ trả về token trong JSON
         }
-
     }
+
     public class SendOtpRequest
     {
-        public string phone { get; set; }
+        public string Phone { get; set; }
     }
 
+    public class VerifyOtpDTO
+    {
+        public string Email { get; set; }
+        public string Otpcode { get; set; }
+    }
 
 }
