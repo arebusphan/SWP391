@@ -13,6 +13,7 @@ export default defineConfig({
         },
     },
     server: {
+
         port: 5678,
         proxy: {
             '/api': {
@@ -21,5 +22,6 @@ export default defineConfig({
                 secure: false, // ⛔ bỏ xác minh SSL ở môi trường local dev
             },
         },
+
     }
 })

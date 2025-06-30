@@ -49,7 +49,10 @@ const ViewBlog = () => {
                             <h2 className="text-[17px] font-bold text-gray-900 line-clamp-2 mb-2">
                                 {blog.title}
                             </h2>
-                           
+
+                            
+                            
+
                             <p className="text-xs text-gray-500 mt-3">
                                 {new Date(blog.createdAt).toLocaleDateString()}
                             </p>

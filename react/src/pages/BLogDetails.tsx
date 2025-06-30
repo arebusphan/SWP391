@@ -33,7 +33,9 @@ const BlogDetail = () => {
     return (
         <div className="max-w-3xl mx-auto py-8 space-y-4">
             <div
-                className="prose max-w-none w-full break-words whitespace-normal [&_img]:max-w-full [&_img]:h-auto"
+                className="prose max-w-none w-full break-words whitespace-normal
+             [&_h1]:uppercase [&_h2]:uppercase [&_h3]:uppercase
+             [&_img]:max-w-full [&_img]:h-auto"
                 style={{
                     wordBreak: "break-word",
                     overflowWrap: "anywhere",

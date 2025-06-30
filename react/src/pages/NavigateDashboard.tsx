@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+﻿import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 
@@ -7,6 +7,7 @@ const DashboardRedirect = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+
         if (!user) {
             navigate("/login");
             return;

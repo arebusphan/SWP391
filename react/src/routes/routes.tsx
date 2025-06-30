@@ -29,14 +29,14 @@ const AppRoutes = () => {
                     index
                     element={ <HomePage/>}
                 />
-
+                <Route path="/dashboard" element={<DashboardRedirect />} />
             
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/unauthorized" element={<Unauthorized />} />
 
                 
-                <Route path="/dashboard" element={<DashboardRedirect />} />
+               
 
                 <Route path="/student/:studentId" element={<StudentDetailPage />} />
 
@@ -47,7 +47,7 @@ const AppRoutes = () => {
                 <Route element={<ProtectedRoute allowedRoles={["MedicalStaff"]} />}>
                     <Route path="/MedicalStaffPage/*" element={<MedicalStaffPage />} />
                 </Route>
-
+             
         
                 <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
                     <Route path="/AdminPage/*" element={<AdminPage />} />
@@ -55,12 +55,11 @@ const AppRoutes = () => {
                 <Route element={<ProtectedRoute allowedRoles={["Manager"]} />}>
                     <Route path="/ManagerPage/*" element={<ManagerPage />} />
                 </Route>
-                <Route path="/ParentPage" element={<LeftSideParent />}>
-                    <Route path="parent-health-check" element={<ParentHealthCheck />} />
-                </Route>
+                
                
 
             </Route>
+            
         </Routes>
     );
 };

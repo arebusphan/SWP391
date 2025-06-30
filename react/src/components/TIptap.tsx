@@ -2,7 +2,7 @@
 import { StarterKit } from '@tiptap/starter-kit'
 import { Highlight } from '@tiptap/extension-highlight'
 import TextAlign from '@tiptap/extension-text-align'
-import { Image } from '@tiptap/extension-image'
+import Image from '@tiptap/extension-image'
 import ImageResize from 'tiptap-extension-resize-image';
 import Color from '@tiptap/extension-color'
 // UI components
@@ -12,10 +12,10 @@ import { ImageUploadButton } from '@/components/tiptap-ui/image-upload-button'
 import TextStyle from '@tiptap/extension-text-style'
 // Tailwind hoặc CSS tùy bạn, nhưng đoạn này có thể bỏ nếu không dùng SCSS
 // import '@/components/tiptap-node/image-node/image-node.scss'
-import Heading from '@tiptap/extension-heading'
+import '@/components/tiptap-node/code-block-node/code-block-node.scss'
 import { ImageUploadNode } from './tiptap-node/image-upload-node'
 import { MAX_FILE_SIZE } from '../lib/tiptap-utils'
-
+import '@/components/tiptap-node/paragraph-node/paragraph-node.scss'
 
 // Upload lên Cloudinary
 
@@ -47,13 +47,10 @@ const colors = [
 ]
 const extensions = [
     StarterKit.configure({
-        paragraph: {
-            HTMLAttributes: {
-                class: 'paragraph',
-            },
+        heading: {
+            levels: [1, 2, 3, 4, 5, 6],
         },
     }),
-    Heading,
     TextStyle,
     Color,
     TextAlign.configure({
@@ -92,6 +89,11 @@ interface TiptapProps {
                 <TextAlignButton align="right" editor={editor} />
                 <ColorHighlightPopover editor={editor} />
                 <ImageUploadButton editor={editor} text="Add Image" />
+                <button
+                    onClick={() => editor.chain().focus().toggleNode('heading', 'paragraph', { level: 1 }).run()}
+                >
+                    H1
+                </button>
                 <div className="flex flex-wrap gap-1">
                     {colors.map((color) => (
                         <button
@@ -109,23 +111,25 @@ interface TiptapProps {
                     >
                         ×
                     </button>
+
                 </div>
              
             </div>
-
+            
             <div
                 className="w-full max-w-full border p-4 rounded min-h-[40vh] overflow-auto break-words whitespace-normal
              [&_img]:max-w-full [&_img]:h-auto [&_*]:!break-words [&_*]:!whitespace-normal"
             >
                 <EditorContent
                     editor={editor}
-                    className="w-full"
+                    className="w-full control-showcase"
                     style={{
                         width: '100%',
                         maxWidth: '100%',
                         wordBreak: 'break-word',
                         overflowWrap: 'anywhere',
                         whiteSpace: 'normal',
+
                     }}
                 />
             </div>
