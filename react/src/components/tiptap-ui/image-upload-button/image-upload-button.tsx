@@ -1,4 +1,4 @@
-﻿import * as React from "react"
+import * as React from "react"
 import { type Editor } from "@tiptap/react"
 
 // --- Hooks ---
@@ -26,22 +26,18 @@ export function isImageActive(
 }
 
 export function insertImage(
-    editor: Editor | null,
-    extensionName: string
+  editor: Editor | null,
+  extensionName: string
 ): boolean {
-    if (!editor) return false
+  if (!editor) return false
 
-    return editor
-        .chain()
-        .focus()
-        .insertContent({
-            type: extensionName,
-            attrs: {
-                src: "", // phần upload xử lý sau
-                style: "max-width: 400px; height: auto;" 
-            }
-        })
-        .run()
+  return editor
+    .chain()
+    .focus()
+    .insertContent({
+      type: extensionName,
+    })
+    .run()
 }
 
 export function useImageUploadButton(
