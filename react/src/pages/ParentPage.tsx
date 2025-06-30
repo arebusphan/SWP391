@@ -27,11 +27,7 @@ const ParentPage = () => {
                 <Route path="SendingMedicine" element={<SendingMedicineView />} />
 
                 <Route path="Notificationview" element ={<Notificationview/>}/>
-<<<<<<< HEAD
-=======
-                
->>>>>>> e3d8a56d2a5a10d28652e9db76092aa46c32c56c
-             
+ 
                 <Route path="VaccinationConfirmation" element={<VaccinationConfirmation />} />
                 <Route path="IncidentHistory" element={<IncidentHistory />} />
 
