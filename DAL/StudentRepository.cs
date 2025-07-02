@@ -88,6 +88,14 @@ namespace DAL.Repositories
                 })
                 .ToListAsync(); // Trả về danh sách DTO đầy đủ
         }
+        public async Task<string?> GetGuardianEmailByStudentIdAsync(int studentId)
+        {
+            var student = _context.Students
+                .Include(s => s.Guardian)
+                .FirstOrDefault(s => s.StudentId == studentId);
+
+            return student?.Guardian?.Email;
+        }
 
     }
 }

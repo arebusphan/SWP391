@@ -1,4 +1,6 @@
-﻿using BLL.MedicationService;
+﻿using BLL.EmailService;
+using BLL.MedicationService;
+using DAL.EmailRepo;
 using DAL.Models;
 using DAL.Repositories;
 using System.Collections.Generic;
@@ -7,10 +9,15 @@ using System.Linq;
 public class MedicationService : IMedicationService
 {
     private readonly IMedicationRepository _medicationRepository;
-
-    public MedicationService(IMedicationRepository medicationRepository)
+    private readonly IEmailService _emailService;
+    private readonly IStudentRepository _studentRepository;
+    private readonly IEmailQueue _emailQueue;
+    public MedicationService(IMedicationRepository medicationRepository,IEmailService emailService,IStudentRepository studentRepository, IEmailQueue emailQueue )
     {
         _medicationRepository = medicationRepository;
+        _emailService = emailService;
+        _studentRepository = studentRepository;
+        _emailQueue = emailQueue;
     }
 
     public void CreateRequest(MedicationRequestDTO dto, int parentUserId)
@@ -76,22 +83,48 @@ public class MedicationService : IMedicationService
         }).ToList();
     }
 
-    public bool UpdateRequestStatus(int requestId, string newStatus, int reviewedBy, string rejectReason)
+    public async Task<bool> UpdateRequestStatus(int requestId, string newStatus, int reviewedBy, string rejectReason)
     {
         var request = _medicationRepository.GetById(requestId);
-        if (request == null|| request.Status == "Rejected") return false;
+        if (request == null || string.Equals(request.Status, "Rejected", StringComparison.OrdinalIgnoreCase))
+            return false;
 
         request.Status = newStatus;
         request.ReviewedBy = reviewedBy;
-        if (newStatus == "Rejected")
+
+        if (string.Equals(newStatus, "Rejected", StringComparison.OrdinalIgnoreCase))
         {
             request.RejectReason = rejectReason ?? "";
         }
+
         _medicationRepository.Update(request);
         _medicationRepository.Save();
 
+        // Gửi email qua hàng đợi (fire-and-forget)
+        var email = await _studentRepository.GetGuardianEmailByStudentIdAsync(request.StudentId);
+        if (!string.IsNullOrEmpty(email))
+        {
+            _emailQueue.Enqueue(new EmailMessageDto
+            {
+                ToList = new List<string> { email },
+                Subject = "Medication Request Update",
+                Body = newStatus switch
+                {
+                    "Rejected" => $"Your medication request has been rejected.\nReason: {rejectReason ?? "No reason provided."}",
+                    "Approved" => "Your medication request has been approved.",
+                    _ => $"The status of your medication request has been updated to: {newStatus}"
+                },
+                IsHtml = false
+            });
+        }
+
         return true;
     }
+
+
+
+
+
 
     public List<MedicationRequests> GetAll()
     {
