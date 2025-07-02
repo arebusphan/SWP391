@@ -1,8 +1,7 @@
 
 ﻿using BLL;
 using BLL.AuthService;
-
-
+using BLL.EmailService;
 using BLL.ExcelService;
 
 using BLL.HealthCheckService;
@@ -19,10 +18,12 @@ using BLL.StudentDetailService;
 using BLL.StudentService;
 using BLL.UserService;
 using DAL;
+using DAL.EmailRepo;
 using DAL.Incident;
 
 using DAL.Interfaces;
 using DAL.MedicationIntakeLogs;
+using DAL.Models;
 using DAL.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -81,7 +82,12 @@ namespace WebApplication6
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-            
+
+
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+            builder.Services.AddSingleton<IEmailQueue, EmailQueue>();
+            builder.Services.AddSingleton<IEmailService, EmailService>();
+            builder.Services.AddHostedService<EmailSenderHostedService>();
             builder.Services.AddMemoryCache();
 
             builder.Services.AddScoped<IAuthService, AuthService>();

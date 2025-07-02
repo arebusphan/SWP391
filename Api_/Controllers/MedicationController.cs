@@ -48,7 +48,6 @@ namespace API.Controllers
 
             int parentId = int.Parse(userIdClaim.Value);
 
-            // ✅ Gọi service kèm theo filter status
             var list = _medicationService.GetRequestsByParent(parentId, status);
 
             return Ok(list);
@@ -66,13 +65,14 @@ namespace API.Controllers
         {
             public string Status { get; set; }
             public int ReviewedBy { get; set; }
-            public string? rejectReason { get; set; }
+            public string? RejectReason { get; set; }
         }
 
         [HttpPut("{id}/updateStatus")]
-        public IActionResult UpdateRequestStatus(int id, [FromBody] UpdateStatusDTO dto)
+        public async Task<IActionResult> UpdateRequestStatus(int id, [FromBody] UpdateStatusDTO dto)
         {
-            var success = _medicationService.UpdateRequestStatus(id, dto.Status, dto.ReviewedBy,dto.rejectReason);
+
+            var success = await _medicationService.UpdateRequestStatus(id, dto.Status, dto.ReviewedBy, dto.RejectReason);
             if (!success) return BadRequest("Update failed.");
 
             return Ok(new { message = "Status updated successfully" });
