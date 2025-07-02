@@ -26,7 +26,7 @@ const Navbar = () => {
         <nav className="flex items-center justify-between px-6 py-3 h-20 border-b border-gray-200 shadow-sm sticky top-0 z-50 bg-white">
             <div className="flex items-center">
                 <Link to="/">   <img
-                    src="/logo.png"
+                    src="/z6759560753295_48e4ffbf710bd2f566f182b8e8953f65.jpg"
                     alt="Logo"
                     className="w-20 h-20 object-cover"
                 />
@@ -43,14 +43,7 @@ const Navbar = () => {
                             Home
                         </Link>
                     </li>
-                    <li>
-                        <Link
-                            to="/about"
-                            className="px-4 py-2 rounded-md hover:bg-blue-500 hover:text-white"
-                        >
-                            About
-                        </Link>
-                    </li>
+                 
                     <li>
                         <Link
                             to="/blog"

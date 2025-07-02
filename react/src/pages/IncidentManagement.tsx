@@ -5,17 +5,16 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
     AddSupplyToInventory,
     getAllClass,
-    GetIncidentHistory,
     getStudentsByClassId,
     GetSupplies,
-    postIncident
+    postIncident,
+    GetIncidentHistory,
 } from "../service/serviceauth";
 
 interface Class {
@@ -34,426 +33,707 @@ interface Supply {
     quantity: number;
 }
 
-interface IncidentInput {
-    id: number;
-    classId: number | "";
-    studentId: number | "";
-    students: Student[];
-    showDialog: boolean;
-    incidentName: string;
-    description: string;
-    handledBy: string;
-    suppliesUsed: { supplyId: number; supplyName: string; quantity: number }[];
-    showAddSupply: boolean;
+interface SupplyUsed {
+    supplyId: number;
+    supplyName: string;
+    quantity: number;
 }
 
-let nextId = 1;
+interface DetailInput {
+    classId: number | "";
+    studentIds: number[]; // Multi-select!
+    students: Student[];
+    handledBy: string;
+    description: string;
+    suppliesUsed: SupplyUsed[];
+    showDetailDialog?: boolean;
+    showStudentDropdown?: boolean;
+}
+
+interface IncidentInput {
+    id: number;
+    incidentName: string;
+    details: DetailInput[];
+    showDialog: boolean;
+}
+
+interface IncidentHistoryItem {
+    className: string;
+    studentName: string;
+    incidentName: string;
+    handledBy: string;
+    description: string;
+    createdAt: string;
+    supplies?: { supplyName: string; quantity: number }[];
+}
+
+let nextIncidentId = 1;
 
 const IncidentForm: React.FC = () => {
     const [classes, setClasses] = useState<Class[]>([]);
-    const [incidentInputs, setIncidentInputs] = useState<IncidentInput[]>([]);
-    const [currentEditId, setCurrentEditId] = useState<number | null>(null);
+    const [incidentList, setIncidentList] = useState<IncidentInput[]>([]);
     const [allSupplies, setAllSupplies] = useState<Supply[]>([]);
-    const [selectedSupplies, setSelectedSupplies] = useState<Record<number, { supplyId: number | ""; quantity: number }[]>>({});
-    const [incidentHistory, setIncidentHistory] = useState<any[]>([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 6; 
-    const totalPages = Math.ceil(incidentHistory.length / itemsPerPage);
-
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedHistoryItem, setSelectedHistoryItem] = useState<any | null>(null);
-    const filteredHistory = incidentHistory.filter(item =>
-        item.studentName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
+    const [incidentHistory, setIncidentHistory] = useState<IncidentHistoryItem[]>([]);
  
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentItems = filteredHistory.slice(startIndex, startIndex + itemsPerPage);
+  
+ 
+
+    const [selectedIncidentGroup, setSelectedIncidentGroup] = useState<IncidentHistoryItem[] | null>(null);
+ 
+    const [expandedClass, setExpandedClass] = useState<string | null>(null);
+ 
+ 
+
     useEffect(() => {
         getAllClass().then(setClasses);
-        GetIncidentHistory().then(setIncidentHistory);
+        GetSupplies().then(res => setAllSupplies(res.data));
+        setIncidentList([
+            {
+                id: nextIncidentId++,
+                incidentName: "",
+                details: [],
+                showDialog: false, // KHÔNG mở dialog ban đầu
+            },
+        ]); 
+
+        GetIncidentHistory().then(data => {
+            const sorted = [...data].sort((a, b) =>
+                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+            setIncidentHistory(sorted);
+        });
     }, []);
 
-    const handleAddRow = () => {
-        setIncidentInputs((prev) => [
-            ...prev,
-            {
-                id: nextId++,
-                classId: "",
-                studentId: "",
-                students: [],
-                showDialog: false,
-                incidentName: "",
-                description: "",
-                handledBy: "",
-                suppliesUsed: [],
-                showAddSupply: false,
-            },
-        ]);
-    };
 
-    const handleDeleteRow = (rowId: number) => {
-        if (window.confirm("Are you sure you want to delete this draft incident?")) {
-            setIncidentInputs((rows) => rows.filter((row) => row.id !== rowId));
-        }
-    };
-
-    const handleClassChange = async (rowId: number, classId: number) => {
-        const students = await getStudentsByClassId(classId);
-        setIncidentInputs((rows) =>
-            rows.map((row) =>
-                row.id === rowId ? { ...row, classId, students, studentId: "" } : row
-            )
-        );
-    };
-
-    const handleStudentChange = (rowId: number, studentId: number) => {
-        setIncidentInputs((rows) =>
-            rows.map((row) =>
-                row.id === rowId ? { ...row, studentId } : row
-            )
-        );
-    };
-
-    const openDialog = async (rowId: number) => {
-        setCurrentEditId(rowId);
-        const res = await GetSupplies();
-        setAllSupplies(res.data);
-        setIncidentInputs((rows) =>
-            rows.map((row) =>
-                row.id === rowId ? { ...row, showDialog: true } : row
-            )
-        );
-        setSelectedSupplies((prev) => ({
-            ...prev,
-            [rowId]: [{ supplyId: "", quantity: 1 }],
-        }));
-    };
-
-    const closeDialog = () => {
-        if (currentEditId !== null) {
-            setIncidentInputs((rows) =>
-                rows.map((row) =>
-                    row.id === currentEditId ? { ...row, showDialog: false } : row
-                )
-            );
-            setCurrentEditId(null);
-        }
-    };
-
-    const updateIncidentDetails = () => {
-        if (currentEditId === null) return;
-        setIncidentInputs((rows) =>
-            rows.map((row) =>
-                row.id === currentEditId ? { ...row, showDialog: false } : row
-            )
-        );
-        setCurrentEditId(null);
-    };
-
-    const toggleAddSupplyUI = () => {
-        if (currentEditId === null) return;
-        setIncidentInputs((rows) =>
-            rows.map((row) =>
-                row.id === currentEditId ? { ...row, showAddSupply: !row.showAddSupply } : row
-            )
-        );
-    };
-
-    const handleSupplyChange = (index: number, field: "supplyId" | "quantity", value: number) => {
-        if (currentEditId === null) return;
-        setSelectedSupplies((prev) => {
-            const updated = [...(prev[currentEditId] || [])];
-            if (!updated[index]) updated[index] = { supplyId: "", quantity: 1 };
-            updated[index][field] = value;
-            return { ...prev, [currentEditId]: updated };
-        });
-    };
-
-    const addMoreSupplyField = () => {
-        if (currentEditId === null) return;
-        setSelectedSupplies((prev) => {
-            const updated = [...(prev[currentEditId] || [])];
-            updated.push({ supplyId: "", quantity: 1 });
-            return { ...prev, [currentEditId]: updated };
-        });
-    };
-
-    const handleAddSupply = () => {
-        if (currentEditId === null) return;
-        const currentSelections = selectedSupplies[currentEditId] || [];
-        const updatedSupplies = [...incidentInputs];
-
-        const currentRowIndex = updatedSupplies.findIndex((r) => r.id === currentEditId);
-        const row = updatedSupplies[currentRowIndex];
-
-        currentSelections.forEach(({ supplyId, quantity }) => {
-            if (supplyId === "") return;
-            const supply = allSupplies.find((s) => s.supplyId === supplyId);
-            if (supply && quantity > 0 && quantity <= supply.quantity) {
-                const existing = row.suppliesUsed.find((s) => s.supplyId === supplyId);
-                if (existing) existing.quantity += quantity;
-                else row.suppliesUsed.push({ supplyId, supplyName: supply.supplyName, quantity });
+    const [historyPage, setHistoryPage] = useState(1);
+    const groupedIncidents = Object.entries(
+        incidentHistory.reduce((groups, item) => {
+            const key = item.incidentName;
+            if (!groups[key]) {
+                groups[key] = [];
             }
-        });
+            groups[key].push(item);
+            return groups;
+        }, {} as Record<string, IncidentHistoryItem[]>)
+    );
 
-        updatedSupplies[currentRowIndex] = row;
-        setIncidentInputs(updatedSupplies);
+    const itemsPerPageHistory = 5;
+    const totalHistoryPages = Math.ceil(groupedIncidents.length / itemsPerPageHistory);
+    const paginatedGroupedIncidents = groupedIncidents.slice(
+        (historyPage - 1) * itemsPerPageHistory,
+        historyPage * itemsPerPageHistory
+    );
+    
+    const handleAddDetail = (incidentId: number) => {
+        setIncidentList(prev =>
+            prev.map(i =>
+                i.id === incidentId
+                    ? {
+                        ...i,
+                        details: [
+                            ...i.details,
+                            {
+                                classId: "",
+                                studentIds: [],
+                                students: [],
+                                handledBy: "",
+                                description: "",
+                                suppliesUsed: [],
+                                showDetailDialog: false,
+                                showStudentDropdown: false,
+                            },
+                        ],
+                    }
+                    : i
+            )
+        );
+    };
+    const groupedByClass = (selectedIncidentGroup || []).reduce((acc, item) => {
+        if (!acc[item.className]) acc[item.className] = [];
+        acc[item.className].push(item);
+        return acc;
+    }, {} as Record<string, IncidentHistoryItem[]>);
+    const handleChangeIncidentName = (incidentId: number, name: string) => {
+        setIncidentList(prev =>
+            prev.map(i => (i.id === incidentId ? { ...i, incidentName: name } : i))
+        );
+    };
+
+    const handleFieldChange = <T extends keyof DetailInput>(
+        incidentId: number,
+        detailIndex: number,
+        field: T,
+        value: DetailInput[T]
+    ) => {
+        setIncidentList(prev =>
+            prev.map(i =>
+                i.id === incidentId
+                    ? {
+                        ...i,
+                        details: i.details.map((d, idx) =>
+                            idx === detailIndex ? { ...d, [field]: value } : d
+                        ),
+                    }
+                    : i
+            )
+        );
+    };
+
+    const handleClassChange = async (
+        incidentId: number,
+        detailIndex: number,
+        classId: number
+    ) => {
+        const students = await getStudentsByClassId(classId);
+        handleFieldChange(incidentId, detailIndex, "classId", classId);
+        handleFieldChange(incidentId, detailIndex, "students", students);
+        handleFieldChange(incidentId, detailIndex, "studentIds", []);
+    };
+
+    const toggleDetailDialog = (
+        incidentId: number,
+        detailIndex: number,
+        open: boolean
+    ) => {
+        setIncidentList(prev =>
+            prev.map(i =>
+                i.id === incidentId
+                    ? {
+                        ...i,
+                        details: i.details.map((d, idx) =>
+                            idx === detailIndex
+                                ? { ...d, showDetailDialog: open }
+                                : d
+                        ),
+                    }
+                    : i
+            )
+        );
+    };
+
+    const toggleStudentDropdown = (incidentId: number, detailIndex: number) => {
+        setIncidentList(prev =>
+            prev.map(i =>
+                i.id === incidentId
+                    ? {
+                        ...i,
+                        details: i.details.map((d, idx) =>
+                            idx === detailIndex
+                                ? { ...d, showStudentDropdown: !d.showStudentDropdown }
+                                : d
+                        ),
+                    }
+                    : i
+            )
+        );
+    };
+
+    const handleCheckStudent = (
+        incidentId: number,
+        detailIndex: number,
+        studentId: number
+    ) => {
+        setIncidentList(prev =>
+            prev.map(i =>
+                i.id === incidentId
+                    ? {
+                        ...i,
+                        details: i.details.map((d, idx) => {
+                            if (idx !== detailIndex) return d;
+                            const checked = d.studentIds.includes(studentId);
+                            const newIds = checked
+                                ? d.studentIds.filter(id => id !== studentId)
+                                : [...d.studentIds, studentId];
+                            return { ...d, studentIds: newIds };
+                        }),
+                    }
+                    : i
+            )
+        );
     };
 
     const handleSaveAll = async () => {
-        try {
-            for (const row of incidentInputs) {
+        for (const incident of incidentList) {
+            for (const detail of incident.details) {
                 if (
-                    row.classId &&
-                    row.studentId &&
-                    row.incidentName &&
-                    row.handledBy
+                    detail.classId &&
+                    detail.studentIds.length > 0 &&
+                    incident.incidentName &&
+                    detail.handledBy
                 ) {
                     const now = new Date().toISOString();
-                    await postIncident(
-                        row.studentId,
-                        row.classId,
-                        row.incidentName,
-                        row.description,
-                        row.handledBy,
-                        now,
-                        row.suppliesUsed.map(s => ({
-                            supplyId: s.supplyId,
-                            quantityUsed: s.quantity
-                        }))
-                    );
-
-                    for (const s of row.suppliesUsed) {
+                    for (const studentId of detail.studentIds) {
+                        await postIncident(
+                            studentId,
+                            detail.classId,
+                            incident.incidentName,
+                            detail.description,
+                            detail.handledBy,
+                            now,
+                            detail.suppliesUsed.map(s => ({
+                                supplyId: s.supplyId,
+                                quantityUsed: s.quantity,
+                            }))
+                        );
+                    }
+                    for (const s of detail.suppliesUsed) {
                         try {
                             await AddSupplyToInventory(s.supplyId, s.quantity);
-                        } catch (err) {
-                            console.error(`Error deducting supply ${s.supplyName}:`, err);
-                            alert(`Failed to deduct ${s.quantity} of supply "${s.supplyName}".`);
+                        } catch {
+                            alert(`Failed to deduct ${s.quantity} of supply ID ${s.supplyId}`);
                         }
                     }
                 }
             }
-
-            alert("All incidents have been saved!");
-            setIncidentInputs([]);
-        } catch (err) {
-            alert("Error saving incidents or supplies!");
         }
+
+        alert("Saved incident.");
+
+        // ✅ Reset lại dữ liệu sau khi gửi
+        setIncidentList([
+            {
+                id: nextIncidentId++,
+                incidentName: "",
+                details: [],
+                showDialog: false,
+            },
+        ]);
+    };
+
+
+ 
+    const handleDeleteIncident = (incidentId: number) => {
+        setIncidentList(prev => prev.filter(i => i.id !== incidentId));
     };
 
     return (
-        <div className="p-4 space-y-6">
-            <div className="flex justify-between items-center flex-wrap gap-4">
-                <Button onClick={handleAddRow}>➕ Add Incident</Button>
-                <Input
-                    type="text"
-                    placeholder="🔍 Search by student name..."
-                    value={searchTerm}
-                    onChange={(e) => {
-                        setSearchTerm(e.target.value);
-                        setCurrentPage(1);
-                    }}
-                    className="w-full sm:max-w-md"
-                />
-            </div>
+        <div className="space-y-6 p-4">
+            <h1 className="text-4xl text-center font-bold text-blue-500 mb-4">Incident Management</h1>
+            {incidentList.map(incident => (
+                <div key={incident.id} className="relative border rounded-xl p-4 shadow bg-white space-y-4 w-150">
+                    {/* Nút xóa */}
+                   
 
-            {incidentInputs.map((row) => (
-                <div key={row.id} className="p-4 rounded-xl border shadow bg-white space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div>
-                            <label className="block mb-1 text-sm font-medium">Select Class</label>
-                            <select
-                                className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200"
-                                value={row.classId}
-                                onChange={(e) => handleClassChange(row.id, Number(e.target.value))}
-                            >
-                                <option value="">-- Select Class --</option>
-                                {classes.map((cls) => (
-                                    <option key={cls.classId} value={cls.classId}>{cls.className}</option>
-                                ))}
-                            </select>
-                        </div>
+                    <Input
+                        placeholder="Incident Name"
+                        value={incident.incidentName}
+                        onChange={e =>
+                            handleChangeIncidentName(incident.id, e.target.value)
+                        }
+                    />
+                    <div className="flex gap-2">
+                        <Button
+                            onClick={() =>
+                                setIncidentList(prev =>
+                                    prev.map(i =>
+                                        i.id === incident.id
+                                            ? { ...i, showDialog: true }
+                                            : i
+                                    )
+                                )
+                            }
+                            className="bg-blue-500 hover:bg-blue-700 px-3 py-2 rounded transition transform hover:-translate-y-1"
+                        >
+                            Edit Details
+                        </Button>
 
-                        <div>
-                            <label className="block mb-1 text-sm font-medium">Select Student</label>
-                            <select
-                                className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200"
-                                value={row.studentId}
-                                onChange={(e) => handleStudentChange(row.id, Number(e.target.value))}
-                                disabled={!row.classId}
-                            >
-                                <option value="">-- Select Student --</option>
-                                {row.students.map((s) => (
-                                    <option key={s.studentId} value={s.studentId}>{s.fullName}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="flex items-end gap-2">
-                            <Button onClick={() => openDialog(row.id)} disabled={!row.studentId}>Details</Button>
-                            <Button variant="destructive" onClick={() => handleDeleteRow(row.id)}>Delete</Button>
-                        </div>
+                        <Button
+                            variant="destructive"
+                            onClick={() => handleDeleteIncident(incident.id)}
+                            className="px-3 py-2 rounded transition transform hover:-translate-y-1"
+                        >
+                            Delete
+                        </Button>
+                        {incidentList.length > 0 && (
+                            <div className="flex justify-end">
+                                <Button onClick={handleSaveAll} className="bg-blue-500 hover:bg-blue-700 px-3 py-2 rounded transition transform hover:-translate-y-1"> Save</Button>
+                            </div>
+                        )}
                     </div>
-
-                    <Dialog open={row.showDialog}>
-                        <DialogContent className="!w-full !max-w-[1000px]">
+                    <Dialog
+                        open={incident.showDialog}
+                        onOpenChange={() =>
+                            setIncidentList(prev =>
+                                prev.map(i =>
+                                    i.id === incident.id
+                                        ? { ...i, showDialog: false }
+                                        : i
+                                )
+                            )
+                        }
+                    >
+                        <DialogContent className="!max-w-[900px]">
                             <DialogHeader>
-                                <DialogTitle>Incident Details</DialogTitle>
-                                <DialogDescription>
-                                    Enter incident name, handler, description, and select supplies if used.
-                                </DialogDescription>
+                                <DialogTitle className="text-blue-500">Incident Details</DialogTitle>
                             </DialogHeader>
+                            <div className="text-right">
+                                <Button
+                                    variant="ghost"
+                                    onClick={() =>
+                                        handleAddDetail(incident.id)
+                                    }
+                                    className="bg-blue-500 hover:bg-blue-700 px-3 py-2 rounded transition transform hover:-translate-y-1 text-white hover:text-white" >
+                                     Add  Detail
+                                </Button>
+                            </div>
+                            {incident.details.map((detail, index) => (
+                                <div key={index} className="flex items-center gap-4 mb-4">
+                                    <select
+                                        value={detail.classId}
+                                        onChange={e =>
+                                            handleClassChange(
+                                                incident.id,
+                                                index,
+                                                Number(e.target.value)
+                                            )
+                                        }
+                                    >
+                                        <option value="">Select Class</option>
+                                        {classes.map(cls => (
+                                            <option key={cls.classId} value={cls.classId}>
+                                                {cls.className}
+                                            </option>
+                                        ))}
+                                    </select>
 
-                            <div className="space-y-4 mt-4">
-                                <Input
-                                    placeholder="Incident Name"
-                                    value={row.incidentName}
-                                    onChange={(e) => setIncidentInputs(rows => rows.map(r => r.id === row.id ? { ...r, incidentName: e.target.value } : r))}
-                                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200"
-                                />
-                                <Input
-                                    placeholder="Handled By"
-                                    value={row.handledBy}
-                                    onChange={(e) => setIncidentInputs(rows => rows.map(r => r.id === row.id ? { ...r, handledBy: e.target.value } : r))}
-                                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200"
-                                />
-                                <textarea
-                                    placeholder="Description"
-                                    className="w-full border border-gray-300 bg-gray-50 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 resize-none"
-                                    rows={3}
-                                    value={row.description}
-                                    onChange={(e) => setIncidentInputs(rows => rows.map(r => r.id === row.id ? { ...r, description: e.target.value } : r))}
-                                />
+                                    {/* Multi-select Students with checkbox */}
+                                    <div className="relative inline-block w-64">
+                                        <button
+                                            type="button"
+                                            className="w-full border rounded px-2 py-2 bg-white text-left"
+                                            onClick={() => toggleStudentDropdown(incident.id, index)}
+                                            disabled={!detail.classId}
+                                        >
+                                            {detail.studentIds.length === 0
+                                                ? "Chọn học sinh"
+                                                : detail.students
+                                                    .filter(s => detail.studentIds.includes(s.studentId))
+                                                    .map(s => s.fullName)
+                                                    .join(", ")
+                                            }
+                                            <span className="float-right">▼</span>
+                                        </button>
+                                        {detail.showStudentDropdown && (
+                                            <div className="absolute z-20 w-full bg-white border rounded shadow max-h-60 overflow-auto">
+                                                {detail.students.length === 0 && (
+                                                    <div className="px-4 py-2 text-gray-500">Không có học sinh</div>
+                                                )}
 
-                                <div className="pt-4 border-t">
-                                    <h4 className="font-medium mb-1">Used Supplies</h4>
-                                    <Button variant="outline" onClick={toggleAddSupplyUI} className="mb-2">Add Supplies</Button>
-
-                                    {row.showAddSupply && (
-                                        <>
-                                            {(selectedSupplies[row.id] || []).map((entry, idx) => (
-                                                <div className="flex gap-2 mb-2" key={idx}>
-                                                    <select
-                                                        className="border border-gray-300 bg-gray-50 rounded-lg px-4 py-2 shadow-sm focus:ring focus:ring-blue-200 w-full"
-                                                        value={entry.supplyId || ""}
-                                                        onChange={(e) => handleSupplyChange(idx, "supplyId", Number(e.target.value))}
+                                                {/* Select all / Deselect all button */}
+                                                {detail.students.length > 0 && (
+                                                    <div
+                                                        className="flex items-center px-4 py-2 bg-gray-50 border-b font-medium cursor-pointer hover:bg-gray-100"
+                                                        onClick={() => {
+                                                            if (detail.studentIds.length === detail.students.length) {
+                                                                // If all are selected, deselect all
+                                                                handleFieldChange(incident.id, index, "studentIds", []);
+                                                            } else {
+                                                                // Select all
+                                                                handleFieldChange(
+                                                                    incident.id,
+                                                                    index,
+                                                                    "studentIds",
+                                                                    detail.students.map(s => s.studentId)
+                                                                );
+                                                            }
+                                                        }}
                                                     >
-                                                        <option value="">-- Select Supply --</option>
-                                                        {allSupplies.map((s) => (
+                                                        <input
+                                                            type="checkbox"
+                                                            className="mr-2"
+                                                            readOnly
+                                                            checked={detail.studentIds.length === detail.students.length && detail.students.length > 0}
+                                                        />
+                                                        {detail.studentIds.length === detail.students.length && detail.students.length > 0
+                                                            ? "Bỏ chọn tất cả"
+                                                            : "Chọn tất cả"}
+                                                    </div>
+                                                )}
+
+                                                {detail.students.map(s => (
+                                                    <label
+                                                        key={s.studentId}
+                                                        className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={detail.studentIds.includes(s.studentId)}
+                                                            onChange={() => handleCheckStudent(incident.id, index, s.studentId)}
+                                                            className="mr-2"
+                                                        />
+                                                        {s.fullName}
+                                                    </label>
+                                                ))}
+                                                <div className="p-2 text-right">
+                                                    <Button size="sm" variant="outline" onClick={() => toggleStudentDropdown(incident.id, index)}>
+                                                        OK
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <Button
+                                            variant="outline"
+                                            onClick={() =>
+                                                toggleDetailDialog(incident.id, index, true)
+                                            }
+                                            className="bg-blue-500 hover:bg-blue-700 px-3 py-2 rounded transition transform hover:-translate-y-1 text-white hover:text-white"
+                                        >
+                                            Edit
+                                        </Button>
+
+                                        <Button
+                                            variant="destructive"
+                                            onClick={() => {
+                                                if (confirm("Bạn có chắc muốn xoá chi tiết này?")) {
+                                                    const updatedDetails = incident.details.filter((_, i) => i !== index);
+                                                    setIncidentList(prev =>
+                                                        prev.map(i =>
+                                                            i.id === incident.id
+                                                                ? { ...i, details: updatedDetails }
+                                                                : i
+                                                        )
+                                                    );
+                                                }
+                                            }}
+                                            className="px-3 py-2 rounded transition transform hover:-translate-y-1"
+                                        >
+                                            Delete
+                                        </Button>
+                                    </div>
+
+                                    {/* Detail Dialog */}
+                                    <Dialog
+                                        open={detail.showDetailDialog}
+                                        onOpenChange={open =>
+                                            toggleDetailDialog(incident.id, index, open)
+                                        }
+                                    >
+                                        <DialogContent>
+                                            <DialogHeader>
+                                                <DialogTitle className="text-blue-500">Detail #{index + 1}</DialogTitle>
+                                            </DialogHeader>
+
+                                            <Input
+                                                placeholder="Handled By"
+                                                value={detail.handledBy}
+                                                onChange={e =>
+                                                    handleFieldChange(incident.id, index, "handledBy", e.target.value)
+                                                }
+                                            />
+                                            <Input
+                                                placeholder="Description"
+                                                value={detail.description}
+                                                onChange={e =>
+                                                    handleFieldChange(incident.id, index, "description", e.target.value)
+                                                }
+                                            />
+
+                                            <Button
+                                                className="mt-2 bg-blue-500 hover:bg-blue-700 text-white transition px-4 py-2 rounded w-40"
+                                                onClick={() => {
+                                                    const updated = [
+                                                        ...detail.suppliesUsed,
+                                                        {
+                                                            supplyId: 0,
+                                                            supplyName: "",
+                                                            quantity: 1,
+                                                        },
+                                                    ];
+                                                    handleFieldChange(incident.id, index, "suppliesUsed", updated);
+                                                }}
+                                            >
+                                                Add Supply
+                                            </Button>
+
+                                            {detail.suppliesUsed.map((supply, i) => (
+                                                <div key={i} className="flex gap-2 mt-2 items-center">
+                                                    <select
+                                                        value={supply.supplyId}
+                                                        onChange={e => {
+                                                            const id = Number(e.target.value);
+                                                            const found = allSupplies.find(s => s.supplyId === id);
+                                                            if (found) {
+                                                                const updated = [...detail.suppliesUsed];
+                                                                updated[i] = {
+                                                                    ...updated[i],
+                                                                    supplyId: found.supplyId,
+                                                                    supplyName: found.supplyName,
+                                                                };
+                                                                handleFieldChange(incident.id, index, "suppliesUsed", updated);
+                                                            }
+                                                        }}
+                                                        className="border rounded px-2 py-1"
+                                                    >
+                                                        <option value={0}>Select Supply</option>
+                                                        {allSupplies.map(s => (
                                                             <option key={s.supplyId} value={s.supplyId}>
-                                                                {s.supplyName} (Available: {s.quantity})
+                                                                {s.supplyName}
                                                             </option>
                                                         ))}
                                                     </select>
+
                                                     <Input
                                                         type="number"
+                                                        value={supply.quantity}
                                                         min={1}
-                                                        value={entry.quantity}
-                                                        onChange={(e) => handleSupplyChange(idx, "quantity", Number(e.target.value))}
-                                                        className="w-[100px]"
+                                                        className="w-20"
+                                                        onChange={e => {
+                                                            const updated = [...detail.suppliesUsed];
+                                                            updated[i].quantity = Number(e.target.value);
+                                                            handleFieldChange(incident.id, index, "suppliesUsed", updated);
+                                                        }}
                                                     />
+
+                                                    <Button
+                                                        variant="ghost"
+                                                        onClick={() => {
+                                                            const updated = detail.suppliesUsed.filter((_, idx) => idx !== i);
+                                                            handleFieldChange(incident.id, index, "suppliesUsed", updated);
+                                                        }}
+                                                        className="text-white bg-red-500 hover:bg-red-500 hover:text-white "
+                                                    >
+                                                        Delete
+                                                    </Button>
                                                 </div>
                                             ))}
-                                            <div className="flex gap-2">
-                                                <Button variant="ghost" onClick={addMoreSupplyField}>Add More</Button>
-                                                <Button onClick={handleAddSupply}>Confirm Supplies</Button>
-                                            </div>
-                                        </>
-                                    )}
 
-                                    <ul className="text-sm list-disc ml-5 mt-2">
-                                        {row.suppliesUsed.map((s, i) => (
-                                            <li key={i}>{s.supplyName} × {s.quantity}</li>
-                                        ))}
-                                    </ul>
+                                            <DialogFooter>
+                                                <Button
+                                                    onClick={() => toggleDetailDialog(incident.id, index, false)}
+                                                    className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
+                                                >
+                                                    Close
+                                                </Button>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
+
+
                                 </div>
-                            </div>
+                            ))}
 
-                            <DialogFooter className="pt-4">
-                                <Button variant="outline" onClick={closeDialog}>Cancel</Button>
-                                <Button onClick={updateIncidentDetails}>Save Details</Button>
+                            
+
+                            <DialogFooter>
+                                <Button
+                                    onClick={() =>
+                                        setIncidentList(prev =>
+                                            prev.map(i =>
+                                                i.id === incident.id
+                                                    ? {
+                                                        ...i,
+                                                        showDialog: false,
+                                                    }
+                                                    : i
+                                            )
+                                        )
+                                    }
+                                    className="bg-blue-500 hover:bg-blue-700 px-3 py-2 rounded transition transform hover:-translate-y-1 text-white hover:text-white" >
+                                    Close
+                                </Button>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
                 </div>
             ))}
 
-            {incidentInputs.length > 0 && (
-                <div className="flex justify-end">
-                    <Button onClick={handleSaveAll}>💾 Save All</Button>
+           
+
+            <div className="mt-10">
+                <h2 className="text-2xl font-semibold text-blue-600 mb-4">Incident History</h2>
+
+                {paginatedGroupedIncidents.map(([incidentName, items]) => (
+                    <div key={incidentName} className="border rounded p-4 mb-4 bg-gray-50 shadow flex justify-between items-center">
+                        <span className="font-medium text-lg text-blue-600">
+                            {incidentName} ({items.length} học sinh)
+                        </span>
+                        <Button
+                            onClick={() => setSelectedIncidentGroup(items)}
+                            className="bg-blue-500 hover:bg-blue-700 text-white px-3 py-1"
+                        >
+                            Detail
+                        </Button>
+                    </div>
+                ))}
+
+                {/* Phân trang */}
+                <div className="flex justify-center gap-2 mt-4">
+                    <Button
+                        variant="outline"
+                        disabled={historyPage === 1}
+                        onClick={() => setHistoryPage(p => p - 1)}
+                    >
+                        Trang trước
+                    </Button>
+                    <span className="px-2 py-1 text-gray-600">Trang {historyPage} / {totalHistoryPages}</span>
+                    <Button
+                        variant="outline"
+                        disabled={historyPage === totalHistoryPages}
+                        onClick={() => setHistoryPage(p => p + 1)}
+                    >
+                        Trang sau
+                    </Button>
                 </div>
-            )}
+            </div>
+            <Dialog open={!!selectedIncidentGroup} onOpenChange={() => {
+                setSelectedIncidentGroup(null);
+                setExpandedClass(null);
+            }}>
+                <DialogContent className="max-w-3xl backdrop:bg-transparent">
+                    <DialogHeader>
+                        <DialogTitle className="text-blue-500">
+                            Chi tiết sự cố: {selectedIncidentGroup?.[0]?.incidentName}
+                        </DialogTitle>
+                    </DialogHeader>
 
-            {incidentHistory.length > 0 && (
-                <div className="mt-10">
-                    <h2 className="text-lg font-semibold mb-4">📜 Incident History</h2>
-                    <div className="space-y-4">
-                        {currentItems.map((item, index) => (
-                            <div key={index} className="p-4 border rounded-xl bg-white shadow hover:shadow-md flex justify-between items-center">
-                                <div>
-                                    <p><strong>Class:</strong> {item.className}</p>
-                                    <p><strong>Student:</strong> {item.studentName}</p>
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto">
+                        {Object.entries(groupedByClass).map(([className, students]) => (
+                            <div key={className} className="border rounded p-3 bg-gray-100">
+                                <div className="flex justify-between items-center">
+                                    <span className="font-medium text-blue-600">{className} ({students.length} học sinh)</span>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => setExpandedClass(expandedClass === className ? null : className)}
+                                    >
+                                        {expandedClass === className ? "Ẩn" : "Xem học sinh"}
+                                    </Button>
                                 </div>
-                                <Button onClick={() => setSelectedHistoryItem(item)}>Detail</Button>
-                            </div>
-                        ))}
 
-                        <Dialog open={selectedHistoryItem !== null} onOpenChange={() => setSelectedHistoryItem(null)}>
-                            <DialogContent className="!w-full !max-w-[800px]">
-                                <DialogHeader>
-                                    <DialogTitle>Incident Details</DialogTitle>
-                                </DialogHeader>
-                                {selectedHistoryItem && (
-                                    <div className="space-y-2">
-                                        <p><strong>Class:</strong> {selectedHistoryItem.className}</p>
-                                        <p><strong>Student:</strong> {selectedHistoryItem.studentName}</p>
-                                        <p><strong>Incident:</strong> {selectedHistoryItem.incidentName}</p>
-                                        <p><strong>Handled By:</strong> {selectedHistoryItem.handledBy}</p>
-                                        <p><strong>Description:</strong> {selectedHistoryItem.description}</p>
-                                        <p><strong>Date:</strong> {new Date(selectedHistoryItem.createdAt).toLocaleString()}</p>
-                                        {selectedHistoryItem.supplies?.length > 0 && (
-                                            <div>
-                                                <strong>Supplies Used:</strong>
-                                                <ul className="list-disc ml-6">
-                                                    {selectedHistoryItem.supplies.map((s, idx) => (
-                                                        <li key={idx}>{s.supplyName} × {s.quantity}</li>
-                                                    ))}
-                                                </ul>
+                                {expandedClass === className && (
+                                    <div className="mt-2 space-y-2">
+                                        {students.map((item, idx) => (
+                                            <div key={idx} className="border p-2 rounded bg-white">
+                                                <div><strong>Học sinh:</strong> {item.studentName}</div>
+                                                <div><strong>Mô tả:</strong> {item.description}</div>
+                                                <div><strong>Xử lý bởi:</strong> {item.handledBy}</div>
+                                                <div><strong>Thời gian:</strong> {new Date(item.createdAt).toLocaleString()}</div>
+                                               
                                             </div>
-                                        )}
+                                        ))}
                                     </div>
                                 )}
-                                <DialogFooter>
-                                    <Button onClick={() => setSelectedHistoryItem(null)}>Close</Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-
-                        <div className="flex justify-center mt-4 gap-2">
-                            <Button
-                                variant="outline"
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                            >
-                                Prev
-                            </Button>
-                            <span className="flex items-center px-2">
-                                Page {currentPage} of {totalPages}
-                            </span>
-                            <Button
-                                variant="outline"
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                            >
-                                Next
-                            </Button>
-                        </div>
+                            </div>
+                        ))}
                     </div>
-                </div>
-            )}
-        </div>
 
+                    <DialogFooter>
+                        <Button onClick={() => {
+                            setSelectedIncidentGroup(null);
+                            setExpandedClass(null);
+                        }} className="bg-blue-500 text-white">
+                            Đóng
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+
+
+        </div>
     );
 };
 
