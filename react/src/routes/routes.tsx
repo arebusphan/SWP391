@@ -7,10 +7,7 @@ import AboutPage from "../pages/AboutPage";
 import DashboardRedirect from "../pages/NavigateDashboard";
 import Unauthorized from "../pages/Unauthorized";
 import StudentDetailPage from "../pages/StudentDetailPage";
-import ParentHealthCheck from "../components//ParentPage/ParentHealthCheck"; 
 
-
-import LeftSideParent from "../components/LeftSideParent";
 
 // Route bảo vệ quyền truy cập theo vai trò
 import ProtectedRoute from "./ProtectedRoute";

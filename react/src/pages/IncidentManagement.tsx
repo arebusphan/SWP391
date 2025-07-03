@@ -4,12 +4,10 @@ import { Input } from "@/components/ui/input";
 import {
     AddSupplyToInventory,
     getAllClass,
-    
     GetSupplies,
     postIncident,
     GetIncidentHistory,
 } from "../service/serviceauth";
-
 
 import IncidentDetailDialog from "../components/IncidentDetailDialog";
 import IncidentHistory from "../components/IncidentHistory";
@@ -28,7 +26,6 @@ export interface DetailInput {
     showDetailDialog?: boolean;
     showStudentDropdown?: boolean;
     isExpanded?: boolean;
-
 }
 export interface IncidentInput {
     id: number;
@@ -85,7 +82,6 @@ const IncidentForm: React.FC = () => {
                                 showDetailDialog: false,
                                 showStudentDropdown: false,
                                 isExpanded: false,
-
                             },
                         ],
                     }
@@ -164,7 +160,6 @@ const IncidentForm: React.FC = () => {
         resetIncidentForm();
     };
 
-    // Dialog show/hide state truyền xuống
     const handleShowDialog = (incidentId: number, open: boolean) => {
         setIncidentList(prev =>
             prev.map(i =>
@@ -176,27 +171,31 @@ const IncidentForm: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6 p-4">
+        <div className="space-y-6 p-4 border">
             <h1 className="text-4xl text-center font-bold text-blue-500 mb-10">Incident Management</h1>
             {incidentList.map(incident => (
                 <div key={incident.id} className="relative border rounded-xl p-4 shadow bg-white space-y-4 w-150">
-                    <Input
-                        placeholder="Incident Name"
-                        value={incident.incidentName}
-                        onChange={e => handleChangeIncidentName(incident.id, e.target.value)}
-                    />
-                    <div className="flex gap-2">
-                        <Button
-                            onClick={() => handleShowDialog(incident.id, true)}
-                            className="bg-blue-500 hover:bg-blue-700 px-3 py-2 rounded transition transform hover:-translate-y-1"
-                        >
-                            Edit Details
-                        </Button>
-                        <Button onClick={resetIncidentForm} className="bg-yellow-500 hover:bg-yellow-700 text-white">
-                            ReLoad
-                        </Button>
-                        <div className="flex justify-end">
-                            <Button onClick={handleSaveAll} className="bg-blue-500 hover:bg-blue-700 px-3 py-2 rounded transition transform hover:-translate-y-1"> Save</Button>
+                    <div className="border p-4 rounded-md space-y-3">
+                        <Input
+                            placeholder="Incident Name"
+                            value={incident.incidentName}
+                            onChange={e => handleChangeIncidentName(incident.id, e.target.value)}
+                        />
+                        <div className="flex gap-2">
+                            <Button
+                                onClick={() => handleShowDialog(incident.id, true)}
+                                className="bg-blue-500 hover:bg-blue-700 px-3 py-2 rounded transition transform hover:-translate-y-1"
+                            >
+                                Edit Details
+                            </Button>
+                            <Button onClick={resetIncidentForm} className="bg-yellow-500 hover:bg-yellow-700 text-white">
+                                ReLoad
+                            </Button>
+                            <div className="flex justify-end">
+                                <Button onClick={handleSaveAll} className="bg-blue-500 hover:bg-blue-700 px-3 py-2 rounded transition transform hover:-translate-y-1">
+                                    Save
+                                </Button>
+                            </div>
                         </div>
                     </div>
                     <IncidentDetailDialog

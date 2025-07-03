@@ -2,8 +2,8 @@
 import { getBanners, postBanner } from "../../service/serviceauth";
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, Upload, Image as ImageIcon } from "lucide-react";
+
+import { ChevronLeft, ChevronRight, Upload,  } from "lucide-react";
 
 interface BannerItem {
     id: number;
@@ -282,7 +282,7 @@ function Banner() {
                     onMouseDown={handleSwipeStart}
                     onMouseMove={handleSwipeMove}
                     onMouseUp={handleSwipeEnd}
-                    onMouseLeave={handleSwipeEnd}
+                   
                     onTouchStart={handleSwipeStart}
                     onTouchMove={handleSwipeMove}
                     onTouchEnd={handleSwipeEnd}

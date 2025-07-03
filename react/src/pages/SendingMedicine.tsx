@@ -5,10 +5,18 @@ import { sendingmedicine } from "../service/serviceauth";
 const SendingMedicine = () => {
     const [Medicine, setMedicine] = useState("");
     const [Image, setImage] = useState("");
+
     async function handlesendingmedicine(e: React.FormEvent) {
         e.preventDefault();
         try {
-            const send = await sendingmedicine(0, Medicine, Image);
+            const payload = {
+                studentId :0,         
+                medicineName:"",       
+                prescriptionImage:"",   
+                healthStatus:"",        
+                note:"",               
+            };
+            const send = await sendingmedicine(payload);
             alert("successful");
             console.log("Phản hồi API:", send);
         } catch (error) {

@@ -130,33 +130,39 @@ export const getMedicationRequestsForNurse = () => {
     });
 };
 
-export const updateMedicationStatus = (
+export const updateMedicationStatus = async (
   id: number,
   status: string,
   reviewedBy: number,
   rejectReason?: string
-) => {
+): Promise<Response> => {
   const token = localStorage.getItem("token");
 
-  const payload: any = {
+  const payload: {
+    status: string;
+    reviewedBy: number;
+    rejectReason?: string;
+  } = {
     status,
     reviewedBy,
   };
 
-  if (status === "Rejected") {
-    payload.rejectReason = rejectReason?.trim() || "";
+  if (rejectReason) {
+    payload.rejectReason = rejectReason;
   }
 
-  return axios.put(
-    `https://localhost:7195/api/medication-requests/${id}/updateStatus`,
-    payload,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const response = await fetch(`/api/medicationrequests/${id}/status`, {
+    method: "PATCH", // or PUT, depending on your backend
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return response;
 };
+
 
 
 export const getAllStudentHealthStatus = () => {
