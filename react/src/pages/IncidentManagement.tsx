@@ -27,6 +27,8 @@ export interface DetailInput {
     suppliesUsed: SupplyUsed[];
     showDetailDialog?: boolean;
     showStudentDropdown?: boolean;
+    isExpanded?: boolean;
+
 }
 export interface IncidentInput {
     id: number;
@@ -82,6 +84,8 @@ const IncidentForm: React.FC = () => {
                                 suppliesUsed: [],
                                 showDetailDialog: false,
                                 showStudentDropdown: false,
+                                isExpanded: false,
+
                             },
                         ],
                     }
