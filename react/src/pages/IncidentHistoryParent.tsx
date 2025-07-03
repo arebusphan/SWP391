@@ -25,7 +25,7 @@ const formatDate = (dateStr: string) => {
     return isNaN(date.getTime()) ? "Không rõ ngày" : date.toLocaleString("vi-VN");
 };
 
-const IncidentHistory = () => {
+const IncidentHistoryParent = () => {
     const { user } = useAuth();
     const [incidents, setIncidents] = useState<Incident[]>([]);
     const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
@@ -97,4 +97,4 @@ const IncidentHistory = () => {
     );
 };
 
-export default IncidentHistory;
+export default IncidentHistoryParent;
