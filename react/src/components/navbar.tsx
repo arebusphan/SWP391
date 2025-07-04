@@ -5,6 +5,8 @@ import { FiBell } from "react-icons/fi";
 import {
     Dialog,
     DialogContent,
+    DialogHeader,
+    DialogTitle,
     DialogTrigger,
 } from './ui/dialog';
 import { LoginForm } from './login-form';
@@ -91,14 +93,23 @@ const Navbar = () => {
                         Logout
                     </button>
                 ) : (
-                    <Dialog open={open} onOpenChange={setOpen}>
-                        <DialogTrigger className="bg-blue-100 text-blue-800 hover:bg-blue-200 px-4 py-2 rounded-lg font-semibold transition">
-                            Login
-                        </DialogTrigger>
-                        <DialogContent>
-                            <LoginForm />
-                        </DialogContent>
-                    </Dialog>
+                        <Dialog open={open} onOpenChange={setOpen}>
+                            <DialogTrigger asChild>
+                                <button className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-xl font-semibold shadow transition">
+                                    Login
+                                </button>
+                            </DialogTrigger>
+
+                            <DialogContent className="max-w-md rounded-2xl">
+                                <DialogHeader>
+                                    <DialogTitle className="text-xl font-bold text-blue-700">
+                                       Login
+                                    </DialogTitle>
+                                </DialogHeader>
+
+                                <LoginForm className="pt-2" />
+                            </DialogContent>
+                        </Dialog>
                 )}
             </div>
         </nav>
