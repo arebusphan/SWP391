@@ -1,16 +1,30 @@
-import { Outlet, useNavigate, useLocation } from "react-router-dom"
-import { useState } from "react"
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
 import {
   MdMenu,
   MdSupervisorAccount,
   MdBarChart,
-  MdAssignment, // 👈 icon mới
-} from "react-icons/md"
+  MdAssignment,
+} from "react-icons/md";
 
 const LeftSideManager = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [isOpen, setIsOpen] = useState(true)
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // ✅ Đọc trạng thái sidebar từ localStorage khi khởi tạo
+  const [isOpen, setIsOpen] = useState(() => {
+    const saved = localStorage.getItem("manager_sidebar");
+    return saved === "false" ? false : true; // mặc định mở
+  });
+
+  // ✅ Toggle và lưu trạng thái vào localStorage
+  const toggleSidebar = () => {
+    setIsOpen((prev) => {
+      const newState = !prev;
+      localStorage.setItem("manager_sidebar", newState.toString());
+      return newState;
+    });
+  };
 
   const menuItems = [
     {
@@ -26,9 +40,9 @@ const LeftSideManager = () => {
     {
       label: "Reports",
       path: "/ManagerPage/reportview",
-      icon: <MdAssignment size={20} />, // 👈 icon đã đổi
+      icon: <MdAssignment size={20} />,
     },
-  ]
+  ];
 
   return (
     <div className="h-screen flex">
@@ -43,8 +57,8 @@ const LeftSideManager = () => {
           role="button"
           tabIndex={0}
           className="flex items-center text-lg w-full cursor-pointer rounded-lg hover:bg-blue-700 px-2 py-2 mb-4"
-          onClick={() => setIsOpen(!isOpen)}
-          onKeyDown={(e) => e.key === "Enter" && setIsOpen(!isOpen)}
+          onClick={toggleSidebar}
+          onKeyDown={(e) => e.key === "Enter" && toggleSidebar()}
         >
           <div className="w-6 text-center">
             <MdMenu size={20} />
@@ -86,7 +100,7 @@ const LeftSideManager = () => {
         <Outlet />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LeftSideManager
+export default LeftSideManager;
