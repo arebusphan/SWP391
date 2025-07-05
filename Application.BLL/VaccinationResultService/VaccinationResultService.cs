@@ -7,4 +7,7 @@
 
     public Task<List<VaccinationResultVM>> GetResultsByNotificationAsync(int notificationId, int classId)
         => _repo.GetResultsByNotificationAsync(notificationId, classId);
+
+    public Task<List<VaccinationResultVM>> GetResultsByGuardianAsync(int guardianId)
+        => _repo.GetResultsByGuardianAsync(guardianId);
 }

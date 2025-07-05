@@ -58,5 +58,30 @@ public class VaccinationResultRepository : IVaccinationResultRepository
                 ObservationStatus = vr.ObservationStatus
             }
         ).ToListAsync(); // Chuyển kết quả truy vấn thành danh sách
+
     }
+    // DAL Implementation: Truy vấn danh sách kết quả tiêm của học sinh theo guardian
+    public async Task<List<VaccinationResultVM>> GetResultsByGuardianAsync(int guardianId)
+    {
+        return await (
+            from s in _context.Students
+            join c in _context.Classes on s.ClassId equals c.ClassId
+            join ns in _context.NotificationStudents on s.StudentId equals ns.StudentId
+            join vr in _context.VaccinationResults
+                on new { s.StudentId, ns.NotificationId } equals new { vr.StudentId, vr.NotificationId } into vrGroup
+            from vr in vrGroup.DefaultIfEmpty() // Left join: học sinh chưa tiêm vẫn được hiển thị
+            where s.GuardianId == guardianId
+            select new VaccinationResultVM
+            {
+                StudentId = s.StudentId,
+                StudentName = s.FullName,
+                ClassName = c.ClassName,
+                ConfirmStatus = ns.ConfirmStatus,
+                Vaccinated = vr.Vaccinated,
+                VaccinatedDate = vr.VaccinatedDate,
+                ObservationStatus = vr.ObservationStatus
+            }
+        ).ToListAsync();
+    }
+
 }

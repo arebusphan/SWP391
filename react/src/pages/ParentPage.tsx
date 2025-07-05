@@ -6,15 +6,9 @@ import InfoofParent from "../components/InfoofParent";
 import SendingMedicineView from "../components/ParentPage/SendMedicineView";
 import Notificationview from "../components/ParentPage/Notificationview";
 import VaccinationConfirmation from "../components/ParentPage/VaccinationConfirmation";
-
-
-
-
-
-
 import StudentHealthCheckList from "../components/ParentPage/ParentHealthCheck"; 
 import IncidentHistoryParent from "./IncidentHistoryParent";
-
+import ParentVaccineResult from "../components/ParentPage/ParentVaccineResult";
 
 const ParentPage = () => {
     
@@ -29,6 +23,9 @@ const ParentPage = () => {
                 <Route path="Notificationview" element ={<Notificationview/>}/>
  
                 <Route path="VaccinationConfirmation" element={<VaccinationConfirmation />} />
+                <Route path="VaccineResult" element={<ParentVaccineResult />} />
+
+
                 <Route path="IncidentHistory" element={<IncidentHistoryParent />} />
 
                

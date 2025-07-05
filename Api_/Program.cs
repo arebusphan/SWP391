@@ -151,6 +151,8 @@ namespace WebApplication6
             builder.Services.AddScoped<IMedicationIntakeLogRepo, MedicationIntakeLogRepo>();
             builder.Services.AddScoped<IMedicationIntakeLogService, MedicationIntakeLogService>();
             
+
+
             builder.Services.AddScoped<IExcelService, ExcelService>();
             builder.Services.AddAuthentication(options =>
             {

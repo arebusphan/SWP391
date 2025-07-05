@@ -36,5 +36,12 @@ namespace API.Controllers
             var results = await _service.GetResultsByNotificationAsync(notificationId, classId);
             return Ok(results);
         }
+
+        [HttpGet("by-guardian")]
+        public async Task<IActionResult> GetByGuardian(int guardianId)
+        {
+            var results = await _service.GetResultsByGuardianAsync(guardianId);
+            return Ok(results);
+        }
     }
 }
