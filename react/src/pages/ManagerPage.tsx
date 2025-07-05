@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import LeftSideManager from "./LeftSideManager";
 import Manage from "../components/Manage";
-
-
+import StatisticView from "../components/ManagerPage/StatisticsView";
+import ReportView from "../components/ManagerPage/ReportView"
 
 
 
@@ -10,10 +10,11 @@ import Manage from "../components/Manage";
 
 const ManagerPage = () => {
     return (
-        <Routes>
+        <Routes>    
             <Route element={< LeftSideManager />}>
                 <Route index element={<Manage />} />
-                
+                <Route path="statisticview" element={<StatisticView />} />
+                <Route path="reportview" element={<ReportView />} />
             </Route>
         </Routes>
 

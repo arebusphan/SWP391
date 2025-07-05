@@ -13,6 +13,7 @@ using BLL.MedicalSuppliesService;
 using BLL.MedicationIntakeLogsService;
 using BLL.MedicationService;
 using BLL.OtpService;
+using BLL.ReportService;
 using BLL.Services;
 using BLL.StudentDetailService;
 using BLL.StudentService;
@@ -24,6 +25,7 @@ using DAL.Incident;
 using DAL.Interfaces;
 using DAL.MedicationIntakeLogs;
 using DAL.Models;
+using DAL.ReportRepo;
 using DAL.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -150,8 +152,9 @@ namespace WebApplication6
 
             builder.Services.AddScoped<IMedicationIntakeLogRepo, MedicationIntakeLogRepo>();
             builder.Services.AddScoped<IMedicationIntakeLogService, MedicationIntakeLogService>();
-            
 
+            builder.Services.AddScoped<IReportRepository, ReportRepository>();
+            builder.Services.AddScoped<IReportService, ReportService>();
 
             builder.Services.AddScoped<IExcelService, ExcelService>();
             builder.Services.AddAuthentication(options =>

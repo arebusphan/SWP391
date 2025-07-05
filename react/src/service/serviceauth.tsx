@@ -508,3 +508,14 @@ export const getArticleById = async (id: number) => {
 
     return res.data;
 };
+export const getReportByType = async (type: string) => {
+  const token = localStorage.getItem("token");
+
+  const res = await axios.get(`https://localhost:7195/api/report/${type}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data; // { bar: [], pie: [] }
+};
