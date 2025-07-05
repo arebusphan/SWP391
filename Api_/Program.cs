@@ -13,6 +13,7 @@ using BLL.MedicalSuppliesService;
 using BLL.MedicationIntakeLogsService;
 using BLL.MedicationService;
 using BLL.OtpService;
+using BLL.OverviewService;
 using BLL.ReportService;
 using BLL.Services;
 using BLL.StudentDetailService;
@@ -27,6 +28,7 @@ using DAL.MedicationIntakeLogs;
 using DAL.Models;
 using DAL.ReportRepo;
 using DAL.Repositories;
+using DAL.StatisticRepo;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -139,6 +141,8 @@ namespace WebApplication6
             builder.Services.AddScoped<IHealthNotificationRepository, HealthNotificationRepository>();
             builder.Services.AddScoped<IHealthNotificationService, HealthNotificationService>();
 
+            builder.Services.AddScoped<IStatisticService, StatisticService>();
+            builder.Services.AddScoped<IStatisticRepository, StatisticRepository>();
 
 
             builder.Services.AddScoped<INotificationStudentRepository, NotificationStudentRepository>();

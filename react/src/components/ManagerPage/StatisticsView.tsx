@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import {
   BarChart,
@@ -20,8 +21,9 @@ import {
   FaUserCheck,
   FaUserTimes,
 } from "react-icons/fa";
+import { getOverviewStatistics } from "@/service/serviceauth";
 
-const COLORS = ["#8884d8", "#82ca9d", "#ff7f50", "#ffc658"];
+const COLORS = ["#8884d8", "#82ca9d", "#ff7f50", "#ffc658", "#a0e0f0", "#d0a0f0"];
 
 export default function StatisticView() {
   const [statCards, setStatCards] = useState<any[]>([]);
@@ -30,59 +32,35 @@ export default function StatisticView() {
   const [vaccinePie, setVaccinePie] = useState<any[]>([]);
 
   useEffect(() => {
-    // Mock data
-    setStatCards([
-      {
-        label: "Total Students",
-        value: 340,
-        icon: <FaUserGraduate className="text-blue-500" />,
-      },
-      {
-        label: "Total Classes",
-        value: 12,
-        icon: <FaSchool className="text-green-500" />,
-      },
-      {
-        label: "Pending Medication Requests",
-        value: 15,
-        icon: <FaNotesMedical className="text-yellow-500" />,
-      },
-      {
-        label: "Health Check Visits",
-        value: 140,
-        icon: <FaHeartbeat className="text-red-500" />,
-      },
-      {
-        label: "Vaccinated Students",
-        value: 180,
-        icon: <FaUserCheck className="text-green-600" />,
-      },
-      {
-        label: "Unvaccinated Students",
-        value: 60,
-        icon: <FaUserTimes className="text-red-600" />,
-      },
-    ]);
+    const fetchData = async () => {
+      try {
+        const data = await getOverviewStatistics();
 
-    setBarData([
-      { name: "1A", students: 28 },
-      { name: "1B", students: 30 },
-      { name: "2A", students: 26 },
-      { name: "2B", students: 27 },
-      { name: "3A", students: 25 },
-      { name: "3B", students: 29 },
-    ]);
+        const iconMap: Record<string, ReactNode> = {
+          "Total Students": <FaUserGraduate className="text-blue-500" />,
+          "Total Classes": <FaSchool className="text-green-500" />,
+          "Pending Medication Requests": <FaNotesMedical className="text-yellow-500" />,
+          "Health Check Visits": <FaHeartbeat className="text-red-500" />,
+          "Vaccinated Students": <FaUserCheck className="text-green-600" />,
+          "Unvaccinated Students": <FaUserTimes className="text-red-600" />,
+        };
 
-    setMedicationPie([
-      { name: "Pending", value: 15 },
-      { name: "Approved", value: 30 },
-      { name: "Rejected", value: 5 },
-    ]);
+        setStatCards(
+          data.statCards.map((card: any) => ({
+            ...card,
+            icon: iconMap[card.label] || null,
+          }))
+        );
 
-    setVaccinePie([
-      { name: "Vaccinated", value: 180 },
-      { name: "Unvaccinated", value: 60 },
-    ]);
+        setBarData(data.barData);
+        setMedicationPie(data.medicationPie);
+        setVaccinePie(data.vaccinePie);
+      } catch (err) {
+        console.error("Failed to fetch overview statistics", err);
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
@@ -113,7 +91,7 @@ export default function StatisticView() {
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="students" fill="#8884d8">
+            <Bar dataKey="students">
               {barData.map((_, idx) => (
                 <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
               ))}

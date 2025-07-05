@@ -519,3 +519,15 @@ export const getReportByType = async (type: string) => {
 
   return res.data; // { bar: [], pie: [] }
 };
+// Gọi thống kê tổng quan (Overview)
+export const getOverviewStatistics = async () => {
+  const token = localStorage.getItem("token");
+
+  const res = await axios.get("https://localhost:7195/api/statistic/overview", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
