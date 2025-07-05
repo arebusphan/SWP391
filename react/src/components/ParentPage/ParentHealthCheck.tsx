@@ -99,6 +99,7 @@ const ParentHealthCheck = () => {
                                 <th className="px-3 py-2">Skin</th>
                                 <th className="px-3 py-2">Oral</th>
                                 <th className="px-3 py-2">Date</th>
+                                <th className="px-3 py-2">Other Notes</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -114,11 +115,12 @@ const ParentHealthCheck = () => {
                                     <td className="px-3 py-2">{r.skinStatus}</td>
                                     <td className="px-3 py-2">{r.oralHealth}</td>
                                     <td className="px-3 py-2">{new Date(r.checkDate).toLocaleDateString("vi-VN")}</td>
+                                    <td className="px-3 py-2">{r.otherNotes}</td>
                                 </tr>
                             ))}
                             {currentRecords.length === 0 && (
                                 <tr>
-                                    <td colSpan={10} className="text-center py-4 text-gray-500">
+                                    <td colSpan={11} className="text-center py-4 text-gray-500">
                                         No health check records found.
                                     </td>
                                 </tr>

@@ -9,6 +9,31 @@ public class NotificationStudentRepository : INotificationStudentRepository
 
     public async Task<List<NotificationStudentVM>> GetConfirmationByClassAsync(int notificationId, int classId)
     {
+        // 🔁 Tự động cập nhật các bản ghi quá hạn thành "Declined"
+        var today = DateTime.Now;
+
+        var notification = await _context.HealthNotifications
+    .FirstOrDefaultAsync(n => n.NotificationId == notificationId);
+
+
+        if (notification != null && notification.EventDate < today)
+        {
+            var expiredPending = await _context.NotificationStudents
+                .Where(ns => ns.NotificationId == notificationId &&
+                             ns.Student.ClassId == classId &&
+                             (ns.ConfirmStatus == null || ns.ConfirmStatus == "Pending"))
+                .ToListAsync();
+
+            foreach (var item in expiredPending)
+            {
+                item.ConfirmStatus = "Declined";
+            }
+
+            if (expiredPending.Any())
+                await _context.SaveChangesAsync();
+        }
+
+        // 🔁 Trả kết quả
         var result = await _context.NotificationStudents
             .Where(ns => ns.NotificationId == notificationId && ns.Student.ClassId == classId)
             .Select(ns => new NotificationStudentVM
@@ -23,6 +48,7 @@ public class NotificationStudentRepository : INotificationStudentRepository
 
         return result;
     }
+
     public bool UpdateConfirmation(VaccineConfirmination dto)
     {
         var record = _context.NotificationStudents
@@ -40,6 +66,27 @@ public class NotificationStudentRepository : INotificationStudentRepository
     }
     public List<VaccineConfirmInfo> GetPendingConfirmationsByGuardian(int guardianUserId)
     {
+        var today = DateTime.Now;
+
+        // 🔁 Cập nhật các bản ghi quá hạn thành "Declined"
+        var expiredPending = _context.NotificationStudents
+            .Include(ns => ns.Notification)
+            .Where(ns =>
+                (ns.ConfirmStatus == null || ns.ConfirmStatus == "Pending") &&
+                ns.Student.GuardianId == guardianUserId &&
+                ns.Notification.EventType == "Vaccination" &&
+                ns.Notification.EventDate < today
+            ).ToList();
+
+        foreach (var item in expiredPending)
+        {
+            item.ConfirmStatus = "Declined";
+        }
+
+        if (expiredPending.Any())
+            _context.SaveChanges();
+
+        // ✅ Lấy lại danh sách học sinh vẫn còn Pending (chưa quá hạn)
         var result = _context.NotificationStudents
             .Include(ns => ns.Student)
                 .ThenInclude(s => s.Class)
@@ -47,7 +94,8 @@ public class NotificationStudentRepository : INotificationStudentRepository
             .Where(ns =>
                 (ns.ConfirmStatus == null || ns.ConfirmStatus == "Pending") &&
                 ns.Student.GuardianId == guardianUserId &&
-                ns.Notification.EventType == "Vaccination"
+                ns.Notification.EventType == "Vaccination" &&
+                ns.Notification.EventDate >= today // chỉ lấy những cái chưa hết hạn
             )
             .Select(ns => new VaccineConfirmInfo
             {
@@ -68,4 +116,5 @@ public class NotificationStudentRepository : INotificationStudentRepository
 
         return result;
     }
+
 }
