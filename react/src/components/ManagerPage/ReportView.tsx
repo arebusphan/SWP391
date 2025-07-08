@@ -238,33 +238,37 @@ export default function ReportView() {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">System Reports</h1>
-        <Button onClick={handleExport}>Export to Excel</Button>
       </div>
 
-      <div className="flex justify-between items-center border-b pb-2">
-        <select
-          value={activeTab}
-          onChange={(e) => setActiveTab(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2 text-sm"
-        >
-          {tabs.map((t) => (
-            <option key={t.key} value={t.key}>
-              {t.label}
-            </option>
-          ))}
-        </select>
+      {/* Selects + Export */}
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-4">
+        <div className="flex gap-4 items-center">
+          <select
+            value={activeTab}
+            onChange={(e) => setActiveTab(e.target.value)}
+            className="border border-gray-300 rounded px-3 py-2 text-sm"
+          >
+            {tabs.map((t) => (
+              <option key={t.key} value={t.key}>
+                {t.label}
+              </option>
+            ))}
+          </select>
 
-        <select
-          value={activeFilter}
-          onChange={(e) => setActiveFilter(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2 text-sm"
-        >
-          {filters.map((f) => (
-            <option key={f.key} value={f.key}>
-              By {f.label}
-            </option>
-          ))}
-        </select>
+          <select
+            value={activeFilter}
+            onChange={(e) => setActiveFilter(e.target.value)}
+            className="border border-gray-300 rounded px-3 py-2 text-sm"
+          >
+            {filters.map((f) => (
+              <option key={f.key} value={f.key}>
+                By {f.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <Button onClick={handleExport}>Export to Excel</Button>
       </div>
 
       {loading ? (

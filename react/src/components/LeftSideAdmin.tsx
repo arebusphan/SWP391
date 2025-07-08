@@ -44,7 +44,7 @@ const LeftSideAdmin = () => {
       {/* Sidebar */}
       <div
         className={`bg-blue-900 text-white overflow-hidden transition-all duration-300 ease-in-out flex flex-col ${
-          isOpen ? "w-64 p-4" : "w-12 p-2"
+          isOpen ? "w-72 p-5" : "w-12 p-2"
         }`}
       >
         {/* Toggle Button */}

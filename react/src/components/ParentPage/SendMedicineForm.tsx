@@ -4,13 +4,16 @@ import {
   uploadToCloudinary,
   getstudentid,
 } from "../../service/serviceauth";
+import type { AlertItem } from "@/components/MedicalStaffPage/AlertNotification";
 
 export default function SendMedicineForm({
   onSuccess,
   onPreviewChange,
+  addAlert,
 }: {
   onSuccess: () => void;
   onPreviewChange: (preview: boolean, url?: string) => void;
+  addAlert: (alert: Omit<AlertItem, "id">) => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
@@ -23,7 +26,7 @@ export default function SendMedicineForm({
   const [healthStatus, setHealthStatus] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
-  // Load học sinh
+  // Load students
   useEffect(() => {
     const fetchStudents = async () => {
       try {
@@ -34,14 +37,18 @@ export default function SendMedicineForm({
           setStudentId(studentList[0].studentId);
         }
       } catch (err) {
-        console.error("Lỗi khi lấy học sinh:", err);
-        alert("Không thể tải danh sách học sinh.");
+        console.error("Error fetching students:", err);
+        addAlert({
+          type: "error",
+          title: "Load Failed",
+          description: "Failed to load student list.",
+        });
       }
     };
     fetchStudents();
   }, []);
 
-  // Xem trước ảnh
+  // Image preview
   useEffect(() => {
     if (!file) {
       setPreviewUrl("");
@@ -57,15 +64,37 @@ export default function SendMedicineForm({
   // Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) return alert("Chưa chọn file");
-    if (!studentId) return alert("Chưa chọn học sinh");
-    if (!medicineName.trim()) return alert("Chưa nhập tên thuốc");
+    if (!file) {
+      addAlert({
+        type: "error",
+        title: "Missing File",
+        description: "Please select an image file.",
+      });
+      return;
+    }
+
+    if (!studentId) {
+      addAlert({
+        type: "error",
+        title: "Missing Student",
+        description: "Please select a student.",
+      });
+      return;
+    }
+
+    if (!medicineName.trim()) {
+      addAlert({
+        type: "error",
+        title: "Missing Medicine Name",
+        description: "Please enter the medicine name.",
+      });
+      return;
+    }
 
     try {
       setLoading(true);
       const imageUrl = await uploadToCloudinary(file);
 
-      // Gửi API với đầy đủ dữ liệu
       await sendingmedicine({
         studentId,
         medicineName,
@@ -74,7 +103,12 @@ export default function SendMedicineForm({
         note,
       });
 
-      alert("Gửi thành công");
+      addAlert({
+        type: "success",
+        title: "Submitted",
+        description: "Medicine request sent successfully.",
+      });
+
       onSuccess();
 
       // Reset form
@@ -85,8 +119,12 @@ export default function SendMedicineForm({
       setHealthStatus("");
       onPreviewChange(false, "");
     } catch (error) {
-      console.error("Lỗi:", error);
-      alert("Gửi thất bại");
+      console.error("Error:", error);
+      addAlert({
+        type: "error",
+        title: "Submission Failed",
+        description: "Could not send medicine request. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -97,7 +135,7 @@ export default function SendMedicineForm({
       onSubmit={handleSubmit}
       className="flex flex-col lg:flex-row gap-6 w-full items-center min-h-[420px]"
     >
-      {/* Form bên trái */}
+      {/* Left Form */}
       <div className="w-[400px] shrink-0 flex flex-col gap-4">
         <select
           value={studentId ?? ""}
@@ -139,7 +177,7 @@ export default function SendMedicineForm({
             htmlFor="file-input"
             className="inline-block cursor-pointer rounded border border-gray-400 px-2 py-1 text-sm text-gray-700 hover:bg-gray-100"
           >
-            Chọn file
+            Choose File
           </label>
           <input
             id="file-input"
@@ -164,11 +202,11 @@ export default function SendMedicineForm({
           className="btn btn-primary w-full"
           disabled={loading}
         >
-          {loading ? "Đang gửi..." : "Send"}
+          {loading ? "Sending..." : "Send"}
         </button>
       </div>
 
-      {/* Preview ảnh bên phải */}
+      {/* Right Image Preview */}
       {previewUrl && (
         <div className="w-[300px] h-auto border border-gray-300 rounded overflow-hidden">
           <img

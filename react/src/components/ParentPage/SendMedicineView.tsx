@@ -10,6 +10,9 @@ import {
 import SendMedicineForm from "./SendMedicineForm";
 import ViewMedicationHistory from "./ViewMedicationHistory";
 import { getMedicationRequestHistory } from "../../service/serviceauth";
+import AlertNotification from "../MedicalStaffPage/AlertNotification";
+import type { AlertItem } from "@/components/MedicalStaffPage/AlertNotification";
+let nextId = 1;
 
 interface MedicationRequest {
   requestId: number;
@@ -29,10 +32,23 @@ export default function SendMedicineView() {
   const [requests, setRequests] = useState<MedicationRequest[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [openHistoryDialog, setOpenHistoryDialog] = useState(false);
-  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
+  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
+    null
+  );
   const [selectedStudentId, setSelectedStudentId] = useState<number>(0);
   const [hasPreviewImage, setHasPreviewImage] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string>("");
+
+  const [alerts, setAlerts] = useState<AlertItem[]>([]);
+
+  const addAlert = (alert: Omit<AlertItem, "id">) => {
+    const newAlert = { ...alert, id: nextId++ };
+    setAlerts((prev) => [...prev, newAlert]);
+  };
+
+  const removeAlert = (id: number) => {
+    setAlerts((prev) => prev.filter((a) => a.id !== id));
+  };
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -83,14 +99,10 @@ export default function SendMedicineView() {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen text-[16px] md:text-[17px]">
-      {/* Title */}
       <h2 className="text-3xl font-bold text-blue-700 mb-3">Medication Request History</h2>
 
-      {/* Search + Filter + Button in 1 row */}
       <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
-        {/* Search + Filter */}
         <div className="flex flex-row gap-3 w-full md:w-auto">
-          {/* Search Box */}
           <div className="flex flex-col w-[220px]">
             <label className="text-sm text-gray-600">Search</label>
             <input
@@ -104,8 +116,6 @@ export default function SendMedicineView() {
               className="border rounded px-3 py-2 text-sm"
             />
           </div>
-
-          {/* Status Filter */}
           <div className="flex flex-col w-[180px]">
             <label className="text-sm text-gray-600">Status</label>
             <select
@@ -124,7 +134,6 @@ export default function SendMedicineView() {
           </div>
         </div>
 
-        {/* Send Medicine Button */}
         <div className="flex flex-col">
           <label className="invisible text-sm">Send</label>
           <Button
@@ -137,7 +146,6 @@ export default function SendMedicineView() {
         </div>
       </div>
 
-      {/* Dialog gửi thuốc */}
       <Dialog open={openSendMedicineDialog} onOpenChange={setOpenSendMedicineDialog}>
         <DialogContent className="!p-8 !max-w-4xl animate-fade-in">
           <div className="flex flex-row items-start gap-8">
@@ -154,6 +162,7 @@ export default function SendMedicineView() {
                   setHasPreviewImage(preview);
                   setPreviewUrl(url || "");
                 }}
+                addAlert={addAlert}
               />
             </div>
 
@@ -252,7 +261,6 @@ export default function SendMedicineView() {
         </table>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center mt-6 gap-4">
           <Button
@@ -275,7 +283,6 @@ export default function SendMedicineView() {
         </div>
       )}
 
-      {/* Dialog xem ảnh đơn thuốc */}
       <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
         <DialogContent className="!max-w-[70vw] !max-h-[70vh] p-0 overflow-hidden">
           <div className="relative w-full h-full flex justify-center items-center bg-black">
@@ -295,13 +302,15 @@ export default function SendMedicineView() {
         </DialogContent>
       </Dialog>
 
-      {/* Dialog xem lịch sử uống thuốc */}
       <ViewMedicationHistory
         open={openHistoryDialog}
         onClose={() => setOpenHistoryDialog(false)}
         requestId={selectedRequestId}
         studentId={selectedStudentId}
       />
+
+      {/* ✅ Alert Notification */}
+      <AlertNotification alerts={alerts} onRemove={removeAlert} />
     </div>
   );
 }

@@ -138,21 +138,14 @@ export const updateMedicationStatus = async (
 ): Promise<Response> => {
   const token = localStorage.getItem("token");
 
-  const payload: {
-    status: string;
-    reviewedBy: number;
-    rejectReason?: string;
-  } = {
+  const payload = {
     status,
     reviewedBy,
+    ...(rejectReason ? { rejectReason } : {})
   };
 
-  if (rejectReason) {
-    payload.rejectReason = rejectReason;
-  }
-
-  const response = await fetch(`/api/medicationrequests/${id}/status`, {
-    method: "PATCH", // or PUT, depending on your backend
+  const response = await fetch(`https://localhost:7195/api/medication-requests/${id}/updateStatus`, {
+    method: "PUT", // ✅ đúng với controller
     headers: {
       "Content-Type": "application/json",
       Authorization: token ? `Bearer ${token}` : "",
