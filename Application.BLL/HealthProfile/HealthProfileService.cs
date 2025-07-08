@@ -6,16 +6,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using BLL.EmailService;
 
 namespace BLL.HealthProfile
 {
     public class HealthProfileService : IHealthProfileService
     {
         private readonly AppDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public HealthProfileService(AppDbContext context)
+        public HealthProfileService(AppDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task SubmitAsync(HealthProfileDTO dto, int createdBy)
@@ -147,5 +150,44 @@ namespace BLL.HealthProfile
             // hoặc tạo record vào bảng Notifications nếu có
         }
 
+        public async Task SendHealthProfileReminderAsync(List<int> studentIds)
+        {
+            var students = await _context.Students
+                .Include(s => s.Guardian)
+                .Include(s => s.Class)
+                .Where(s => studentIds.Contains(s.StudentId))
+                .ToListAsync();
+
+            foreach (var student in students)
+            {
+                if (student.Guardian == null) continue;
+
+                var guardian = student.Guardian;
+                var className = student.Class?.ClassName ?? "Unknown";
+                
+                // Gửi email
+                var subject = "Thông báo nộp Hồ sơ Sức khỏe - Health Profile Submission Reminder";
+                var body = $@"
+                    <html>
+                    <body>
+                        <h2>Thông báo nộp Hồ sơ Sức khỏe</h2>
+                        <p>Kính gửi phụ huynh: <strong>{guardian.FullName}</strong></p>
+                        <p>Chúng tôi thông báo rằng hồ sơ sức khỏe của học sinh <strong>{student.FullName}</strong> (lớp {className}) chưa được nộp.</p>
+                        <p>Vui lòng truy cập hệ thống để nộp hồ sơ sức khỏe cho con em mình.</p>
+                        <p>Trân trọng,<br/>Y tế trường học</p>
+                    </body>
+                    </html>";
+
+                try
+                {
+                    await _emailService.SendEmailAsync(guardian.Email, subject, body, true);
+                    Console.WriteLine($"✅ Đã gửi email thành công cho {guardian.Email}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ Lỗi gửi email cho {guardian.Email}: {ex.Message}");
+                }
+            }
+        }
     }
 }

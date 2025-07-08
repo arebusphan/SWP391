@@ -34,6 +34,8 @@ const StudentProfileList = () => {
     const [classFilter, setClassFilter] = useState("");
     const [searchName, setSearchName] = useState("");
     const [filterByProfile, setFilterByProfile] = useState("all");
+    const [selectedForReminder, setSelectedForReminder] = useState<number[]>([]);
+    const [sendingReminder, setSendingReminder] = useState(false);
     
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
@@ -113,6 +115,43 @@ const StudentProfileList = () => {
         setCurrentPage(page);
     };
 
+    const handleSelectForReminder = (studentId: number) => {
+        setSelectedForReminder(prev => 
+            prev.includes(studentId) 
+                ? prev.filter(id => id !== studentId)
+                : [...prev, studentId]
+        );
+    };
+
+    const handleSelectAllMissing = () => {
+        const missingProfileStudents = filteredStudents.filter(s => !healthMap[s.studentId]);
+        const missingIds = missingProfileStudents.map(s => s.studentId);
+        setSelectedForReminder(missingIds);
+    };
+
+    const handleSendReminder = async () => {
+        if (selectedForReminder.length === 0) {
+            alert("Vui lòng chọn ít nhất một học sinh để gửi thông báo!");
+            return;
+        }
+
+        setSendingReminder(true);
+        try {
+            await axios.post(
+                "https://localhost:7195/api/HealthProfile/send-reminder",
+                { studentIds: selectedForReminder },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            alert(`Đã gửi thông báo thành công cho ${selectedForReminder.length} phụ huynh!`);
+            setSelectedForReminder([]);
+        } catch (error) {
+            console.error("Error sending reminders:", error);
+            alert("Có lỗi xảy ra khi gửi thông báo. Vui lòng thử lại!");
+        } finally {
+            setSendingReminder(false);
+        }
+    };
+
     return (
         <>
             <div className={`max-w-6xl mx-auto p-6 bg-white rounded-2xl shadow-lg transition-all duration-300 ${selectedStudent ? 'blur-sm pointer-events-none select-none' : ''}`}>
@@ -152,12 +191,51 @@ const StudentProfileList = () => {
                     </select>
                 </div>
 
+                {/* Reminder Actions */}
+                {filterByProfile === "missing" && (
+                    <div className="mb-4 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+                        <div className="flex flex-wrap gap-3 items-center">
+                            <button
+                                onClick={handleSelectAllMissing}
+                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                            >
+                                Select All Missing
+                            </button>
+                            <button
+                                onClick={handleSendReminder}
+                                disabled={selectedForReminder.length === 0 || sendingReminder}
+                                className={`px-4 py-2 rounded-lg transition ${
+                                    selectedForReminder.length === 0 || sendingReminder
+                                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                        : "bg-orange-500 text-white hover:bg-orange-600"
+                                }`}
+                            >
+                                {sendingReminder ? "Sending..." : `Send Reminder (${selectedForReminder.length})`}
+                            </button>
+                            {selectedForReminder.length > 0 && (
+                                <button
+                                    onClick={() => setSelectedForReminder([])}
+                                    className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+                                >
+                                    Clear Selection
+                                </button>
+                            )}
+                        </div>
+                        <p className="text-sm text-gray-600 mt-2">
+                            💡 Select students to send health profile reminders to their parents via email.
+                        </p>
+                    </div>
+                )}
+
                 {/* Table */}
                 <div className="overflow-auto rounded-xl shadow-sm">
                     <table className="min-w-full table-auto text-sm border border-gray-200 rounded-lg overflow-hidden">
                         <thead className="bg-blue-50 text-blue-800">
                             <tr>
-                                {["Name", "Gender", "DOB", "Guardian", "Phone", "Class", "Action"].map((heading) => (
+                                {filterByProfile === "missing" && (
+                                    <th className="p-3 text-center font-semibold">Select</th>
+                                )}
+                                {["Name", "Gender", "DOB", "Guardian", "Phone", "Class", "Status", "Action"].map((heading) => (
                                     <th key={heading} className="p-3 text-center font-semibold">{heading}</th>
                                 ))}
                             </tr>
@@ -165,12 +243,34 @@ const StudentProfileList = () => {
                         <tbody className="text-gray-700">
                             {currentStudents.map((s, idx) => (
                                 <tr key={s.studentId} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition`}>
+                                    {filterByProfile === "missing" && (
+                                        <td className="p-3 text-center">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedForReminder.includes(s.studentId)}
+                                                onChange={() => handleSelectForReminder(s.studentId)}
+                                                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                                aria-label={`Select ${s.fullName} for reminder`}
+                                            />
+                                        </td>
+                                    )}
                                     <td className="p-3 text-center">{s.fullName}</td>
                                     <td className="p-3 text-center">{s.gender}</td>
                                     <td className="p-3 text-center">{formatDate(s.dateOfBirth)}</td>
                                     <td className="p-3 text-center">{s.guardianName}</td>
                                     <td className="p-3 text-center">{s.guardianPhone}</td>
                                     <td className="p-3 text-center">{s.className}</td>
+                                    <td className="p-3 text-center">
+                                        {healthMap[s.studentId] ? (
+                                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                                                ✅ Has Profile
+                                            </span>
+                                        ) : (
+                                            <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">
+                                                ❌ Missing
+                                            </span>
+                                        )}
+                                    </td>
                                     <td className="p-3 text-center">
                                         <button
                                             onClick={() => handleView(s)}
@@ -210,6 +310,33 @@ const StudentProfileList = () => {
                 <div className="text-center mt-4 text-gray-600">
                     Showing {startIndex + 1} to {Math.min(endIndex, filteredStudents.length)} of {filteredStudents.length} students
                 </div>
+
+                {/* Reminder Section - Only visible when profiles are missing */}
+                {/*filterByProfile === "missing" && (
+                    <div className="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg">
+                        <p className="text-yellow-800 font-semibold mb-2">
+                            ⚠️ Missing Health Profiles
+                        </p>
+                        <p className="text-gray-700 mb-4">
+                            Some students are missing health profiles. You can send a reminder to their guardians.
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleSelectAllMissing}
+                                className="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-lg shadow-md hover:bg-yellow-600 transition"
+                            >
+                                Select All Missing
+                            </button>
+                            <button
+                                onClick={handleSendReminder}
+                                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition"
+                                disabled={sendingReminder}
+                            >
+                                {sendingReminder ? "Sending..." : "Send Reminder"}
+                            </button>
+                        </div>
+                    </div>
+                )*/}
             </div>
 
             {/* Dialog Modal */}

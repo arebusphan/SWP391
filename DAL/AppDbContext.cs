@@ -48,6 +48,7 @@ namespace DAL
         public DbSet<Classes> Classes { get; set; }
         public DbSet<MedicationIntakeLog> MedicationIntakeLogs { get; set; }
         public DbSet<IncidentSupplies> IncidentSupplies { get; set; }
+
         public DbSet<Blog> Blog { get; set; }
     }
 }

@@ -72,5 +72,24 @@ namespace API_.Controllers
             return Ok(new { message = "Updated" });
         }
 
+        [HttpPost("send-reminder")]
+        [Authorize(Roles = "MedicalStaff")]
+        public async Task<IActionResult> SendHealthProfileReminder([FromBody] SendReminderRequest request)
+        {
+            try
+            {
+                await _service.SendHealthProfileReminderAsync(request.StudentIds);
+                return Ok(new { message = "Reminders sent successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+    }
+
+    public class SendReminderRequest
+    {
+        public List<int> StudentIds { get; set; } = new();
     }
 }
