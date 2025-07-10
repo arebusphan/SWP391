@@ -12,7 +12,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["API_/API_.csproj", "API_/"]
+COPY ["API_/Api_.csproj", "API_/"]
 COPY ["Application.BLL/BLL.csproj", "Application.BLL/"]
 COPY ["DAL/DAL.csproj", "DAL/"]
 RUN dotnet restore "./API_/API_.csproj"
