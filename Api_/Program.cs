@@ -186,7 +186,7 @@ namespace WebApplication6
                 options.AddPolicy("AllowFrontend",
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:5678")
+                        policy.WithOrigins("https://healthschoolmanagement.netlify.app")
                               .AllowAnyHeader()
                               .AllowAnyMethod()
                               .AllowCredentials();

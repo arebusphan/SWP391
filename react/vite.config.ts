@@ -19,7 +19,7 @@ export default defineConfig({
             '/api': {
                 target: 'https://localhost:7195',
                 changeOrigin: true,
-                secure: false, // ⛔ bỏ xác minh SSL ở môi trường local dev
+                secure: false, 
             },
         },
 

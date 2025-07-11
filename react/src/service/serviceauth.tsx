@@ -1,12 +1,13 @@
 ﻿import axios from "axios";
+import { apiser } from "./apiser";
 
 export const sendOtp = (phone: string) => {
-    return axios.post("https://localhost:7195/api/Otp/send", { phone });
+    return apiser.post("/Otp/send", { phone });
 };
 
 
 export const verifyOtp = (email: string, otpcode: string) => {
-    return axios.post("https://localhost:7195/api/Otp/verify-otp", { email, otpcode });
+    return apiser.post("/Otp/verify-otp", { email, otpcode });
 };
 
 const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dhuoon51m/image/upload";
@@ -182,7 +183,7 @@ export const postBanner = async (title: string, imageUrl: string) => {
     return await axios.post("https://localhost:7195/api/Banners/post", { title, imageUrl })
 }
 export const getBanners = async () => {
-    const res = await axios.get("https://localhost:7195/api/Banners/getall");
+    const res = await apiser.get("/Banners/getall");
     return res.data;
 };
 export const getMedicationRequestHistory = (params?: {
