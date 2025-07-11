@@ -525,3 +525,12 @@ export const getOverviewStatistics = async () => {
 
   return res.data;
 };
+export const getHealthNews = async () => {
+    try {
+        const res = await axios.get("https://localhost:7195/api/News/health");
+        return res.data.articles;
+    } catch (err: any) {
+        console.error("Error fetching news:", err.response?.data || err.message);
+        throw err;
+    }
+};

@@ -132,7 +132,7 @@ namespace WebApplication6
             builder.Services.AddScoped<IStudentStatusService, StudentStatusService>();
             builder.Services.AddScoped<IStudentStatusRepository, StudentStatusRepository>();
 
-            
+            builder.Services.AddHttpClient();
 
             builder.Services.AddScoped<IStudentDetailRepository, StudentDetailRepository>();
             builder.Services.AddScoped<IStudentDetailService, StudentDetailService>();
@@ -186,7 +186,8 @@ namespace WebApplication6
                 options.AddPolicy("AllowFrontend",
                     policy =>
                     {
-                        policy.WithOrigins("https://healthschoolmanagement.netlify.app")
+                        policy.WithOrigins("http://localhost:5678",
+                            "https://healthschoolmanagement.netlify.app")
                               .AllowAnyHeader()
                               .AllowAnyMethod()
                               .AllowCredentials();
