@@ -17,15 +17,15 @@ namespace Api_.Controllers
         [HttpGet("health")]
         public async Task<IActionResult> GetHealthNews()
         {
-            var apiKey = "897ed10279ad4d5aaec3c5718922af54"; 
+            var apiKey = "897ed10279ad4d5aaec3c5718922af54";
             var url = $"https://newsapi.org/v2/top-headlines?country=us&category=health&apiKey={apiKey}";
 
             var response = await _httpClient.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                return BadRequest($"NewsAPI call failed: {errorContent}");
+                var error = await response.Content.ReadAsStringAsync();
+                return BadRequest($"NewsAPI failed: {error}");
             }
 
             var content = await response.Content.ReadAsStringAsync();
