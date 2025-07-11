@@ -10,7 +10,9 @@ namespace DAL.Repositories
         Task AddAsync(List<Students> students);
         Task<IEnumerable<StudentDTO>> GetByClassIdAsync(int classId);
         Task<List<StudentDTO>> GetStudentDTOsAsync();
-        Task<string?> GetGuardianEmailByStudentIdAsync(int studentId);
+        Task<Students?> GetGuardianEmailByStudentIdAsync(int studentId);
+        Task<List<Students>> GetStudentsWithGuardianAndClassAsync(List<int> studentIds);
+        Task<List<Students>> GetByClassIdsAsync(List<int> classIds);
 
     }
 }

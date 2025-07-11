@@ -100,30 +100,30 @@ public class MedicationService : IMedicationService
         _medicationRepository.Update(request);
         _medicationRepository.Save();
 
-        // Gửi email qua hàng đợi (fire-and-forget)
-        var email = await _studentRepository.GetGuardianEmailByStudentIdAsync(request.StudentId);
-        if (!string.IsNullOrEmpty(email))
+        // Gửi email cá nhân hóa (fire-and-forget)
+        var studinfo = await _studentRepository.GetGuardianEmailByStudentIdAsync(request.StudentId);
+        if (!string.IsNullOrWhiteSpace(studinfo.Guardian.Email))
         {
+            var subject = "Medication Request Update";
+            var body = newStatus switch
+            {
+                "Rejected" => $"Your medication request has been rejected.<br/><strong>Reason:</strong> {rejectReason ?? "No reason provided."}",
+                "Approved" => "Your medication request has been approved.",
+                _ => $"The status of your medication request has been updated to: {newStatus}"
+            };
+
+            // Đưa vào hàng đợi
             _emailQueue.Enqueue(new EmailMessageDto
             {
-                ToList = new List<string> { email },
-                Subject = "Medication Request Update",
-                Body = newStatus switch
-                {
-                    "Rejected" => $"Your medication request has been rejected.\nReason: {rejectReason ?? "No reason provided."}",
-                    "Approved" => "Your medication request has been approved.",
-                    _ => $"The status of your medication request has been updated to: {newStatus}"
-                },
-                IsHtml = false
+                ToList = studinfo.Guardian.Email,              
+                Subject = subject,
+                Body = body,
+                IsHtml = true       
             });
         }
 
         return true;
     }
-
-
-
-
 
 
     public List<MedicationRequests> GetAll()

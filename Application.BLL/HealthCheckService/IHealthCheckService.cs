@@ -4,7 +4,7 @@ namespace BLL.HealthCheckService
 {
     public interface IHealthCheckService
     {
-        void SubmitHealthCheck(HealthCheckDto dto);
+        Task SubmitHealthCheckAsync(HealthCheckDto dto);
         List<HealthCheckDto> GetHealthChecksByGuardian(int guardianId);
 
     }

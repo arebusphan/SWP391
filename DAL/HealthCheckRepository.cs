@@ -18,11 +18,12 @@ namespace DAL.Repositories
             return _context.Students.Any(s => s.StudentId == studentId);
         }
 
-        public void AddHealthCheck(HealthChecks profile)
+        public async Task AddHealthCheckAsync(HealthChecks profile)
         {
             _context.HealthChecks.Add(profile);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
+
         public List<int> GetStudentIdsByGuardian(int guardianId)
         {
             return _context.Students

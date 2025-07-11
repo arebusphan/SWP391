@@ -3,11 +3,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { getuser } from "../../service/serviceauth";
-import { Dialog, DialogContent, DialogDescription } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import AddUserForm from "./AddUserForm";
 import EditUserForm from "./EditUserForm";
-import { DialogTitle } from "@radix-ui/react-dialog";
 import AddFileForm from "./AddFileForm";
+import { Pagination } from "@/components/ui/Pagination";
 
 export type Account = {
   userId?: number;
@@ -24,15 +24,17 @@ export default function AccountManager() {
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [openAddUserDialog, setOpenAddUserDialog] = useState(false);
   const [openAddFileDialog, setOpenAddFileDialog] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [expandedDialog, setExpandedDialog] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const itemsPerPage = 10;
 
   const refreshUsers = async () => {
     try {
       const response = await getuser();
-      setUsers(response.data);
+      setUsers([...response.data].reverse());
     } catch (error) {
-      console.error("Fail when get user:", error);
+      console.error("Failed to fetch users:", error);
     }
   };
 
@@ -45,40 +47,52 @@ export default function AccountManager() {
     account.email.toLowerCase().includes(search.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filteredAccounts.length / itemsPerPage);
+  const paginatedAccounts = filteredAccounts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   const handleUpdate = (updatedUser: Account) => {
-    setUsers(prevUsers =>
-      prevUsers.map(user => (user.userId === updatedUser.userId ? updatedUser : user))
+    setUsers(prev =>
+      prev.map(user => (user.userId === updatedUser.userId ? updatedUser : user))
     );
     setSelectedAccount(null);
   };
 
   return (
     <div className="p-5">
-      <div className="flex justify-between items-center mb-10">
+      <h1 className="text-2xl font-bold text-blue-800 mb-6">Account Management</h1>
+
+      {/* Search + Add Account Dropdown */}
+      <div className="flex justify-between items-center mb-6 relative">
         <Input
           placeholder="Search Account"
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setCurrentPage(1);
+          }}
           className="w-1/2"
         />
 
-        <div className="relative inline-block text-left">
-          <button
-            className="flex items-center"
-            onClick={() => setDropdownOpen(!dropdownOpen)}
+        <div className="relative">
+          <Button
+            onClick={() => setDropdownOpen(prev => !prev)}
+            className="bg-blue-600 text-white hover:bg-blue-700"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Account
-          </button>
+          </Button>
 
           {dropdownOpen && (
             <div
-              className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+              className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
               onMouseLeave={() => setDropdownOpen(false)}
             >
               <div className="py-1">
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                   onClick={() => {
                     setOpenAddUserDialog(true);
                     setDropdownOpen(false);
@@ -87,7 +101,7 @@ export default function AccountManager() {
                   Add User
                 </button>
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                   onClick={() => {
                     setOpenAddFileDialog(true);
                     setDropdownOpen(false);
@@ -98,67 +112,30 @@ export default function AccountManager() {
               </div>
             </div>
           )}
-
-          {/* Dialog Add User */}
-          <Dialog
-            open={openAddUserDialog}
-            onOpenChange={(val) => {
-              setOpenAddUserDialog(val);
-              if (!val) setExpandedDialog(false);
-            }}
-          >
-            <DialogContent className={`!w-full ${expandedDialog ? "!max-w-[1000px]" : "!max-w-[600px]"}`}>
-              <DialogTitle>Add a new account</DialogTitle>
-              <DialogDescription>Add a new account</DialogDescription>
-              <AddUserForm
-                onSubmit={(newUser) => {
-                  setUsers([...users, newUser]);
-                  setOpenAddUserDialog(false);
-                  setExpandedDialog(false);
-                }}
-                onExpandDialog={(expand) => setExpandedDialog(expand)}
-              />
-            </DialogContent>
-          </Dialog>
-
-          {/* Dialog Add File */}
-          <Dialog open={openAddFileDialog} onOpenChange={setOpenAddFileDialog}>
-            <DialogContent >
-              <DialogTitle>Add multiple accounts from file</DialogTitle>
-              <DialogDescription>Upload file to add multiple users</DialogDescription>
-              <AddFileForm
-                onSuccess={async () => {
-                  await refreshUsers();
-                  setOpenAddFileDialog(false);
-                }}
-              />
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
 
-      <div className="border rounded-md overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-gray-100">
+      {/* Table */}
+      <div className="border rounded-lg overflow-hidden shadow">
+        <table className="w-full text-left border-collapse">
+          <thead className="bg-blue-100 text-blue-800">
             <tr>
               <th className="p-3">Name</th>
               <th className="p-3">Email</th>
               <th className="p-3">Phone</th>
               <th className="p-3">Role</th>
               <th className="p-3">Active</th>
-              <th className="p-3 text-right">Edit</th>
+              <th className="p-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredAccounts.length === 0 ? (
+            {paginatedAccounts.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center p-5">
-                  No users found.
-                </td>
+                <td colSpan={6} className="text-center p-5 text-gray-500">No users found.</td>
               </tr>
             ) : (
-              filteredAccounts.map(account => (
-                <tr key={account.email} className="border-t hover:bg-gray-50">
+              paginatedAccounts.map(account => (
+                <tr key={account.email} className="border-t hover:bg-blue-50 transition-colors">
                   <td className="p-3">{account.fullName}</td>
                   <td className="p-3">{account.email}</td>
                   <td className="p-3">{account.phoneNumber}</td>
@@ -171,11 +148,7 @@ export default function AccountManager() {
                     )}
                   </td>
                   <td className="p-3 text-right">
-                    <Button
-                      className="flex items-center"
-                      onClick={() => setSelectedAccount(account)}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
+                    <Button size="sm" onClick={() => setSelectedAccount(account)}>
                       Edit
                     </Button>
                   </td>
@@ -186,11 +159,51 @@ export default function AccountManager() {
         </table>
       </div>
 
-      {/* Dialog Edit */}
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
+
+      {/* Dialogs */}
+      <Dialog open={openAddUserDialog} onOpenChange={(val) => {
+        setOpenAddUserDialog(val);
+        if (!val) setExpandedDialog(false);
+      }}>
+        <DialogContent className={expandedDialog ? "!max-w-[1000px]" : "!max-w-[600px]"}>
+          <DialogTitle>Add a new account</DialogTitle>
+          <DialogDescription>Fill in the user information.</DialogDescription>
+          <AddUserForm
+            onSubmit={(newUser) => {
+              setUsers(prev => [newUser, ...prev]);
+              setOpenAddUserDialog(false);
+              setExpandedDialog(false);
+            }}
+            onExpandDialog={(expand) => setExpandedDialog(expand)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openAddFileDialog} onOpenChange={setOpenAddFileDialog}>
+        <DialogContent>
+          <DialogTitle>Import users from file</DialogTitle>
+          <DialogDescription>Upload file to add multiple users.</DialogDescription>
+          <AddFileForm
+            onSuccess={async () => {
+              await refreshUsers();
+              setOpenAddFileDialog(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!selectedAccount} onOpenChange={() => setSelectedAccount(null)}>
-        <DialogContent className="!w-full !max-w-[1000px]">
-          <DialogTitle></DialogTitle>
-          <DialogDescription>Edit user information</DialogDescription>
+        <DialogContent className="!max-w-[1000px]">
+          <DialogTitle>Edit user</DialogTitle>
+          <DialogDescription>Modify user details below.</DialogDescription>
           {selectedAccount && (
             <EditUserForm user={selectedAccount} onSubmit={handleUpdate} />
           )}

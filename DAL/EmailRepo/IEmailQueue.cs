@@ -9,7 +9,9 @@ namespace DAL.EmailRepo
 {
     public interface IEmailQueue
     {
-        void Enqueue(EmailMessageDto message);
-        bool TryDequeue(out EmailMessageDto message);
+        void Enqueue(EmailMessageDto message);             
+        void Enqueue(List<EmailMessageDto> batchMessages);   
+        bool TryDequeue(out EmailQueueItem item);         
     }
+
 }

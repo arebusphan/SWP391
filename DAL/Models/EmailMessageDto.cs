@@ -8,7 +8,7 @@ namespace DAL.Models
 {
     public class EmailMessageDto
     {
-        public List<string> ToList { get; set; } = new();
+        public string ToList { get; set; } 
         public string Subject { get; set; }
         public string Body { get; set; }
         public bool IsHtml { get; set; } = false;

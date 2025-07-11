@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
 
- public class EmailService : IEmailService
+public class EmailService : IEmailService
 {
     private readonly EmailSettings _settings;
 
@@ -13,7 +13,8 @@ using System.Net.Mail;
         _settings = options.Value;
     }
 
-    public async Task<string> SendEmailAsync(List<string> toList, string subject, string body, bool isHtml = false)
+    // ✅ Gửi 1 người — giữ lại để hệ thống dùng
+    public async Task<string> SendEmailAsync(string toEmail, string subject, string body, bool isHtml = false)
     {
         try
         {
@@ -23,7 +24,7 @@ using System.Net.Mail;
                 Credentials = new NetworkCredential(_settings.FromEmail, _settings.AppPassword)
             };
 
-            var mail = new MailMessage()
+            var mail = new MailMessage
             {
                 From = new MailAddress(_settings.FromEmail),
                 Subject = subject,
@@ -31,27 +32,58 @@ using System.Net.Mail;
                 IsBodyHtml = isHtml
             };
 
-            foreach (var to in toList)
-            {
-                if (!string.IsNullOrWhiteSpace(to))
-                    mail.To.Add(to.Trim());
-            }
-
-            if (mail.To.Count == 0)
-                return "No valid recipient.";
+            mail.To.Add(toEmail.Trim());
 
             await client.SendMailAsync(mail);
-            return "Emails sent successfully.";
+            return $"✅ Sent to {toEmail}";
         }
         catch (Exception ex)
         {
-            return $"Failed to send emails: {ex.Message}";
+            return $"❌ Failed to send to {toEmail}: {ex.Message}";
         }
     }
 
-    public Task<string> SendEmailAsync(string toEmail, string subject, string body, bool isHtml = false)
+    // ✅ Gửi nhiều người, mỗi người 1 nội dung (cá nhân hóa)
+    public async Task<List<string>> SendEmailAsync(List<EmailMessageDto> personalizedMessages)
     {
-        return SendEmailAsync(new List<string> { toEmail }, subject, body, isHtml);
-    }
-}
+        var results = new List<string>();
 
+        foreach (var msg in personalizedMessages)
+        {
+            if (string.IsNullOrWhiteSpace(msg.ToList))
+            {
+                results.Add("❌ Skipped empty recipient.");
+                continue;
+            }
+
+            try
+            {
+                using var client = new SmtpClient(_settings.SmtpServer, _settings.SmtpPort)
+                {
+                    EnableSsl = true,
+                    Credentials = new NetworkCredential(_settings.FromEmail, _settings.AppPassword)
+                };
+
+                var mail = new MailMessage
+                {
+                    From = new MailAddress(_settings.FromEmail),
+                    Subject = msg.Subject,
+                    Body = msg.Body,
+                    IsBodyHtml = msg.IsHtml
+                };
+
+                mail.To.Add(msg.ToList.Trim());
+
+                await client.SendMailAsync(mail);
+                results.Add($"✅ Sent to {msg.ToList}");
+            }
+            catch (Exception ex)
+            {
+                results.Add($"❌ Failed to send to {msg.ToList}: {ex.Message}");
+            }
+        }
+
+        return results;
+    }
+
+}
