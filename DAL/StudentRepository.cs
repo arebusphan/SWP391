@@ -1,5 +1,5 @@
-﻿using DAL.Models; // Sử dụng các model như Students, Guardian, v.v.
-using Microsoft.EntityFrameworkCore; // Dùng để truy vấn dữ liệu với Include và async
+﻿using DAL.Models; 
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,7 +8,7 @@ namespace DAL.Repositories
     // Repository xử lý các thao tác liên quan đến bảng Students
     public class StudentRepository : IStudentRepository
     {
-        private readonly AppDbContext _context; // EF DbContext dùng để truy vấn dữ liệu
+        private readonly AppDbContext _context; 
 
         // Constructor truyền DbContext vào
         public StudentRepository(AppDbContext context)
@@ -25,7 +25,7 @@ namespace DAL.Repositories
                 .ToList(); // Trả về danh sách học sinh
         }
 
-        // Lấy danh sách thông tin cơ bản của tất cả học sinh (DTO)
+       
         public List<StudentBasicInfoDTO> GetAllBasicProfiles()
         {
             return _context.Students
@@ -88,13 +88,28 @@ namespace DAL.Repositories
                 })
                 .ToListAsync(); // Trả về danh sách DTO đầy đủ
         }
-        public async Task<string?> GetGuardianEmailByStudentIdAsync(int studentId)
+        public async Task<Students?> GetGuardianEmailByStudentIdAsync(int studentId)
         {
-            var student = _context.Students
+            return await _context.Students
+       .Include(s => s.Guardian)
+       .Include(s => s.Class)
+       .FirstOrDefaultAsync(s => s.StudentId == studentId);
+        }
+        public async Task<List<Students>> GetStudentsWithGuardianAndClassAsync(List<int> studentIds)
+        {
+            return await _context.Students
                 .Include(s => s.Guardian)
-                .FirstOrDefault(s => s.StudentId == studentId);
-
-            return student?.Guardian?.Email;
+                .Include(s => s.Class)
+                .Where(s => studentIds.Contains(s.StudentId))
+                .ToListAsync();
+        }
+        public async Task<List<Students>> GetByClassIdsAsync(List<int> classIds)
+        {
+            return await _context.Students
+                .Include(s => s.Class)
+                .Include(s => s.Guardian)
+                .Where(s => classIds.Contains(s.ClassId))
+                .ToListAsync();
         }
 
     }

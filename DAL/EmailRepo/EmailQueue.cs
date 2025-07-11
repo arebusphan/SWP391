@@ -10,16 +10,22 @@ namespace DAL.EmailRepo
 {
     public class EmailQueue : IEmailQueue
     {
-        private readonly ConcurrentQueue<EmailMessageDto> _queue = new();
+        private readonly ConcurrentQueue<EmailQueueItem> _queue = new();
 
         public void Enqueue(EmailMessageDto message)
         {
-            _queue.Enqueue(message);
+            _queue.Enqueue(new EmailQueueItem { Single = message });
         }
 
-        public bool TryDequeue(out EmailMessageDto message)
+        public void Enqueue(List<EmailMessageDto> batchMessages)
         {
-            return _queue.TryDequeue(out message);
+            _queue.Enqueue(new EmailQueueItem { Batch = batchMessages });
+        }
+
+        public bool TryDequeue(out EmailQueueItem item)
+        {
+            return _queue.TryDequeue(out item);
         }
     }
+
 }

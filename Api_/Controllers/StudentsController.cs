@@ -53,7 +53,7 @@ namespace API.Controllers
 
         [HttpPost("{id}/healthCheck")]
         [Authorize(Roles = "MedicalStaff")]
-        public IActionResult SubmitHealthCheck(int id, [FromBody] HealthCheckDto dto)
+        public async Task<IActionResult> SubmitHealthCheck(int id, [FromBody] HealthCheckDto dto)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
@@ -65,7 +65,7 @@ namespace API.Controllers
 
             try
             {
-                _healthCheckService.SubmitHealthCheck(dto);
+                await _healthCheckService.SubmitHealthCheckAsync(dto);
                 return Ok(new { message = "Health check submitted successfully" });
             }
             catch (Exception ex)
@@ -73,6 +73,7 @@ namespace API.Controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
+
 
         [HttpGet("stu-status")]
         [Authorize(Roles = "Parent")]

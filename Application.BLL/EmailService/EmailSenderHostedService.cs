@@ -23,14 +23,28 @@ namespace BLL.EmailService
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                if (_emailQueue.TryDequeue(out var message))
+                if (_emailQueue.TryDequeue(out var item))
                 {
                     using var scope = _serviceProvider.CreateScope();
                     var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
                     try
                     {
-                        await emailService.SendEmailAsync(message.ToList, message.Subject, message.Body, message.IsHtml);
+                        if (item.IsBatch)
+                        {
+                            await emailService.SendEmailAsync(item.Batch!);
+                            Console.WriteLine($"✅ Sent {item.Batch!.Count} emails (batch)");
+                        }
+                        else if (item.Single != null)
+                        {
+                            await emailService.SendEmailAsync(
+                                item.Single.ToList!,
+                                item.Single.Subject!,
+                                item.Single.Body!,
+                                item.Single.IsHtml
+                            );
+                            Console.WriteLine($"✅ Sent single email to {item.Single.ToList}");
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -38,8 +52,9 @@ namespace BLL.EmailService
                     }
                 }
 
-                await Task.Delay(1000, stoppingToken);
+                await Task.Delay(200, stoppingToken); // ⏱ Tối ưu hơn 1000ms
             }
         }
     }
+
 }

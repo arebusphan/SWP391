@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BLL.EmailService;
+using DAL.Repositories;
+using DAL.EmailRepo;
 
 namespace BLL.HealthProfile
 {
@@ -14,11 +16,14 @@ namespace BLL.HealthProfile
     {
         private readonly AppDbContext _context;
         private readonly IEmailService _emailService;
-
-        public HealthProfileService(AppDbContext context, IEmailService emailService)
+        private readonly IStudentRepository _studentRepository;
+        private readonly IEmailQueue _emailQueue;
+        public HealthProfileService(AppDbContext context, IEmailService emailService, IStudentRepository studentRepository, IEmailQueue emailQueue)
         {
             _context = context;
             _emailService = emailService;
+            _studentRepository = studentRepository;
+            _emailQueue = emailQueue;
         }
 
         public async Task SubmitAsync(HealthProfileDTO dto, int createdBy)
@@ -152,42 +157,54 @@ namespace BLL.HealthProfile
 
         public async Task SendHealthProfileReminderAsync(List<int> studentIds)
         {
-            var students = await _context.Students
-                .Include(s => s.Guardian)
-                .Include(s => s.Class)
-                .Where(s => studentIds.Contains(s.StudentId))
-                .ToListAsync();
+            var students = await _studentRepository.GetStudentsWithGuardianAndClassAsync(studentIds);
 
-            foreach (var student in students)
+            // Group theo GuardianId
+            var grouped = students
+                .Where(s => s.Guardian != null && !string.IsNullOrEmpty(s.Guardian.Email))
+                .GroupBy(s => s.GuardianId)
+                .ToDictionary(
+                    g => g.First().Guardian,
+                    g => g.ToList()
+                );
+
+            var emailMessages = new List<EmailMessageDto>();
+
+            foreach (var entry in grouped)
             {
-                if (student.Guardian == null) continue;
+                var guardian = entry.Key;
+                var children = entry.Value;
 
-                var guardian = student.Guardian;
-                var className = student.Class?.ClassName ?? "Unknown";
-                
-                // Gửi email
-                var subject = "Thông báo nộp Hồ sơ Sức khỏe - Health Profile Submission Reminder";
+                var studentListHtml = string.Join("", children.Select(s =>
+                    $"<li>{s.FullName} (Class: {s.Class?.ClassName ?? "Unknown"})</li>"));
+
+                var subject = "Reminder: Submit Your Child's Health Profile";
                 var body = $@"
-                    <html>
-                    <body>
-                        <h2>Thông báo nộp Hồ sơ Sức khỏe</h2>
-                        <p>Kính gửi phụ huynh: <strong>{guardian.FullName}</strong></p>
-                        <p>Chúng tôi thông báo rằng hồ sơ sức khỏe của học sinh <strong>{student.FullName}</strong> (lớp {className}) chưa được nộp.</p>
-                        <p>Vui lòng truy cập hệ thống để nộp hồ sơ sức khỏe cho con em mình.</p>
-                        <p>Trân trọng,<br/>Y tế trường học</p>
-                    </body>
-                    </html>";
+<html>
+<body style='font-family: Arial, sans-serif;'>
+    <h2 style='color: #2a4365;'>Health Profile Submission Reminder</h2>
+    <p>Dear <strong>{guardian.FullName}</strong>,</p>
+    <p>The following students still have missing health profiles:</p>
+    <ul>{studentListHtml}</ul>
+    <p>Please log in and complete their profiles as soon as possible.</p>
+    <p>Thank you,<br/>School Health Services</p>
+</body>
+</html>";
 
-                try
+                emailMessages.Add(new EmailMessageDto
                 {
-                    await _emailService.SendEmailAsync(guardian.Email, subject, body, true);
-                    Console.WriteLine($"✅ Đã gửi email thành công cho {guardian.Email}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"❌ Lỗi gửi email cho {guardian.Email}: {ex.Message}");
-                }
+                    ToList = guardian.Email,
+                    Subject = subject,
+                    Body = body,
+                    IsHtml = true
+                });
             }
+
+            // ✅ Đưa vào hàng đợi để gửi nền (tận dụng batch)
+            _emailQueue.Enqueue(emailMessages);
         }
+
+
+
     }
 }
