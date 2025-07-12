@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { getHealthNews } from "../../service/serviceauth";
 
-
 type NewsSource = {
     id: string | null;
     name: string;
@@ -23,11 +22,11 @@ const News = () => {
 
     useEffect(() => {
         getHealthNews()
-            .then((data) => {
-                setNews(data.slice(0, 8));
+            .then(res => {
+                setNews(res.data.articles.slice(0, 8));
             })
-            .catch((error) => {
-                console.error("Error fetching news:", error);
+            .catch(error => {
+                console.error("Error fetching news:", error.response?.data || error.message);
             });
     }, []);
 
