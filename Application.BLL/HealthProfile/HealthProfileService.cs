@@ -49,7 +49,7 @@ namespace BLL.HealthProfile
                 Hearing = dto.Hearing,
                 OtherNotes = dto.OtherNotes,
                 CreatedBy = createdBy,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             _context.HealthProfiles.Add(profile);

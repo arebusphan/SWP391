@@ -320,21 +320,23 @@ export const getStudentHealthProfile = async (studentId: number) => {
 };
 
 export const createStudentHealthProfile = async (payload: {
-  studentId: number;
-  allergies?: string;
-  chronicDiseases?: string;
-  vision?: string;
-  hearing?: string;
-  otherNotes?: string;
+    declarationId?: number;    
+    studentId: number;
+    allergies?: string;
+    chronicDiseases?: string;
+    vision?: string;
+    hearing?: string;
+    otherNotes?: string;
+    studentName: string;         
+    className: string;          
 }) => {
-  const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
-  return await apiser.post("/HealthProfile", payload, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
+    return await apiser.post("/HealthProfile", payload, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
 };
 
 export const updateStudentHealthProfile = async (
