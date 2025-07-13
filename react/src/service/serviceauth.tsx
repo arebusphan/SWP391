@@ -202,7 +202,7 @@ export const getNotifications = () => {
 };
 export const getAllClass = async () => {
   const res = await apiser.get("/Classes/all");
-  return res.data; // đừng return res.data
+  return res.data; 
 };
 
 
@@ -410,7 +410,7 @@ export const confirmVaccination = async (
 export const getPendingVaccinationConfirmations = async () => {
   const token = localStorage.getItem("token");
 
-    const res = await apiser.get("https://localhost:7195/api/notifications/students/pending", {
+    const res = await apiser.get("/notifications/students/pending", {
     headers: {
       Authorization: `Bearer ${token}`,
     },

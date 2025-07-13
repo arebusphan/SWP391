@@ -1,7 +1,8 @@
 ﻿import { useEffect, useState } from "react";
-import axios from "axios";
+
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { apiser } from "../service/apiser";
 
 interface Class {
     classId: number;
@@ -35,12 +36,12 @@ const ConfirmStudentList = () => {
     const studentsPerPage = 10;
 
     useEffect(() => {
-        axios.get("https://localhost:7195/api/classes").then((res) => {
+        apiser.get("/classes").then((res) => {
             setClasses(res.data);
             setSelectedClassId(res.data[0]?.classId || 0);
         });
 
-        axios.get("https://localhost:7195/api/HealthNotification/list-basic").then((res) => {
+        apiser.get("/HealthNotification/list-basic").then((res) => {
             setNotifications(res.data);
             setSelectedNotificationId(res.data[0]?.notificationId || 0);
         });
@@ -48,8 +49,8 @@ const ConfirmStudentList = () => {
 
     useEffect(() => {
         if (selectedClassId && selectedNotificationId) {
-            axios
-                .get("https://localhost:7195/api/notifications/students/confirmation", {
+            apiser
+                .get("/notifications/students/confirmation", {
                     params: {
                         notificationId: selectedNotificationId,
                         classId: selectedClassId,

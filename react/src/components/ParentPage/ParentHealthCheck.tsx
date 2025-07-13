@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from "react";
-import axios from "axios";
+
+import { apiser } from "../../service/apiser";
 
 interface HealthCheck {
     studentId: number;
@@ -34,14 +35,14 @@ const ParentHealthCheck = () => {
     useEffect(() => {
         const fetchData = async () => {
             const token = localStorage.getItem("token");
-            const response = await axios.get("https://localhost:7195/api/students/my-health-checks", {
+            const response = await apiser.get("/students/my-health-checks", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
             setRecords(response.data);
 
-            const classResponse = await axios.get("https://localhost:7195/api/classes", {
+            const classResponse = await apiser.get("/classes", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
