@@ -60,7 +60,7 @@ namespace DAL
             finduser.FullName = user.FullName;
             finduser.Email = user.Email;
             finduser.PhoneNumber = user.PhoneNumber;
-            finduser.UpdatedAt = DateTime.Now; // Cập nhật thời gian sửa
+            finduser.UpdatedAt = DateTime.UtcNow; // Cập nhật thời gian sửa
             await _context.SaveChangesAsync(); // Lưu thay đổi
             return true;
         }
@@ -71,7 +71,7 @@ namespace DAL
             var finduser = await _context.Users.FindAsync(user.UserId); // Tìm người dùng theo ID
             if (finduser == null) { return false; }
             finduser.IsActive = false; // Đánh dấu là không còn hoạt động thay vì xóa hẳn
-            finduser.UpdatedAt = DateTime.Now; // Ghi lại thời gian cập nhật
+            finduser.UpdatedAt = DateTime.UtcNow; // Ghi lại thời gian cập nhật
             await _context.SaveChangesAsync(); // Lưu thay đổi
             return true;
         }

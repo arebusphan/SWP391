@@ -38,8 +38,8 @@ namespace BLL.UserService
                 Email = dto.Parent.Email,
                 RoleId = dto.Parent.RoleId, // ✅ Dùng trực tiếp RoleId từ JSON
                 IsActive = dto.Parent.IsActive,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
 
             user = await _repo.AddAsync(user);
