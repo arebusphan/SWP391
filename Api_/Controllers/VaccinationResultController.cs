@@ -23,7 +23,7 @@ namespace API.Controllers
                 VaccinatedDate = dto.VaccinatedDate,
                 ObservationStatus = dto.ObservationStatus,
                 VaccinatedBy = dto.VaccinatedBy,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             await _service.SaveResultAsync(result);

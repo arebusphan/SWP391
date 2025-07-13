@@ -31,7 +31,13 @@ namespace API_.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = $"Lỗi khi thêm sự cố: {ex.Message}" });
+                var inner = ex;
+                while (inner.InnerException != null) inner = inner.InnerException;
+
+                
+                Console.WriteLine("[ERROR] AddIncident: " + inner.Message);
+
+                return BadRequest(new { error = inner.Message });
             }
         }
 

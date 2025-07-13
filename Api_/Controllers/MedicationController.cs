@@ -36,11 +36,15 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = ex.Message });
+                var innerMost = ex;
+                while (innerMost.InnerException != null)
+                    innerMost = innerMost.InnerException;
+
+                return BadRequest(new { error = innerMost.Message });
             }
         }
 
-        [HttpGet("request-history")]
+            [HttpGet("request-history")]
         public IActionResult GetMyMedicationRequests([FromQuery] string? status)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);

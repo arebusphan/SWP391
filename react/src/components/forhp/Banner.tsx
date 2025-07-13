@@ -304,9 +304,7 @@ function Banner() {
                                 draggable={false}
                             />
                         ))}
-                        <div className="absolute bottom-0 w-full text-center bg-black/50 text-white py-2 text-lg font-semibold">
-                            {latestBanners[currentIndex]?.title}
-                        </div>
+                       
                     </div>
 
                  

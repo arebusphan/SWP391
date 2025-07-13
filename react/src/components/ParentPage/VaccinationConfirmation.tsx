@@ -36,7 +36,8 @@ export default function VaccinationList() {
         const res = await getPendingVaccinationConfirmations();
         setData(res);
       } catch (error) {
-        console.error("Error fetching vaccination events:", error);
+          console.error("Error fetching vaccination events:", error);
+
       }
     };
     fetchData();

@@ -10,7 +10,7 @@ public class NotificationStudentRepository : INotificationStudentRepository
     public async Task<List<NotificationStudentVM>> GetConfirmationByClassAsync(int notificationId, int classId)
     {
         // 🔁 Tự động cập nhật các bản ghi quá hạn thành "Declined"
-        var today = DateTime.Now;
+        var today = DateTime.UtcNow;
 
         var notification = await _context.HealthNotifications
     .FirstOrDefaultAsync(n => n.NotificationId == notificationId);
@@ -66,7 +66,7 @@ public class NotificationStudentRepository : INotificationStudentRepository
     }
     public List<VaccineConfirmInfo> GetPendingConfirmationsByGuardian(int guardianUserId)
     {
-        var today = DateTime.Now;
+        var today = DateTime.UtcNow;
 
         // 🔁 Cập nhật các bản ghi quá hạn thành "Declined"
         var expiredPending = _context.NotificationStudents
@@ -104,8 +104,8 @@ public class NotificationStudentRepository : INotificationStudentRepository
                 EventName = ns.Notification.EventName,
                 EventType = ns.Notification.EventType,
                 EventImage = ns.Notification.EventImage,
-                EventDate = ns.Notification.EventDate,
-                CreatedAt = (DateTime)ns.Notification.CreatedAt,
+                EventDate = DateTime.SpecifyKind(ns.Notification.EventDate, DateTimeKind.Utc), 
+                CreatedAt = DateTime.SpecifyKind(ns.Notification.CreatedAt.Value, DateTimeKind.Utc),
                 CreatedBy = ns.Notification.CreatedBy,
 
                 StudentId = ns.StudentId,

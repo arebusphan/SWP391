@@ -31,7 +31,7 @@ public class MedicationService : IMedicationService
             Note = dto.Note,                
             CreatedBy = parentUserId,
             Status = "Pending",
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
 
         _medicationRepository.Add(request);

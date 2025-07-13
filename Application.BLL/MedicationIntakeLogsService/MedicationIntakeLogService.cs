@@ -41,7 +41,7 @@ namespace BLL.MedicationIntakeLogsService
                 StudentId = dto.StudentId,
                 GivenBy = dto.GivenBy,
                 Notes = dto.Notes,
-                IntakeTime = DateTime.Now
+                IntakeTime = DateTime.UtcNow
             };
 
             var created = await _logRepo.CreateLogAsync(entity);

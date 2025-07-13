@@ -40,7 +40,7 @@ const ConfirmStudentList = () => {
             setSelectedClassId(res.data[0]?.classId || 0);
         });
 
-        axios.get("https://localhost:7195/api/notifications/list-basic").then((res) => {
+        axios.get("https://localhost:7195/api/HealthNotification/list-basic").then((res) => {
             setNotifications(res.data);
             setSelectedNotificationId(res.data[0]?.notificationId || 0);
         });

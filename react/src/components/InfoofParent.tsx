@@ -62,79 +62,82 @@ export default function InfoofParent() {
 
   const formatDate = (dateStr: string) => dateStr?.split("T")[0];
 
-  return (
-    <div className="p-6 max-w-6xl mx-auto relative">
-      {/* 🔔 Global alert container (góc màn hình) */}
-      <div className="fixed top-20 right-6 z-[9999]">
-        <AlertNotification alerts={alerts} onRemove={handleRemoveAlert} />
-      </div>
+    return (
+        <div className="p-6 max-w-6xl mx-auto relative">
+            {/* Alert */}
+            <div className="fixed top-20 right-6 z-[9999]">
+                <AlertNotification alerts={alerts} onRemove={handleRemoveAlert} />
+            </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 border border-gray-200 rounded-2xl p-6 bg-white shadow-md">
-        {/* Parent Info */}
-        <div className="w-full lg:w-1/2">
-          <h2 className="text-xl font-bold text-blue-700 mb-4">
-            👨‍👩‍👧 Parent Information
-          </h2>
-          <div className="space-y-3 text-gray-700">
-            <p><strong>Name:</strong> {user?.Name || "—"}</p>
-            <p><strong>Phone:</strong> {user?.Phone || "—"}</p>
-            <p><strong>Email:</strong> {user?.Email || "—"}</p>
-          </div>
-        </div>
+            {/* Tiêu đề tổng */}
+            <h1 className="text-3xl font-bold text-blue-900 mb-8 text-center drop-shadow-md">
+                📋 Parent Dashboard
+            </h1>
 
-        {/* Connected Students */}
-        <div className="w-full lg:w-1/2">
-          <h2 className="text-xl font-bold text-green-700 mb-4">
-            🎓 Connected Students
-          </h2>
-          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
-            {students.map((student) => (
-              <div
-                key={student.studentId}
-                className="cursor-pointer border border-gray-200 rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition shadow-sm"
-                onClick={() => {
-                  setSelectedStudent(student);
-                  setOpenDialog(true);
-                }}
-              >
-                <div className="flex flex-wrap gap-4 mb-2 text-gray-800">
-                  <p><strong>Name:</strong> {student.fullName}</p>
-                  <p><strong>Gender:</strong> {student.gender}</p>
+            {/* Nội dung chính */}
+            <div className="flex flex-col lg:flex-row gap-6 border-4 border-blue-400 rounded-2xl p-6 bg-white shadow-xl">
+                {/* Parent Info */}
+                <div className="w-full lg:w-1/2">
+                    <h2 className="text-xl font-bold text-blue-800 mb-4">👨‍👩‍👧 Parent Information</h2>
+                    <div className="space-y-3 text-gray-700">
+                        <p><strong>Name:</strong> {user?.Name || "—"}</p>
+                        <p><strong>Phone:</strong> {user?.Phone || "—"}</p>
+                        <p><strong>Email:</strong> {user?.Email || "—"}</p>
+                    </div>
                 </div>
-                <div className="text-gray-700">
-                  <p><strong>Date of Birth:</strong> {formatDate(student.dateOfBirth)}</p>
+
+                {/* Connected Students */}
+                <div className="w-full lg:w-1/2">
+                    <h2 className="text-xl font-bold text-blue-800 mb-4">🎓 Connected Students</h2>
+                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1 bg-blue-50 rounded-lg p-2">
+                        {students.map((student) => (
+                            <div
+                                key={student.studentId}
+                                className="cursor-pointer border border-gray-300 rounded-lg p-4 bg-white hover:border-blue-500 hover:shadow-md transition"
+                                onClick={() => {
+                                    setSelectedStudent(student);
+                                    setOpenDialog(true);
+                                }}
+                            >
+                                <div className="flex flex-wrap gap-4 mb-2 text-gray-800">
+                                    <p><strong>Name:</strong> {student.fullName}</p>
+                                    <p><strong>Gender:</strong> {student.gender}</p>
+                                </div>
+                                <div className="text-gray-700">
+                                    <p><strong>Date of Birth:</strong> {formatDate(student.dateOfBirth)}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-              </div>
-            ))}
-          </div>
+            </div>
+
+            {/* Dialog giữ nguyên */}
+            <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+                <DialogContent className="!w-full !max-w-[800px]">
+                    <DialogTitle className="text-blue-700 text-xl font-semibold">
+                        Student Health Info
+                    </DialogTitle>
+                    <DialogDescription className="text-gray-600 mb-4">
+                        View and update yearly health declaration
+                    </DialogDescription>
+
+                    {selectedStudent && (
+                        <ViewHealthProfile
+                            student={selectedStudent}
+                            onSubmit={() => {
+                                handleAddAlert({
+                                    type: "success",
+                                    title: "Updated",
+                                    description: "Student health profile updated.",
+                                });
+                            }}
+                            onAlert={handleAddAlert}
+                        />
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
-      </div>
+    );
 
-      {/* Student Health Info Dialog */}
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="!w-full !max-w-[800px]">
-          <DialogTitle className="text-blue-700 text-xl font-semibold">
-            Student Health Info
-          </DialogTitle>
-          <DialogDescription className="text-gray-600 mb-4">
-            View and update yearly health declaration
-          </DialogDescription>
-
-          {selectedStudent && (
-            <ViewHealthProfile
-              student={selectedStudent}
-              onSubmit={() => {
-                handleAddAlert({
-                  type: "success",
-                  title: "Updated",
-                  description: "Student health profile updated.",
-                });
-              }}
-              onAlert={handleAddAlert} // ✅ truyền xuống
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
 }

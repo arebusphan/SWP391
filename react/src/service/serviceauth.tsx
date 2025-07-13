@@ -124,20 +124,28 @@ export const updateMedicationStatus = async (
     reviewedBy: number,
     rejectReason?: string
 ) => {
+    const token = localStorage.getItem("token"); 
+
     const payload = {
         status,
         reviewedBy,
         ...(rejectReason ? { rejectReason } : {}),
     };
 
- 
     const { data } = await apiser.put(
         `/medication-requests/${id}/updateStatus`,
-        payload
+        payload,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`, 
+                "Content-Type": "application/json",
+            },
+        }
     );
 
-    return data; 
+    return data;
 };
+
 
 
 
@@ -402,7 +410,7 @@ export const confirmVaccination = async (
 export const getPendingVaccinationConfirmations = async () => {
   const token = localStorage.getItem("token");
 
-  const res = await apiser.get("/notifications/students/pending", {
+    const res = await apiser.get("https://localhost:7195/api/notifications/students/pending", {
     headers: {
       Authorization: `Bearer ${token}`,
     },

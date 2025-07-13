@@ -49,7 +49,7 @@ const NotificationCreate = () => {
 
     const fetchHistory = async () => {
         try {
-            const res = await axios.get<NotificationHistory[]>("https://localhost:7195/api/notifications");
+            const res = await axios.get<NotificationHistory[]>("https://localhost:7195/api/HealthNotification/get");
             const sorted = res.data.sort((a, b) => b.id - a.id);
 
             setHistory(sorted);
@@ -93,13 +93,13 @@ const NotificationCreate = () => {
                 eventImage: imageUrl || null,
             };
 
-            await axios.post("https://localhost:7195/api/notifications", payload);
+            await axios.post("https://localhost:7195/api/HealthNotification/post", payload);
             setHistory((prev) => [
                 {
                     id: Date.now(), // ID tạm
                     eventType,
                     eventName,
-                    eventDate,
+                    eventDate: new Date(eventDate).toISOString(),
                     className: selectedClassIds
                         .map((id) => {
                             const found = classes.find((cls) => cls.classId === id);
@@ -121,6 +121,8 @@ const NotificationCreate = () => {
         } catch (error) {
             alert("Failed to send notification!");
             console.error("Submit error:", error);
+            
+            
         } finally {
             setLoading(false);
         }

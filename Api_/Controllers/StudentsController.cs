@@ -61,7 +61,7 @@ namespace API.Controllers
 
             dto.StudentId = id;
             dto.RecordedBy = int.Parse(userIdClaim.Value);
-            dto.CheckDate = DateTime.Now;
+            dto.CheckDate = DateTime.UtcNow;
 
             try
             {

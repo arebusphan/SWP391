@@ -24,7 +24,7 @@ namespace DAL.Incident
                 Description = incidentDto.Description,
                 ClassId = incidentDto.ClassId,
                 HandledBy = incidentDto.HandledBy,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 IncidentSupplies = new List<IncidentSupplies>()
             };
 
