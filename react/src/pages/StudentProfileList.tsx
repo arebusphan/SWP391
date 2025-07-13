@@ -6,6 +6,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import { apiser } from "../service/apiser";
 
 type StudentProfile = {
     studentId: number;
@@ -51,7 +52,7 @@ const StudentProfileList = () => {
     useEffect(() => {
         async function fetchData() {
             try {
-                const res = await axios.get("https://localhost:7195/api/students/get-all-basic", {
+                const res = await apiser.get("/students/get-all-basic", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setStudents(res.data);
@@ -59,8 +60,8 @@ const StudentProfileList = () => {
                 const healthMapTemp: Record<number, HealthProfileDTO> = {};
                 for (const stu of res.data) {
                     try {
-                        const profileRes = await axios.get(
-                            `https://localhost:7195/api/HealthProfile/student/${stu.studentId}`,
+                        const profileRes = await apiser.get(
+                            `/HealthProfile/student/${stu.studentId}`,
                             { headers: { Authorization: `Bearer ${token}` } }
                         );
                         healthMapTemp[stu.studentId] = profileRes.data;
