@@ -1,4 +1,4 @@
-﻿import axios from "axios";
+﻿
 import { useEffect, useState } from "react";
 import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { apiser } from "../service/apiser";
 
 interface Class {
   classId: number;
@@ -62,11 +63,11 @@ export default function VaccineResultForm() {
   };
 
   useEffect(() => {
-    axios.get("https://localhost:7195/api/classes").then((res) => {
+    apiser.get("/classes").then((res) => {
       setClasses(res.data);
       setSelectedClassId(res.data[0]?.classId);
     });
-      axios.get("https://localhost:7195/api/HealthNotification/list-basic").then((res) => {
+      apiser.get("/HealthNotification/list-basic").then((res) => {
       setNotifications(res.data);
       setSelectedNotificationId(res.data[0]?.notificationId);
     });
@@ -74,8 +75,8 @@ export default function VaccineResultForm() {
 
   useEffect(() => {
     if (selectedClassId && selectedNotificationId) {
-      axios
-        .get("https://localhost:7195/api/vaccinations/by-notification", {
+      apiser
+        .get("/vaccinations/by-notification", {
           params: { notificationId: selectedNotificationId, classId: selectedClassId },
         })
         .then((res) => setStudents(res.data));
@@ -93,7 +94,7 @@ export default function VaccineResultForm() {
     }
 
     try {
-      await axios.post("https://localhost:7195/api/vaccinations/record", {
+      await apiser.post("/vaccinations/record", {
         studentId: selectedStudent.studentId,
         notificationId: selectedNotificationId,
         vaccinated,
@@ -112,7 +113,7 @@ export default function VaccineResultForm() {
       setVaccinated(null);
       setObservationStatus("");
 
-      const res = await axios.get("https://localhost:7195/api/vaccinations/by-notification", {
+      const res = await apiser.get("/vaccinations/by-notification", {
         params: { notificationId: selectedNotificationId, classId: selectedClassId },
       });
       setStudents(res.data);
