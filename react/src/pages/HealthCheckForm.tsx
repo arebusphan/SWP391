@@ -2,6 +2,7 @@
 import AlertNotification from "@/components/MedicalStaffPage/AlertNotification";
 import type { AlertItem } from "@/components/MedicalStaffPage/AlertNotification";
 import { apiser } from "../service/apiser";
+import { getStudentsByClassId } from "../service/serviceauth";
 
 interface Class {
   classId: number;
@@ -49,16 +50,15 @@ const HealthCheckForm = () => {
             .catch(console.error);
     }, []);
 
-   useEffect(() => {
-    if (selectedClassId) {
-      apiser
-        .get(`/students/by-class/${selectedClassId}`)
-        .then((res) => setStudents(res.data))
-        .catch(console.error);
-    } else {
-      setStudents([]);
-    }
-  }, [selectedClassId]);
+    useEffect(() => {
+        if (selectedClassId) {
+            getStudentsByClassId(selectedClassId)
+                .then(setStudents)
+                .catch(console.error);
+        } else {
+            setStudents([]);
+        }
+    }, [selectedClassId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
