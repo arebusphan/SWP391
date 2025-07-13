@@ -304,70 +304,87 @@ export default function VaccineResultForm() {
       </div>
 
       {/* ✅ ShadCN Dialog */}
-      <Dialog open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>📋 Student Details</DialogTitle>
-            <DialogDescription>
-              Update vaccination information for {selectedStudent?.studentName}
-            </DialogDescription>
-          </DialogHeader>
+          <Dialog open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
+              <DialogContent>
+                  <DialogHeader>
+                      <DialogTitle>📋 Student Details</DialogTitle>
+                      <DialogDescription>
+                          Update vaccination information for {selectedStudent?.studentName}
+                      </DialogDescription>
+                  </DialogHeader>
 
-          <div className="space-y-3 text-sm text-gray-700 mt-4">
-            <div><strong>Class:</strong> {selectedStudent?.className}</div>
-            <div><strong>Phone:</strong> {selectedStudent?.parentPhone}</div>
+                  {/* ------ NỘI DUNG DIALOG ------ */}
+                  <div className="space-y-4 text-sm text-gray-700 mt-4">
+                      {/* Thông tin cơ bản */}
+                      <div><strong>Class:</strong> {selectedStudent?.className}</div>
+                      <div><strong>Parent phone:</strong> {selectedStudent?.parentPhone}</div>
 
-            <div>
-              <label className="block font-medium mb-1">Vaccination Status:</label>
-              <div className="flex gap-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="vaccinated"
-                    checked={vaccinated === true}
-                    onChange={() => setVaccinated(true)}
-                  />
-                  <span className="ml-2">Vaccinated</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="vaccinated"
-                    checked={vaccinated === false}
-                    onChange={() => setVaccinated(false)}
-                  />
-                  <span className="ml-2">Not Vaccinated</span>
-                </label>
-              </div>
-            </div>
+                      {/* ① Chọn trạng thái tiêm */}
+                      <div>
+                          <label className="block font-medium mb-1">Vaccination Status <span className="text-red-500">*</span></label>
+                          <div className="flex gap-6">
+                              <label className="inline-flex items-center">
+                                  <input
+                                      type="radio"
+                                      name="vaccinated"
+                                      checked={vaccinated === true}
+                                      onChange={() => setVaccinated(true)}
+                                  />
+                                  <span className="ml-2">Vaccinated</span>
+                              </label>
+                              <label className="inline-flex items-center">
+                                  <input
+                                      type="radio"
+                                      name="vaccinated"
+                                      checked={vaccinated === false}
+                                      onChange={() => setVaccinated(false)}
+                                  />
+                                  <span className="ml-2">NoT Vaccinated</span>
+                              </label>
+                          </div>
+                      </div>
 
-            <div>
-              <label className="block font-medium mb-1">Observation:</label>
-              <textarea
-                value={observationStatus}
-                onChange={(e) => setObservationStatus(e.target.value)}
-                className="w-full border border-gray-300 mt-1 p-2 rounded focus:ring-blue-500 focus:border-blue-500"
-                rows={3}
-              ></textarea>
-            </div>
+              
+                      <div>
+                          <label className="block font-medium mb-1">Observation</label>
+                          <textarea
+                              value={observationStatus}
+                              onChange={(e) => setObservationStatus(e.target.value)}
+                              className="w-full border border-gray-300 mt-1 p-2 rounded focus:ring-blue-500 focus:border-blue-500"
+                              rows={3}
+                          ></textarea>
+                      </div>
 
-            <div className="flex justify-end gap-2 pt-4">
-              <button
-                onClick={handleSave}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              >
-                Save
-              </button>
-              <button
-                onClick={() => setSelectedStudent(null)}
-                className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+                
+                      <div>
+                          <label className="block font-medium mb-1">Vaccinator Name <span className="text-red-500">*</span></label>
+                          <input
+                              type="text"
+                              value={vaccinatorName}
+                              onChange={(e) => setVaccinatorName(e.target.value)}
+                              className="w-full border border-gray-300 mt-1 p-2 rounded focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Enter vaccinator name"
+                          />
+                      </div>
+
+                     
+                      <div className="flex justify-end gap-3 pt-4">
+                          <button
+                              onClick={handleSave}
+                              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                          >
+                              Save
+                          </button>
+                          <button
+                              onClick={() => setSelectedStudent(null)}
+                              className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+                          >
+                              Cancel
+                          </button>
+                      </div>
+                  </div>
+              </DialogContent>
+          </Dialog>
     </div>
   );
 }
