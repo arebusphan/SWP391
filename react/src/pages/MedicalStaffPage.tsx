@@ -18,7 +18,7 @@ const MedicalStaffPage = () => {
     return (
         <Routes>
             <Route element={<LeftSideMedicalStaff />}>
-                {/* ✅ Mặc định về StudentProfile */}
+                
                 <Route index element={<Navigate to="StudentProfile" replace />} />
 
                 <Route path="SendingMedicine" element={<SendingMedicine />} />

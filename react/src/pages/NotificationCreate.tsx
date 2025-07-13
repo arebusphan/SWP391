@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from "react";
-import axios from "axios";
+
+import { apiser } from "../service/apiser";
 
 interface Class {
     classId: number;
@@ -37,7 +38,7 @@ const NotificationCreate = () => {
 
     const fetchClasses = async () => {
         try {
-            const res = await axios.get("https://localhost:7195/api/classes");
+            const res = await apiser.get("/classes");
             setClasses(res.data);
             if (res.data.length > 0) setSelectedClassIds([res.data[0].classId]);
 
@@ -49,7 +50,7 @@ const NotificationCreate = () => {
 
     const fetchHistory = async () => {
         try {
-            const res = await axios.get<NotificationHistory[]>("https://localhost:7195/api/HealthNotification/get");
+            const res = await apiser.get<NotificationHistory[]>("/HealthNotification/get");
             const sorted = res.data.sort((a, b) => b.id - a.id);
 
             setHistory(sorted);
@@ -93,7 +94,7 @@ const NotificationCreate = () => {
                 eventImage: imageUrl || null,
             };
 
-            await axios.post("https://localhost:7195/api/HealthNotification/post", payload);
+            await apiser.post("/HealthNotification/post", payload);
             setHistory((prev) => [
                 {
                     id: Date.now(), // ID tạm

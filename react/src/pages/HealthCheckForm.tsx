@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect } from "react";
 import AlertNotification from "@/components/MedicalStaffPage/AlertNotification";
 import type { AlertItem } from "@/components/MedicalStaffPage/AlertNotification";
+import { apiser } from "../service/apiser";
 
 interface Class {
   classId: number;
@@ -41,25 +42,21 @@ const HealthCheckForm = () => {
     setAlerts((prev) => prev.filter((a) => a.id !== id));
   };
 
-  useEffect(() => {
-    fetch("https://localhost:7195/api/classes", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => setClasses(data));
-  }, []);
+    useEffect(() => {
+        apiser
+            .get("/classes")
+            .then((res) => setClasses(res.data))
+            .catch(console.error);
+    }, []);
 
-  useEffect(() => {
+   useEffect(() => {
     if (selectedClassId) {
-      fetch(`https://localhost:7195/api/students/by-class/${selectedClassId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => setStudents(data));
+      apiser
+        .get(`/students/by-class/${selectedClassId}`)
+        .then((res) => setStudents(res.data))
+        .catch(console.error);
+    } else {
+      setStudents([]);
     }
   }, [selectedClassId]);
 
@@ -92,45 +89,43 @@ const HealthCheckForm = () => {
       otherNotes: form.otherNotes
     };
 
-    try {
-      const response = await fetch(`https://localhost:7195/api/students/${studentId}/healthCheck`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify(requestBody)
-      });
+      try {
+          await apiser.post(
+              `/students/${studentId}/healthCheck`,
+              requestBody
+          );
 
-      if (!response.ok) throw new Error(await response.text());
+          addAlert({
+              type: "success",
+              title: "Success",
+              description: "Health check report submitted successfully!",
+          });
 
-      addAlert({
-        type: "success",
-        title: "Success",
-        description: "Health check report submitted successfully!",
-      });
+          // Reset form
+          setForm({
+              heightCm: "",
+              weightKg: "",
+              leftEyeVision: "",
+              rightEyeVision: "",
+              leftEarHearing: "",
+              rightEarHearing: "",
+              spineStatus: "",
+              skinStatus: "",
+              oralHealth: "",
+              otherNotes: "",
+          });
+          setStudentId("");
+      } catch (error: any) {
+          const errorMessage =
+              error.response?.data?.message || error.response?.data || error.message;
 
-      // Reset form
-      setForm({
-        heightCm: "",
-        weightKg: "",
-        leftEyeVision: "",
-        rightEyeVision: "",
-        leftEarHearing: "",
-        rightEarHearing: "",
-        spineStatus: "",
-        skinStatus: "",
-        oralHealth: "",
-        otherNotes: ""
-      });
-      setStudentId("");
-    } catch (error: any) {
-      addAlert({
-        type: "error",
-        title: "Submission Failed",
-        description: error.message || "Error submitting report.",
-      });
-    }
+          addAlert({
+              type: "error",
+              title: "Submission Failed",
+              description: errorMessage || "Error submitting report.",
+          });
+      }
+
   };
 
   return (
