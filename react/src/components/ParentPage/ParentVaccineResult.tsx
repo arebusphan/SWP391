@@ -1,7 +1,8 @@
 ﻿// src/pages/parent/ParentVaccineResult.tsx
 import { useEffect, useState } from "react";
-import axios from "axios";
+
 import { useAuth } from "@/context/AuthContext";
+import { apiser } from "../../service/apiser";
 
 interface VaccineResult {
     studentId: number;
@@ -22,7 +23,7 @@ export default function ParentVaccineResult() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get("/api/vaccinations/by-guardian", {
+                const res = await apiser.get("/vaccinations/by-guardian", {
                     params: { guardianId: user?.UserId },
                 });
                 setData(res.data || []);
