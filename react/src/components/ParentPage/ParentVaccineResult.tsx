@@ -1,6 +1,4 @@
-﻿// src/pages/parent/ParentVaccineResult.tsx
-import { useEffect, useState } from "react";
-
+﻿import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { apiser } from "../../service/apiser";
 
@@ -27,7 +25,7 @@ export default function ParentVaccineResult() {
                     params: { guardianId: user?.UserId },
                 });
                 setData(res.data || []);
-                setCurrentPage(1); // Reset về trang đầu mỗi khi load mới
+                setCurrentPage(1);
             } catch (err) {
                 console.error("Error fetching vaccine result", err);
             }
@@ -36,7 +34,6 @@ export default function ParentVaccineResult() {
         if (user?.UserId) fetchData();
     }, [user]);
 
-    // Tính toán danh sách hiện tại
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
@@ -47,41 +44,41 @@ export default function ParentVaccineResult() {
     };
 
     return (
-        <div className="p-8 max-w-5xl mx-auto">
-            <h1 className="text-2xl font-bold text-blue-700 mb-6">
-                💉 Vaccine Results for Your Children
+        <div className="  mx-auto drop-shadow">
+            <h1 className="text-4xl font-bold text-center text-blue-900 drop-shadow p-10">
+                Vaccine Results for Your Children
             </h1>
 
-            <div className="overflow-x-auto bg-white shadow-md rounded-xl">
-                <table className="w-full text-sm text-center border">
-                    <thead className="bg-blue-100 text-gray-700">
+            <div className="overflow-x-auto bg-white shadow-lg rounded-2xl border border-gray-300">
+                <table className="w-full text-sm text-center border-collapse">
+                    <thead className="bg-blue-900 text-white drop-shadow text-[15px]">
                         <tr>
-                            <th className="px-4 py-2 border">Student</th>
-                            <th className="px-4 py-2 border">Class</th>
-                            <th className="px-4 py-2 border">Confirmed</th>
-                            <th className="px-4 py-2 border">Vaccinated</th>
-                            <th className="px-4 py-2 border">Date</th>
-                            <th className="px-4 py-2 border">Observation</th>
+                            <th className="px-4 py-3 border border-gray-300">Student</th>
+                            <th className="px-4 py-3 border border-gray-300">Class</th>
+                            <th className="px-4 py-3 border border-gray-300">Confirmed</th>
+                            <th className="px-4 py-3 border border-gray-300">Vaccinated</th>
+                            <th className="px-4 py-3 border border-gray-300">Date</th>
+                            <th className="px-4 py-3 border border-gray-300">Observation</th>
                         </tr>
                     </thead>
                     <tbody>
                         {currentItems.map((stu, index) => (
                             <tr
-                                key={`${stu.studentId}-${index}`} // Đảm bảo key duy nhất
-                                className="border hover:bg-blue-50"
+                                key={`${stu.studentId}-${index}`}
+                                className="border border-gray-300  transition"
                             >
-                                <td className="border px-4 py-2">{stu.studentName}</td>
-                                <td className="border px-4 py-2">{stu.className}</td>
-                                <td className="border px-4 py-2">{stu.confirmStatus}</td>
-                                <td className="border px-4 py-2">
+                                <td className="border border-gray-300 px-4 py-2">{stu.studentName}</td>
+                                <td className="border border-gray-300 px-4 py-2">{stu.className}</td>
+                                <td className="border border-gray-300 px-4 py-2">{stu.confirmStatus}</td>
+                                <td className="border border-gray-300 px-4 py-2">
                                     {stu.vaccinated ? "✅ Yes" : "❌ No"}
                                 </td>
-                                <td className="border px-4 py-2">
+                                <td className="border border-gray-300 px-4 py-2">
                                     {stu.vaccinatedDate
                                         ? new Date(stu.vaccinatedDate).toLocaleDateString()
                                         : "-"}
                                 </td>
-                                <td className="border px-4 py-2">
+                                <td className="border border-gray-300 px-4 py-2">
                                     {stu.observationStatus || "-"}
                                 </td>
                             </tr>
@@ -91,14 +88,14 @@ export default function ParentVaccineResult() {
             </div>
 
             {/* Pagination */}
-            <div className="mt-4 flex justify-center gap-2 flex-wrap">
+            <div className="mt-6 flex justify-center gap-2 flex-wrap">
                 {Array.from({ length: totalPages }, (_, i) => (
                     <button
                         key={`page-${i + 1}`}
-                        className={`px-3 py-1 border rounded-md ${currentPage === i + 1
-                                ? "bg-blue-600 text-white"
-                                : "bg-white text-blue-600"
-                            } hover:bg-blue-100`}
+                        className={`px-4 py-2 border rounded-lg font-semibold drop-shadow transition ${currentPage === i + 1
+                                ? "bg-blue-900 text-white"
+                                : "bg-white text-blue-900 border-blue-900"
+                            } hover:bg-blue-800 hover:text-white`}
                         onClick={() => handlePageChange(i + 1)}
                     >
                         {i + 1}

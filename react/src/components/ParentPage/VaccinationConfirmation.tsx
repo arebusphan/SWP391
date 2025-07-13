@@ -1,227 +1,215 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { confirmVaccination, getPendingVaccinationConfirmations } from "@/service/serviceauth";
+import {
+    confirmVaccination,
+    getPendingVaccinationConfirmations,
+} from "@/service/serviceauth";
 import { useAuth } from "@/context/AuthContext";
-import AlertNotification from "@/components/MedicalStaffPage/AlertNotification"; // ✅
+import AlertNotification from "@/components/MedicalStaffPage/AlertNotification";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { AlertItem } from "@/components/MedicalStaffPage/AlertNotification";
 
 interface VaccinationEvent {
-  notificationStudentId: number;
-  notificationId: number;
-  eventName: string;
-  eventType: string;
-  eventImage: string;
-  eventDate: string;
-  createdAt: string;
-  createdBy: string;
-  studentId: number;
-  studentName: string;
-  className: string;
+    notificationStudentId: number;
+    notificationId: number;
+    eventName: string;
+    eventType: string;
+    eventImage: string;
+    eventDate: string;
+    createdAt: string;
+    createdBy: string;
+    studentId: number;
+    studentName: string;
+    className: string;
 }
 
 export default function VaccinationList() {
-  const [data, setData] = useState<VaccinationEvent[]>([]);
-  const [selected, setSelected] = useState<VaccinationEvent | null>(null);
-  const [reasonDialog, setReasonDialog] = useState<VaccinationEvent | null>(null);
-  const [declineReason, setDeclineReason] = useState("");
+    const [data, setData] = useState<VaccinationEvent[]>([]);
+    const [alerts, setAlerts] = useState<AlertItem[]>([]);
+    const [declineReasons, setDeclineReasons] = useState<Record<number, string>>({});
+    const [imageDialog, setImageDialog] = useState<string | null>(null);
+    const { user } = useAuth();
+    const parentPhone = user?.Phone || "";
 
-  const [alerts, setAlerts] = useState<AlertItem[]>([]); // ✅
-  const { user } = useAuth();
-  const parentPhone = user?.Phone || "";
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await getPendingVaccinationConfirmations();
+                setData(res);
+            } catch (error) {
+                console.error("Error fetching vaccination events:", error);
+            }
+        })();
+    }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await getPendingVaccinationConfirmations();
-        setData(res);
-      } catch (error) {
-          console.error("Error fetching vaccination events:", error);
-
-      }
+    const showAlert = (item: Omit<AlertItem, "id">) => {
+        setAlerts((prev) => [{ id: Date.now() + Math.random(), ...item }, ...prev]);
     };
-    fetchData();
-  }, []);
 
-  const showAlert = (item: Omit<AlertItem, "id">) => {
-    setAlerts((prev) => [
-      ...prev,
-      { id: Date.now() + Math.random(), ...item },
-    ]);
-  };
+    const handleAccept = async (item: VaccinationEvent) => {
+        try {
+            await confirmVaccination(item.notificationStudentId, "Confirmed", parentPhone);
+            setData((prev) =>
+                prev.filter((d) => d.notificationStudentId !== item.notificationStudentId)
+            );
+            showAlert({
+                type: "success",
+                title: "Vaccination Confirmed",
+                description: `You have confirmed vaccination for ${item.studentName}.`,
+            });
+        } catch (error) {
+            console.error("Error confirming:", error);
+            showAlert({
+                type: "error",
+                title: "Confirmation Failed",
+                description: "Something went wrong. Please try again.",
+            });
+        }
+    };
 
-  const handleAccept = async (item: VaccinationEvent) => {
-    try {
-      await confirmVaccination(item.notificationStudentId, "Confirmed", parentPhone);
-      setData((prev) => prev.filter((d) => d.notificationStudentId !== item.notificationStudentId));
-      showAlert({
-        type: "success",
-        title: "Vaccination Confirmed",
-        description: `You have confirmed vaccination for ${item.studentName}.`,
-      });
-    } catch (error) {
-      console.error("Error confirming:", error);
-      showAlert({
-        type: "error",
-        title: "Confirmation Failed",
-        description: "Something went wrong. Please try again.",
-      });
-    }
-  };
+    const handleDecline = async (item: VaccinationEvent) => {
+        const reason = declineReasons[item.notificationStudentId];
+        if (!reason || reason.trim() === "") {
+            showAlert({
+                type: "error",
+                title: "Decline Failed",
+                description: "Please enter a reason before declining.",
+            });
+            return;
+        }
+        try {
+            await confirmVaccination(
+                item.notificationStudentId,
+                "Declined",
+                parentPhone,
+                reason
+            );
+            setData((prev) =>
+                prev.filter((d) => d.notificationStudentId !== item.notificationStudentId)
+            );
+            showAlert({
+                type: "success",
+                title: "Vaccination Declined",
+                description: `You have declined vaccination for ${item.studentName}.`,
+            });
+        } catch (error) {
+            console.error("Error declining:", error);
+            showAlert({
+                type: "error",
+                title: "Decline Failed",
+                description: "Error sending decline reason. Please try again.",
+            });
+        }
+    };
 
-  const handleSubmitDecline = async () => {
-    if (!reasonDialog) return;
-    try {
-      await confirmVaccination(
-        reasonDialog.notificationStudentId,
-        "Declined",
-        parentPhone,
-        declineReason
-      );
-      setData((prev) => prev.filter((d) => d.notificationStudentId !== reasonDialog.notificationStudentId));
-      showAlert({
-        type: "success",
-        title: "Vaccination Declined",
-        description: `You have declined vaccination for ${reasonDialog.studentName}.`,
-      });
-      setReasonDialog(null);
-      setDeclineReason("");
-    } catch (error) {
-      console.error("Error declining:", error);
-      showAlert({
-        type: "error",
-        title: "Decline Failed",
-        description: "Error sending decline reason. Please try again.",
-      });
-    }
-  };
-
-  return (
-    <div className="p-10 bg-gray-50 min-h-screen text-[16px]">
-      <AlertNotification alerts={alerts} onRemove={(id) => setAlerts((prev) => prev.filter((a) => a.id !== id))} />
-      <div className="max-w-7xl mx-auto bg-white shadow-xl rounded-2xl p-8 space-y-6">
-        <h1 className="text-3xl font-bold text-blue-800 text-center">Vaccination Event Confirmation</h1>
-
-        {/* Table Header */}
-        <div className="grid grid-cols-9 font-semibold text-sm text-gray-600 border-b pb-3 gap-x-2">
-          <div>Event</div>
-          <div>Type</div>
-          <div>Date</div>
-          <div>Created</div>
-          <div>Student</div>
-          <div>Class</div>
-          <div className="text-center">View</div>
-          <div className="text-center">Accept</div>
-          <div className="text-center">Decline</div>
-        </div>
-
-        {/* Table Body */}
-        {data.map((item, index) => (
-          <div
-            key={index}
-            className="grid grid-cols-9 text-sm py-3 border-b items-center gap-x-2 hover:bg-blue-50 transition duration-150 ease-in-out"
-          >
-            <div>{item.eventName}</div>
-            <div>{item.eventType}</div>
-            <div>{new Date(item.eventDate).toLocaleDateString()}</div>
-            <div>{new Date(item.createdAt).toLocaleDateString()}</div>
-            <div>{item.studentName}</div>
-            <div>{item.className}</div>
-
-            <div className="flex justify-center">
-              <Button variant="outline" size="sm" onClick={() => setSelected(item)}>
-                Details
-              </Button>
-            </div>
-
-            <div className="flex justify-center">
-              <Button
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-1.5"
-                onClick={() => handleAccept(item)}
-              >
-                Accept
-              </Button>
-            </div>
-
-            <div className="flex justify-center">
-              <Button
-                size="sm"
-                variant="destructive"
-                className="rounded-lg px-4 py-1.5"
-                onClick={() => setReasonDialog(item)}
-              >
-                Decline
-              </Button>
-            </div>
-          </div>
-        ))}
-
-        {/* Dialog: View Details */}
-        <Dialog open={selected !== null} onOpenChange={() => setSelected(null)}>
-          <DialogContent className="max-w-3xl w-full bg-white rounded-2xl p-6 shadow-xl space-y-4">
-            <DialogTitle className="text-xl font-semibold text-blue-700">Event Details</DialogTitle>
-            {selected && (
-              <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-700">
-                <div>
-                  <p className="font-semibold">Event Name:</p>
-                  <p>{selected.eventName}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Type:</p>
-                  <p>{selected.eventType}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Date:</p>
-                  <p>{new Date(selected.eventDate).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Created At:</p>
-                  <p>{new Date(selected.createdAt).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Created By:</p>
-                  <p>{selected.createdBy}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Student:</p>
-                  <p>{selected.studentName}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Class:</p>
-                  <p>{selected.className}</p>
-                </div>
-                <div className="col-span-2 mt-4">
-                  <img
-                    src={selected.eventImage}
-                    alt="Event"
-                    className="w-full rounded-xl border shadow-md max-h-[400px] object-cover"
-                  />
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Dialog: Decline Reason */}
-        <Dialog open={reasonDialog !== null} onOpenChange={() => setReasonDialog(null)}>
-          <DialogContent className="max-w-xl w-full bg-white rounded-2xl p-6 shadow-xl space-y-4">
-            <DialogTitle className="text-xl font-semibold text-red-600">Reason for Decline</DialogTitle>
-            <DialogDescription className="text-gray-600">
-              Please provide a reason why you are declining the vaccination for your child.
-            </DialogDescription>
-            <textarea
-              placeholder="Enter your reason..."
-              value={declineReason}
-              onChange={(e) => setDeclineReason(e.target.value)}
-              className="w-full h-40 mt-2 p-3 border border-gray-300 rounded-lg resize-none shadow-sm focus:ring focus:ring-red-200 bg-gray-50"
+    return (
+        <div className="min-h-screen bg-gray-50 p-6 drop-shadow">
+            <AlertNotification
+                alerts={alerts}
+                onRemove={(id) => setAlerts((prev) => prev.filter((a) => a.id !== id))}
             />
-            <div className="flex justify-end">
-              <Button onClick={handleSubmitDecline}>Submit Reason</Button>
+            <h1 className="text-center text-3xl font-extrabold text-blue-900 mb-8 drop-shadow">
+                Vaccination Event Confirmation
+            </h1>
+
+            <div className="overflow-x-auto border rounded-2xl bg-white shadow-xl p-6">
+                <table className="table-auto w-full text-sm border-collapse">
+                    <thead className="bg-blue-900 text-white">
+                        <tr>
+                            <th className="border px-3 py-2">Event</th>
+                            <th className="border px-3 py-2">Type</th>
+                            <th className="border px-3 py-2">Date</th>
+                            <th className="border px-3 py-2">Created At</th>
+                            <th className="border px-3 py-2">By</th>
+                            <th className="border px-3 py-2">Student</th>
+                            <th className="border px-3 py-2">Class</th>
+                            <th className="border px-3 py-2">Image</th>
+                            <th className="border px-3 py-2">Decline Reason</th>
+                            <th className="border px-3 py-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {data.length === 0 ? (
+                            <tr>
+                                <td colSpan={10} className="text-center py-6 text-gray-500">
+                                    No pending vaccinations 🎉
+                                </td>
+                            </tr>
+                        ) : (
+                            data.map((item) => (
+                                <tr
+                                    key={item.notificationStudentId}
+                                    className="border-t hover:bg-blue-50"
+                                >
+                                    <td className="border px-3 py-2">{item.eventName}</td>
+                                    <td className="border px-3 py-2">{item.eventType}</td>
+                                    <td className="border px-3 py-2">
+                                        {new Date(item.eventDate).toLocaleDateString()}
+                                    </td>
+                                    <td className="border px-3 py-2">
+                                        {new Date(item.createdAt).toLocaleDateString()}
+                                    </td>
+                                    <td className="border px-3 py-2">{item.createdBy}</td>
+                                    <td className="border px-3 py-2">{item.studentName}</td>
+                                    <td className="border px-3 py-2">{item.className}</td>
+                                    <td className="border px-3 py-2">
+                                        <img
+                                            src={item.eventImage}
+                                            alt="Event"
+                                            onClick={() => setImageDialog(item.eventImage)}
+                                            className="h-16 w-24 object-cover rounded shadow cursor-pointer hover:opacity-80"
+                                        />
+                                    </td>
+                                    <td className="border px-3 py-2">
+                                        <textarea
+                                            className="border rounded p-1 text-xs w-full"
+                                            rows={2}
+                                            placeholder="Enter reason..."
+                                            value={declineReasons[item.notificationStudentId] || ""}
+                                            onChange={(e) =>
+                                                setDeclineReasons((prev) => ({
+                                                    ...prev,
+                                                    [item.notificationStudentId]: e.target.value,
+                                                }))
+                                            }
+                                        />
+                                    </td>
+                                    <td className="border px-3 py-2 flex flex-col space-y-1">
+                                        <Button
+                                            size="sm"
+                                            className="bg-green-600 text-white hover:bg-green-700 drop-shadow"
+                                            onClick={() => handleAccept(item)}
+                                        >
+                                            Accept
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="destructive"
+                                            onClick={() => handleDecline(item)}
+                                            className="drop-shadow"
+                                        >
+                                            Decline
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </div>
-  );
+
+            {/* Dialog xem ảnh */}
+            <Dialog open={imageDialog !== null} onOpenChange={() => setImageDialog(null)}>
+                <DialogContent className="max-w-4xl p-4 bg-white rounded-2xl shadow-xl">
+                    {imageDialog && (
+                        <img
+                            src={imageDialog}
+                            alt="Event Full"
+                            className="w-full max-h-[80vh] object-contain rounded-lg"
+                        />
+                    )}
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
 }

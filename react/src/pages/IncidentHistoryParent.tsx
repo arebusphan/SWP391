@@ -2,13 +2,6 @@
 import { getIncidentHistoryByGuardian } from "../service/serviceauth";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog";
 
 interface Incident {
     incidentName: string;
@@ -28,8 +21,7 @@ const formatDate = (dateStr: string) => {
 const IncidentHistoryParent = () => {
     const { user } = useAuth();
     const [incidents, setIncidents] = useState<Incident[]>([]);
-    const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
-    const [,setLoading] = useState(true);
+    const [, setLoading] = useState(true);
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
@@ -56,78 +48,74 @@ const IncidentHistoryParent = () => {
     }, [user?.UserId]);
 
     return (
-        <div className="p-6 bg-gray-50 rounded-2xl shadow-md space-y-6 max-w-3xl mx-auto">
-            <h2 className="text-2xl font-bold text-blue-700">📘 Lịch sử sự cố của học sinh</h2>
+        <div>
+            <h2 className="text-4xl font-bold text-center text-blue-900 drop-shadow p-10">
+                Incident History
+            </h2>
+        <div className="  rounded-2xl shadow-md mx-auto drop-shadow">
+           
 
             {incidents.length === 0 ? (
-                <div className="text-gray-500 italic">Chưa có sự cố nào được ghi nhận.</div>
+                <div className="text-gray-500 italic text-center">Chưa có sự cố nào được ghi nhận.</div>
             ) : (
                 <>
-                    <div className="space-y-4">
-                        {currentIncidents.map((incident, index) => (
-                            <div
-                                key={index}
-                                className="p-4 bg-white rounded-xl shadow border border-gray-200 flex justify-between items-start hover:bg-blue-50 transition"
-                            >
-                                <div>
-                                    <p className="font-semibold text-gray-800">🔹 {incident.incidentName}</p>
-                                    <p className="text-sm text-gray-600 mt-1">
-                                        <strong>📅 Ngày:</strong> {formatDate(incident.occurredAt)}
-                                    </p>
-                                </div>
-                                <Button variant="outline" size="sm" onClick={() => setSelectedIncident(incident)}>
-                                    Chi tiết
-                                </Button>
-                            </div>
-                        ))}
+                    <div className="overflow-x-auto bg-white rounded-xl shadow border border-gray-300">
+                        <table className="w-full text-sm text-center">
+                            <thead className="bg-blue-900 text-white">
+                                <tr>
+                                    <th className="border px-3 py-2">#</th>
+                                    <th className="border px-3 py-2">Tên sự cố</th>
+                                    <th className="border px-3 py-2">Ngày</th>
+                                    <th className="border px-3 py-2">Lớp</th>
+                                    <th className="border px-3 py-2">Học sinh</th>
+                                    <th className="border px-3 py-2">Người xử lý</th>
+                                    <th className="border px-3 py-2">Mô tả</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {currentIncidents.map((incident, index) => (
+                                    <tr
+                                        key={index}
+                                        className="hover:bg-blue-50 transition border-b text-gray-800"
+                                    >
+                                        <td className="border px-3 py-2">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                                        <td className="border px-3 py-2">{incident.incidentName}</td>
+                                        <td className="border px-3 py-2">{formatDate(incident.occurredAt)}</td>
+                                        <td className="border px-3 py-2">{incident.className || "Không rõ"}</td>
+                                        <td className="border px-3 py-2">{incident.studentName || "Không rõ"}</td>
+                                        <td className="border px-3 py-2">{incident.handledBy}</td>
+                                        <td className="border px-3 py-2 text-left">{incident.description}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
 
-                    {/* Pagination controls */}
-                    <div className="flex justify-center items-center gap-4 mt-4">
+                    {/* Pagination */}
+                    <div className="flex justify-center items-center gap-4 mt-6">
                         <Button
                             variant="outline"
                             disabled={currentPage === 1}
                             onClick={() => setCurrentPage((prev) => prev - 1)}
+                            className="border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white"
                         >
-                            ⬅️ Trước
+                             Previous
                         </Button>
-                        <span className="text-gray-600">
+                        <span className="text-gray-700 font-medium">
                             Trang {currentPage} / {totalPages}
                         </span>
                         <Button
                             variant="outline"
                             disabled={currentPage === totalPages}
                             onClick={() => setCurrentPage((prev) => prev + 1)}
+                            className="border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white"
                         >
-                            Tiếp ➡️
+                            Next 
                         </Button>
                     </div>
                 </>
             )}
-
-            {/* Dialog: Chi tiết sự cố */}
-            <Dialog open={!!selectedIncident} onOpenChange={() => setSelectedIncident(null)}>
-                <DialogContent className="!max-w-[600px] bg-white rounded-xl p-6 shadow-xl space-y-4">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl font-bold text-blue-700">🔍 Chi tiết sự cố</DialogTitle>
-                    </DialogHeader>
-
-                    {selectedIncident && (
-                        <div className="space-y-2 text-[15px] text-gray-700">
-                            <p><strong>Lớp:</strong> {selectedIncident.className || "Không rõ"}</p>
-                            <p><strong>Học sinh:</strong> {selectedIncident.studentName || "Không rõ"}</p>
-                            <p><strong>Sự cố:</strong> {selectedIncident.incidentName}</p>
-                            <p><strong>Người xử lý:</strong> {selectedIncident.handledBy}</p>
-                            <p><strong>Mô tả:</strong> {selectedIncident.description}</p>
-                            <p><strong>Ngày xảy ra:</strong> {formatDate(selectedIncident.occurredAt)}</p>
-                        </div>
-                    )}
-
-                    <DialogFooter>
-                        <Button onClick={() => setSelectedIncident(null)}>Đóng</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            </div>
         </div>
     );
 };

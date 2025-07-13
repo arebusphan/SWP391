@@ -90,9 +90,15 @@ const HealthCheckForm = () => {
     };
 
       try {
+          const token = localStorage.getItem("token");
           await apiser.post(
               `/students/${studentId}/healthCheck`,
-              requestBody
+              requestBody,
+              {
+                  headers: {
+                      Authorization: `Bearer ${token}`,
+                  },
+              }
           );
 
           addAlert({

@@ -99,12 +99,13 @@ export default function SendMedicineView() {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen text-[16px] md:text-[17px]">
-      <h2 className="text-3xl font-bold text-blue-700 mb-3">Medication Request History</h2>
+          <h2 className="text-3xl font-bold text-blue-900 text-center drop-shadow-md mb-3">Medication Request History</h2>
+
 
       <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
         <div className="flex flex-row gap-3 w-full md:w-auto">
-          <div className="flex flex-col w-[220px]">
-            <label className="text-sm text-gray-600">Search</label>
+          <div className="flex flex-col w-[220px]"> 
+                      <label className="text-sm text-blue-900 drop-shadow">Search</label>
             <input
               type="text"
               value={searchTerm}
@@ -117,7 +118,7 @@ export default function SendMedicineView() {
             />
           </div>
           <div className="flex flex-col w-[180px]">
-            <label className="text-sm text-gray-600">Status</label>
+                      <label className="text-sm text-blue-900 drop-shadow">Status</label>
             <select
               value={statusFilter}
               onChange={(e) => {
@@ -137,7 +138,7 @@ export default function SendMedicineView() {
         <div className="flex flex-col">
           <label className="invisible text-sm">Send</label>
           <Button
-            className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg shadow-md transition-transform hover:scale-105"
+            className="flex items-center bg-blue-900 hover:bg-blue-900 text-white px-5 py-2.5 rounded-lg shadow-md transition-transform hover:scale-105"
             onClick={() => setOpenSendMedicineDialog(true)}
           >
             <Plus className="w-5 h-5 mr-2" />
@@ -150,7 +151,7 @@ export default function SendMedicineView() {
         <DialogContent className="!p-8 !max-w-4xl animate-fade-in">
           <div className="flex flex-row items-start gap-8">
             <div className="flex flex-col gap-4 w-[420px]">
-              <DialogTitle className="text-2xl font-semibold text-blue-700">Send Medicine</DialogTitle>
+              <DialogTitle className="text-2xl font-semibold text-blue-900">Send Medicine</DialogTitle>
               <DialogDescription className="text-gray-600">Provide medicine request details</DialogDescription>
               <SendMedicineForm
                 onSuccess={() => {
@@ -182,82 +183,87 @@ export default function SendMedicineView() {
       {/* Table */}
       <div className="overflow-x-auto rounded-xl shadow border border-gray-200">
         <table className="w-full text-base text-left border-collapse">
-          <thead className="bg-blue-600 text-white text-[15px]">
-            <tr>
-              <th className="p-4">Medicine</th>
-              <th className="p-4">Image</th>
-              <th className="p-4">Initial Health</th>
-              <th className="p-4">Note</th>
-              <th className="p-4">Status</th>
-              <th className="p-4">Created At</th>
-              <th className="p-4 w-[240px]">Details</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white">
-            {pagedRequests.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="text-center p-6 text-gray-500 text-lg">
-                  No requests found.
-                </td>
-              </tr>
-            ) : (
-              pagedRequests.map((req) => {
-                const canViewHistory = ["Approved", "Injected", "Administered"].includes(req.status);
-                return (
-                  <tr key={req.requestId} className="border-t hover:bg-blue-50 transition duration-200 ease-in-out">
-                    <td className="p-4 align-top font-medium">{req.medicineName}</td>
-                    <td className="p-4 align-top">
-                      <img
-                        src={req.prescriptionImage}
-                        alt="prescription"
-                        className="w-24 h-24 object-cover rounded-lg cursor-pointer transition-transform duration-300 hover:scale-110 ring-2 ring-blue-400"
-                        onClick={() => setSelectedImage(req.prescriptionImage)}
-                      />
-                    </td>
-                    <td className="p-4 align-top">{req.healthStatus}</td>
-                    <td className="p-4 align-top">{req.note}</td>
-                    <td className="p-4 align-top">
-                      <span
-                        className={`px-3 py-1 rounded-full text-white text-sm font-semibold transition-colors duration-200 ${
-                          req.status === "Pending"
-                            ? "bg-yellow-500"
-                            : req.status === "Approved"
-                            ? "bg-green-500"
-                            : req.status === "Injected"
-                            ? "bg-blue-500"
-                            : req.status === "Administered"
-                            ? "bg-cyan-600"
-                            : "bg-red-500"
-                        }`}
-                      >
-                        {req.status}
-                      </span>
-                    </td>
-                    <td className="p-4 align-top text-gray-700">
-                      {new Date(req.createdAt).toLocaleString()}
-                    </td>
-                    <td className="p-4 w-[240px] align-top">
-                      {canViewHistory ? (
-                        <Button
-                          variant="outline"
-                          onClick={() => handleViewHistory(req.requestId, req.studentId)}
-                          className="hover:scale-[1.03] transition-transform"
-                        >
-                          View History
-                        </Button>
-                      ) : req.status === "Rejected" && req.rejectReason ? (
-                        <div className="text-sm whitespace-pre-line break-words">
-                          <span className="font-semibold">Reason:</span> {req.rejectReason}
-                        </div>
+                  <thead className="bg-blue-900 text-white text-[15px] drop-shadow">
+                      <tr>
+                          <th className="p-4">Student</th>
+                          <th className="p-4">Medicine</th>
+                          <th className="p-4">Image</th>
+                          <th className="p-4">Health Status</th>
+                          <th className="p-4">Note</th>
+                          <th className="p-4">Status</th>
+                          <th className="p-4">Created At</th>
+                          <th className="p-4 w-[240px]">Details</th>
+                      </tr>
+                  </thead>
+
+                  <tbody className="bg-white">
+                      {pagedRequests.length === 0 ? (
+                          <tr>
+                              <td colSpan={8} className="text-center p-6 text-gray-500 text-lg">
+                                  No requests found.
+                              </td>
+                          </tr>
                       ) : (
-                        <span className="text-gray-400 italic">—</span>
+                          pagedRequests.map((req) => {
+                              const canViewHistory = ["Approved", "Injected", "Administered"].includes(req.status);
+                              return (
+                                  <tr
+                                      key={req.requestId}
+                                      className="border-t hover:bg-blue-50 transition duration-200 ease-in-out"
+                                  >
+                                      <td className="p-4 align-top font-medium">{req.studentName}</td>
+                                      <td className="p-4 align-top">{req.medicineName}</td>
+                                      <td className="p-4 align-top">
+                                          <img
+                                              src={req.prescriptionImage}
+                                              alt="prescription"
+                                              className="w-16 h-16 object-cover rounded-lg cursor-pointer transition-transform duration-300 hover:scale-110 ring-2 ring-blue-400"
+                                              onClick={() => setSelectedImage(req.prescriptionImage)}
+                                          />
+                                      </td>
+                                      <td className="p-4 align-top">{req.healthStatus}</td>
+                                      <td className="p-4 align-top">{req.note}</td>
+                                      <td className="p-4 align-top">
+                                          <span
+                                              className={`px-3 py-1 rounded-full text-white text-sm font-semibold drop-shadow ${req.status === "Pending"
+                                                      ? "bg-yellow-500"
+                                                      : req.status === "Approved"
+                                                          ? "bg-green-500"
+                                                          : req.status === "Injected"
+                                                              ? "bg-blue-900"
+                                                              : req.status === "Administered"
+                                                                  ? "bg-blue-900"
+                                                                  : "bg-red-500"
+                                                  }`}
+                                          >
+                                              {req.status}
+                                          </span>
+                                      </td>
+                                      <td className="p-4 align-top text-gray-700">
+                                          {new Date(req.createdAt).toLocaleString()}
+                                      </td>
+                                      <td className="p-4 w-[240px] align-top">
+                                          {canViewHistory ? (
+                                              <Button
+                                                  variant="outline"
+                                                  onClick={() => handleViewHistory(req.requestId, req.studentId)}
+                                                  className="hover:scale-[1.03] transition-transform"
+                                              >
+                                                  View History
+                                              </Button>
+                                          ) : req.status === "Rejected" && req.rejectReason ? (
+                                              <div className="text-sm whitespace-pre-line break-words">
+                                                  <span className="font-semibold">Reason:</span> {req.rejectReason}
+                                              </div>
+                                          ) : (
+                                              <span className="text-gray-400 italic">—</span>
+                                          )}
+                                      </td>
+                                  </tr>
+                              );
+                          })
                       )}
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
+                  </tbody>
         </table>
       </div>
 
