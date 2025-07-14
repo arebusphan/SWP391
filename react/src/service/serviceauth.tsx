@@ -111,31 +111,27 @@ export const getMedicationRequestsForNurse = () => {
 };
 
 export const updateMedicationStatus = async (
-    id: number,
-    status: string,
-    reviewedBy: number,
-    rejectReason?: string
+  id: number,
+  status: string,
+  reviewedBy: number,
+  rejectReason?: string
 ) => {
-    const token = localStorage.getItem("token"); 
+  const token = localStorage.getItem("token");
 
-    const payload = {
-        status,
-        reviewedBy,
-        ...(rejectReason ? { rejectReason } : {}),
-    };
+  const payload = {
+    status,
+    reviewedBy,
+    ...(rejectReason ? { rejectReason } : {}),
+  };
 
-    const { data } = await apiser.put(
-        `/medication-requests/${id}/updateStatus`,
-        payload,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`, 
-                "Content-Type": "application/json",
-            },
-        }
-    );
+  const res = await apiser.put(`/medication-requests/${id}/updateStatus`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
 
-    return data;
+  return res;
 };
 
 
@@ -518,6 +514,14 @@ export const updateStudent = async (
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
+    },
+  });
+};
+export const getMedicationHistory = async () => {
+  const token = localStorage.getItem("token");
+  return await apiser.get("/medication-requests/history", {
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
   });
 };

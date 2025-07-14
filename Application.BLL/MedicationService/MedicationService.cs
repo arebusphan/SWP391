@@ -147,4 +147,9 @@ public class MedicationService : IMedicationService
             CreatedAt = r.CreatedAt
         }).ToList();
     }
+
+    public async Task<List<MedicationRequestResponseDTO>> GetRejectedOrAdministeredAsync()
+    {
+        return await _medicationRepository.GetRejectedOrAdministeredAsync();
+    }
 }

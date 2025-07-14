@@ -67,6 +67,27 @@ namespace DAL.Repositories
                 .ThenInclude(s => s.Guardian)
                 .ToList();
         }
+        public async Task<List<MedicationRequestResponseDTO>> GetRejectedOrAdministeredAsync()
+        {
+            return await _context.MedicationRequests
+                .Include(r => r.Student)
+                .Where(r => r.Status == "Rejected" || r.Status == "Administered")
+                .OrderByDescending(r => r.CreatedAt)
+                .Select(r => new MedicationRequestResponseDTO
+                {
+                    RequestId = r.RequestId,
+                    StudentId = r.StudentId,
+                    StudentName = r.Student.FullName,
+                    MedicineName = r.MedicineName,
+                    PrescriptionImage = r.PrescriptionImage,
+                    HealthStatus = r.HealthStatus,
+                    Note = r.Note,
+                    Status = r.Status,
+                    CreatedAt = r.CreatedAt,
+                    RejectReason = r.RejectReason
+                })
+                .ToListAsync();
+        }
 
     }
 }

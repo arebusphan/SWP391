@@ -107,5 +107,12 @@ namespace API.Controllers
             var result = _medicationService.GetApprovedRequests();
             return Ok(result);
         }
+        [HttpGet("history")]
+        [Authorize(Roles = "MedicalStaff")]
+        public async Task<IActionResult> GetRejectedAndAdministered()
+        {
+            var result = await _medicationService.GetRejectedOrAdministeredAsync();
+            return Ok(result); 
+        }
     }
 }

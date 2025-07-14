@@ -13,5 +13,6 @@ namespace DAL.Repositories
         void Save();
         List<MedicationRequests> GetAll();
         List<MedicationRequests> GetApprovedRequests();
+        Task<List<MedicationRequestResponseDTO>> GetRejectedOrAdministeredAsync();
     }
 }

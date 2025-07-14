@@ -4,10 +4,11 @@ import {
   getApprovedMedicationRequests,
   updateMedicationStatus,
   createMedicationIntakeLog,
+  getMedicationHistory,
 } from "../service/serviceauth";
+
 import { jwtDecode } from "jwt-decode";
 import ViewMedicationHistory from "@/components/ParentPage/ViewMedicationHistory";
-
 import AlertNotification from "@/components/MedicalStaffPage/AlertNotification";
 import type { AlertItem } from "@/components/MedicalStaffPage/AlertNotification";
 import ConfirmActionDialog from "@/components/MedicalStaffPage/ConfirmActionDialog";
@@ -16,7 +17,6 @@ import LogIntakeDialog from "@/components/MedicalStaffPage/LogIntakeDialog";
 import PendingRequestsTable from "@/components/MedicalStaffPage/PendingRequestsTable";
 import ApprovedRequestsTable from "@/components/MedicalStaffPage/ApprovedRequestsTable";
 
-// Type nội bộ
 type MedicationRequest = {
   requestId: number;
   studentId: number;
@@ -33,6 +33,7 @@ type MedicationRequest = {
 export default function PendingMedicationRequests() {
   const [pendingRequests, setPendingRequests] = useState<MedicationRequest[]>([]);
   const [approvedRequests, setApprovedRequests] = useState<MedicationRequest[]>([]);
+  const [historyRequests, setHistoryRequests] = useState<MedicationRequest[]>([]); // 🆕
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [, setLoading] = useState(true);
   const [rejectingId, setRejectingId] = useState<number | null>(null);
@@ -48,7 +49,6 @@ export default function PendingMedicationRequests() {
   }>({ type: null, request: null });
 
   const [viewMode, setViewMode] = useState<"approved" | "history">("approved");
-
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
 
   const showAlert = (type: "success" | "error", title: string, description: string) => {
@@ -72,6 +72,9 @@ export default function PendingMedicationRequests() {
 
         const approvedRes = await getApprovedMedicationRequests();
         setApprovedRequests(approvedRes.data);
+
+        const historyRes = await getMedicationHistory(); // 🆕
+        setHistoryRequests(historyRes.data);             // 🆕
       } catch {
         showAlert("error", "Load Failed", "⚠️ Failed to load medication requests.");
       } finally {
@@ -91,7 +94,6 @@ export default function PendingMedicationRequests() {
     if (!confirmDialog.request || !confirmDialog.type) return;
     const { request } = confirmDialog;
     const reviewedBy = getReviewerId();
-
     const status = confirmDialog.type === "approve" ? "Approved" : "Administered";
 
     updateMedicationStatus(request.requestId, status, reviewedBy)
@@ -102,10 +104,9 @@ export default function PendingMedicationRequests() {
             setApprovedRequests((prev) => [...prev, { ...request, status }]);
           } else {
             setApprovedRequests((prev) =>
-              prev.map((r) =>
-                r.requestId === request.requestId ? { ...r, status: "Administered" } : r
-              )
+              prev.filter((r) => r.requestId !== request.requestId)
             );
+            setHistoryRequests((prev) => [...prev, { ...request, status }]); // 🆕
           }
           showAlert(
             "success",
@@ -114,11 +115,19 @@ export default function PendingMedicationRequests() {
               ? `${request.studentName}'s request has been approved.`
               : `${request.studentName}'s request marked as completed.`
           );
-        } else throw new Error();
+        } else {
+          throw new Error("Update failed");
+        }
       })
-      .catch((err) =>
-        showAlert("error", "Update Failed", err.message)
-      );
+      .catch((err) => {
+        const msg =
+          err?.response?.data?.message ||
+          err?.response?.data ||
+          err.message ||
+          "Unknown error";
+        console.error("❌ Approval/Done failed:", msg);
+        showAlert("error", "Update Failed", msg);
+      });
 
     setConfirmDialog({ type: null, request: null });
   };
@@ -127,28 +136,39 @@ export default function PendingMedicationRequests() {
     const finalReason = [...selectedReasons.filter((r) => r !== "Other"), customReason.trim()]
       .filter(Boolean)
       .join(", ");
+
     if (!finalReason) {
       showAlert("error", "Rejection Error", "Please enter at least one reason.");
       return;
     }
 
     const reviewedBy = getReviewerId();
+
     updateMedicationStatus(rejectingId!, "Rejected", reviewedBy, finalReason)
       .then((res) => {
         if (res.status === 200) {
           setPendingRequests((prev) => prev.filter((r) => r.requestId !== rejectingId));
           const rejectedReq = pendingRequests.find((r) => r.requestId === rejectingId);
-          if (rejectedReq)
-            setApprovedRequests((prev) => [
+          if (rejectedReq) {
+            setHistoryRequests((prev) => [
               ...prev,
               { ...rejectedReq, status: "Rejected", rejectReason: finalReason },
             ]);
+          }
           setRejectingId(null);
           showAlert("success", "Request Rejected", "The request was rejected successfully.");
-        } else throw new Error();
+        } else {
+          throw new Error("Rejection failed");
+        }
       })
       .catch((err) => {
-        showAlert("error", "Rejection Failed", err?.response?.data || err.message);
+        const msg =
+          err?.response?.data?.message ||
+          err?.response?.data ||
+          err.message ||
+          "Unknown error";
+        console.error("❌ Rejection failed:", msg);
+        showAlert("error", "Rejection Failed", msg);
       });
   };
 
@@ -175,7 +195,10 @@ export default function PendingMedicationRequests() {
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-10 pt-6 animate-fade-in">
       <div className="mb-4">
-        <AlertNotification alerts={alerts} onRemove={(id) => setAlerts((prev) => prev.filter((a) => a.id !== id))} />
+        <AlertNotification
+          alerts={alerts}
+          onRemove={(id) => setAlerts((prev) => prev.filter((a) => a.id !== id))}
+        />
       </div>
 
       <ConfirmActionDialog
@@ -252,13 +275,14 @@ export default function PendingMedicationRequests() {
         requests={
           viewMode === "approved"
             ? approvedRequests.filter((r) => r.status === "Approved")
-            : approvedRequests.filter((r) => r.status === "Administered" || r.status === "Rejected")
+            : historyRequests
         }
         onImageClick={(img) => setSelectedImage(img)}
         onHistory={(r) => setHistoryDialogRequest(r)}
         onGive={viewMode === "approved" ? (r) => setLogDialogRequest(r) : undefined}
         onDone={viewMode === "approved" ? (r) => setConfirmDialog({ type: "done", request: r }) : undefined}
         title={viewMode === "approved" ? "✅ Approved Requests" : "📜 Medication History"}
+        hideActions={viewMode === "history"}
       />
 
       {selectedImage && (

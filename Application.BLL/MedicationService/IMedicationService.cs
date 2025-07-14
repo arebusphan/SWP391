@@ -16,5 +16,6 @@ namespace BLL.MedicationService
 
         List<MedicationRequests> GetAll();
         List<MedicationRequestResponseDTO> GetApprovedRequests();
+        Task<List<MedicationRequestResponseDTO>> GetRejectedOrAdministeredAsync();
     }
 }
