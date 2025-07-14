@@ -149,6 +149,28 @@ namespace API.Controllers
             await _studentService.AddStudentsAsync(request.Students, request.GuardianId);
             return Ok();
         }
+        [HttpPut("update/{studentId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateStudent(int studentId, [FromBody] UpdateStudent dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                await _studentService.UpdateStudentAsync(studentId, dto);
+                return Ok(new { message = "Student updated successfully." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while updating the student.", detail = ex.Message });
+            }
+        }
+
 
     }
 }

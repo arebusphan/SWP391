@@ -23,11 +23,11 @@ public class StudentService : IStudentService
             FullName = s.FullName,
             DateOfBirth = s.DateOfBirth,
             Gender = s.Gender,
-
-
             GuardianId = s.GuardianId,
             GuardianName = s.Guardian?.FullName,
-            GuardianPhone = s.Guardian?.PhoneNumber
+            GuardianPhone = s.Guardian?.PhoneNumber,
+            ClassName = s.Class.ClassName,
+            ClassId = s.ClassId
 
         }).ToList();
     }
@@ -67,5 +67,29 @@ public class StudentService : IStudentService
     {
         return await _studentRepository.GetStudentDTOsAsync();
     }
+    public async Task UpdateStudentAsync(int studentId, UpdateStudent updatedStudent)
+    {
+        var existingStudent = await _studentRepository.GetGuardianEmailByStudentIdAsync(studentId); // Chỉ cần lấy student
+
+        if (existingStudent == null)
+            throw new Exception("Student not found");
+
+        existingStudent.FullName = updatedStudent.FullName;
+
+        if (DateTime.TryParse(updatedStudent.DateOfBirth, out var dob))
+        {
+            existingStudent.DateOfBirth = dob;
+        }
+        else
+        {
+            throw new Exception("Invalid date format.");
+        }
+
+        existingStudent.Gender = updatedStudent.Gender;
+        existingStudent.ClassId = updatedStudent.ClassId;
+
+        await _studentRepository.UpdateAsync(existingStudent);
+    }
+
 
 }

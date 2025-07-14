@@ -4,12 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Plus, Pencil } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import StudentForm from "./AddStudentForm";
-import {
-  getAllStudents,
-  getAllClass,
-  getStudentsByClassId,
-} from "@/service/serviceauth";
-import { Pagination } from "@/components/ui/Pagination"; // Component giống AccountManager
+import { getAllStudents, getAllClass } from "@/service/serviceauth";
+import { Pagination } from "@/components/ui/Pagination";
 
 type User = {
   studentId: number;
@@ -18,6 +14,8 @@ type User = {
   dateOfBirth: string;
   guardianName: string;
   guardianPhone: string;
+  classId: number;
+  className: string;
 };
 
 type Class = {
@@ -32,50 +30,56 @@ export default function StudentView() {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [open, setOpen] = useState(false);
   const [classList, setClassList] = useState<Class[]>([]);
+  const [editingStudent, setEditingStudent] = useState<User | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   useEffect(() => {
-    const fetchClasses = async () => {
+    const fetchData = async () => {
       try {
-        const classes = await getAllClass();
-        const mapped = classes.map((cls: any) => ({
+        const [students, classes] = await Promise.all([
+          getAllStudents(),
+          getAllClass(),
+        ]);
+
+        const mappedClassList = classes.map((cls: any) => ({
           id: cls.classId,
           name: cls.className,
         }));
-        setClassList(mapped);
+
+        const mappedUsers = students.map((s: any) => ({
+          studentId: s.studentId,
+          fullName: s.fullName,
+          gender: s.gender,
+          dateOfBirth: s.dateOfBirth,
+          guardianName: s.guardianName,
+          guardianPhone: s.guardianPhone,
+          classId: s.classId,
+          className: s.className,
+        }));
+
+        setClassList(mappedClassList);
+        setUsers(mappedUsers);
       } catch (error) {
-        console.error("Failed to fetch classes:", error);
+        console.error("Failed to fetch data:", error);
       }
     };
-    fetchClasses();
+
+    fetchData();
   }, []);
 
   useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        if (selectedClassId !== "") {
-          const classIdNumber = Number(selectedClassId);
-          const students = await getStudentsByClassId(classIdNumber);
-          setUsers(students);
-        } else {
-          const allStudents = await getAllStudents();
-          setUsers(allStudents);
-        }
-      } catch (error) {
-        console.error("Failed to fetch students:", error);
-      }
-    };
-    fetchStudents();
-  }, [selectedClassId]);
+    const result = users
+      .filter((u) =>
+        u.fullName.toLowerCase().includes(searchName.toLowerCase())
+      )
+      .filter((u) =>
+        selectedClassId === "" ? true : u.classId === Number(selectedClassId)
+      );
 
-  useEffect(() => {
-    const result = users.filter((u) =>
-      u.fullName.toLowerCase().includes(searchName.toLowerCase())
-    );
     setFilteredUsers(result);
     setCurrentPage(1);
-  }, [searchName, users]);
+  }, [searchName, users, selectedClassId]);
 
   const handleAddStudent = (data: {
     students: {
@@ -87,16 +91,55 @@ export default function StudentView() {
     guardianPhone: string;
     guardianName: string;
   }) => {
-    const newStudents: User[] = data.students.map((s, index) => ({
-      studentId: Date.now() + index,
-      fullName: s.fullName,
-      gender: s.gender,
-      dateOfBirth: s.dob,
-      guardianName: data.guardianName,
-      guardianPhone: data.guardianPhone,
-    }));
+    const newStudents: User[] = data.students.map((s, index) => {
+      const className =
+        classList.find((c) => c.id === parseInt(s.classId))?.name || "";
+      return {
+        studentId: Date.now() + index,
+        fullName: s.fullName,
+        gender: s.gender,
+        dateOfBirth: s.dob,
+        guardianName: data.guardianName,
+        guardianPhone: data.guardianPhone,
+        classId: parseInt(s.classId),
+        className,
+      };
+    });
     setUsers((prev) => [...prev, ...newStudents]);
     setOpen(false);
+  };
+
+  const handleEditStudent = (data: {
+    students: {
+      fullName: string;
+      dob: string;
+      gender: string;
+      classId: string;
+    }[];
+    guardianPhone: string;
+    guardianName: string;
+  }) => {
+    if (!editingStudent) return;
+    const updated = data.students[0];
+    const className =
+      classList.find((c) => c.id === parseInt(updated.classId))?.name || "";
+    const updatedStudent: User = {
+      ...editingStudent,
+      fullName: updated.fullName,
+      gender: updated.gender,
+      dateOfBirth: updated.dob,
+      classId: parseInt(updated.classId),
+      className,
+      guardianName: data.guardianName,
+      guardianPhone: data.guardianPhone,
+    };
+
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.studentId === editingStudent.studentId ? updatedStudent : u
+      )
+    );
+    setEditingStudent(null);
   };
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
@@ -143,6 +186,28 @@ export default function StudentView() {
             <StudentForm classList={classList} onSubmit={handleAddStudent} />
           </DialogContent>
         </Dialog>
+
+        {editingStudent && (
+          <Dialog
+            open={!!editingStudent}
+            onOpenChange={(open) => !open && setEditingStudent(null)}
+          >
+            <DialogContent className="!max-w-5xl w-full">
+              <h3 className="text-lg font-semibold mb-2">Edit Student</h3>
+              <StudentForm
+                classList={classList}
+                defaultData={{
+                  ...editingStudent,
+                  dateOfBirth: new Date(editingStudent.dateOfBirth)
+                    .toISOString()
+                    .split("T")[0],
+                }}
+                onSubmit={handleEditStudent}
+                isEditing
+              />
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <div className="border rounded overflow-hidden shadow">
@@ -150,6 +215,7 @@ export default function StudentView() {
           <thead className="bg-blue-100 text-blue-800">
             <tr>
               <th className="p-3 text-left">Full Name</th>
+              <th className="p-3 text-left">Class</th>
               <th className="p-3 text-left">Gender</th>
               <th className="p-3 text-left">Date of Birth</th>
               <th className="p-3 text-left">Guardian Name</th>
@@ -162,6 +228,7 @@ export default function StudentView() {
               paginatedUsers.map((u) => (
                 <tr key={u.studentId} className="hover:bg-blue-50 border-t">
                   <td className="p-3">{u.fullName}</td>
+                  <td className="p-3">{u.className}</td>
                   <td className="p-3">{u.gender}</td>
                   <td className="p-3">
                     {new Date(u.dateOfBirth).toLocaleDateString("en-GB")}
@@ -169,7 +236,10 @@ export default function StudentView() {
                   <td className="p-3">{u.guardianName}</td>
                   <td className="p-3">{u.guardianPhone}</td>
                   <td className="p-3 text-right">
-                    <button className="text-blue-600 hover:text-blue-800">
+                    <button
+                      className="text-blue-600 hover:text-blue-800"
+                      onClick={() => setEditingStudent(u)}
+                    >
                       <Pencil className="w-4 h-4" />
                     </button>
                   </td>
@@ -177,7 +247,7 @@ export default function StudentView() {
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="text-center text-gray-500 py-5">
+                <td colSpan={7} className="text-center text-gray-500 py-5">
                   No matching students found.
                 </td>
               </tr>
@@ -186,7 +256,6 @@ export default function StudentView() {
         </table>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <Pagination
           currentPage={currentPage}

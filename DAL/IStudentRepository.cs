@@ -13,6 +13,6 @@ namespace DAL.Repositories
         Task<Students?> GetGuardianEmailByStudentIdAsync(int studentId);
         Task<List<Students>> GetStudentsWithGuardianAndClassAsync(List<int> studentIds);
         Task<List<Students>> GetByClassIdsAsync(List<int> classIds);
-
+        Task UpdateAsync(Students student);
     }
 }

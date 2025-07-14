@@ -91,24 +91,16 @@ export const deletebyactive = (userId: number) => {
     })
 }
 
-export const getstudentid = (params?: {
-    studentId: number;
-    fullName: string;
-    dateOfBirth: string;
-    gender: string;
-    guardianId: number;
-    guardianName: string;
-    guardianPhone: string;
-}) => {
-    const token = localStorage.getItem("token");
+export const getstudentid = () => {
+  const token = localStorage.getItem("token");
 
-    return apiser.get("/students/get-StuByGuardian", {
-        params,
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
+  return apiser.get("/students/get-StuByGuardian", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
+
 export const getMedicationRequestsForNurse = () => {
     const token = localStorage.getItem("token");
     return apiser.get("/medication-requests/nurseGetRequest", {
@@ -509,4 +501,23 @@ export const getOverviewStatistics = async () => {
 };
 export const getHealthNews = () => {
     return apiser.get("/News/health");
+};
+// serviceauth.ts
+export const updateStudent = async (
+  studentId: number,
+  payload: {
+    fullName: string;
+    dateOfBirth: string;
+    gender: string;
+    classId: number;
+  }
+) => {
+  const token = localStorage.getItem("token");
+
+  return apiser.put(`/students/update/${studentId}`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
 };

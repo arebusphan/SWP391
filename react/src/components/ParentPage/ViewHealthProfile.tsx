@@ -12,7 +12,8 @@ import { FaUser, FaNotesMedical } from "react-icons/fa";
 
 export type StudentHealthProfile = {
   studentId: number;
-  fullName: string;
+  fullName: string;         // alias studentName
+  className: string;
   dateOfBirth: string;
   gender: string;
   guardianName: string;
@@ -88,6 +89,8 @@ export default function ViewHealthProfile({
     try {
       const payload = {
         studentId: student.studentId,
+        studentName: student.fullName, // ✅ truyền đúng field
+        className: student.className,  // ✅ truyền đúng field
         ...formData,
       };
 
@@ -142,7 +145,9 @@ export default function ViewHealthProfile({
           </div>
           <div>
             <Label>Class</Label>
-            <div className="p-2 bg-gray-100 rounded">{"N/A"}</div>
+            <div className="p-2 bg-gray-100 rounded">
+              {student.className || "—"}
+            </div>
           </div>
         </div>
         <div>

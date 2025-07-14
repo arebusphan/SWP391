@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Trash2, Plus } from "lucide-react";
-import { findUserByEmailOrPhone,addStudents } from "@/service/serviceauth";
+import { findUserByEmailOrPhone, addStudents, updateStudent } from "@/service/serviceauth";
 
 type Student = {
   fullName: string;
@@ -21,26 +21,48 @@ type StudentFormProps = {
   classList: Class[];
   onSubmit: (data: {
     students: Student[];
-    guardianId: number;
     guardianName: string;
     guardianPhone: string;
   }) => void;
+  defaultData?: any;
+  isEditing?: boolean;
 };
 
-export default function StudentForm({ classList, onSubmit }: StudentFormProps) {
-  const [students, setStudents] = useState<Student[]>([
-    { fullName: "", dob: "", gender: "", classId: "" },
-  ]);
+export default function StudentForm({
+  classList,
+  onSubmit,
+  defaultData,
+  isEditing = false,
+}: StudentFormProps) {
+  const [students, setStudents] = useState<Student[]>(
+    isEditing && defaultData
+      ? [
+          {
+            fullName: defaultData.fullName,
+            dob: defaultData.dateOfBirth?.slice(0, 10),
+            gender: defaultData.gender,
+            classId: defaultData.classId.toString(),
+          },
+        ]
+      : [{ fullName: "", dob: "", gender: "", classId: "" }]
+  );
 
   const [guardianInput, setGuardianInput] = useState("");
   const [guardianInfo, setGuardianInfo] = useState<{
-    userId: number;
+    userId?: number;
     fullName: string;
-    email: string;
     phoneNumber: string;
-  } | null>(null);
+  } | null>(
+    isEditing && defaultData
+      ? {
+          userId: defaultData.guardianId,
+          fullName: defaultData.guardianName,
+          phoneNumber: defaultData.guardianPhone,
+        }
+      : null
+  );
 
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(isEditing);
 
   const handleStudentChange = (
     index: number,
@@ -67,7 +89,6 @@ export default function StudentForm({ classList, onSubmit }: StudentFormProps) {
       setGuardianInfo({
         userId: user.userId,
         fullName: user.fullName,
-        email: user.email,
         phoneNumber: user.phoneNumber,
       });
     } catch (error) {
@@ -84,44 +105,57 @@ export default function StudentForm({ classList, onSubmit }: StudentFormProps) {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!guardianInfo) {
+    if (!isEditing && (!guardianInfo || !guardianInfo.userId)) {
       alert("Please search and select a guardian.");
       return;
     }
 
-    const payloadToAPI = {
-      guardianId: guardianInfo.userId,
-      students: students.map((s) => ({
-        fullName: s.fullName,
-        dateOfBirth: s.dob,
-        gender: s.gender,
-        classId: parseInt(s.classId),
-      })),
-    };
-
     try {
-      await addStudents(payloadToAPI); // 👈 Gọi API
-      alert("Students added successfully!");
+      if (isEditing) {
+        const updatedStudent = {
+          fullName: students[0].fullName,
+          dateOfBirth: students[0].dob,
+          gender: students[0].gender,
+          classId: parseInt(students[0].classId),
+        };
+
+        await updateStudent(defaultData.studentId, updatedStudent);
+        alert("Student updated successfully!");
+      } else {
+        const payloadToAPI = {
+          guardianId: guardianInfo!.userId!,
+          students: students.map((s) => ({
+            fullName: s.fullName,
+            dateOfBirth: s.dob,
+            gender: s.gender,
+            classId: parseInt(s.classId),
+          })),
+        };
+
+        await addStudents(payloadToAPI);
+        alert("Students added successfully!");
+      }
+
+      onSubmit({
+        students,
+        guardianName: guardianInfo?.fullName || "",
+        guardianPhone: guardianInfo?.phoneNumber || "",
+      });
+
+      if (!isEditing) {
+        setStudents([{ fullName: "", dob: "", gender: "", classId: "" }]);
+        handleClearGuardian();
+      }
     } catch (err) {
       console.error(err);
-      alert("Error adding students.");
+      alert(isEditing ? "Error updating student." : "Error adding students.");
     }
-
-    onSubmit({
-      students,
-      guardianId: guardianInfo.userId,
-      guardianName: guardianInfo.fullName,
-      guardianPhone: guardianInfo.phoneNumber,
-    });
-
-    setStudents([{ fullName: "", dob: "", gender: "", classId: "" }]);
-    handleClearGuardian();
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* STUDENT LEFT */}
+        {/* STUDENT SECTION */}
         <div className="space-y-4">
           <h3 className="font-semibold text-lg">Student Information</h3>
           <div className="max-h-[400px] overflow-y-auto space-y-4 pr-2">
@@ -196,63 +230,64 @@ export default function StudentForm({ classList, onSubmit }: StudentFormProps) {
               </div>
             ))}
           </div>
-          <Button
-            type="button"
-            onClick={handleAddStudent}
-            variant="secondary"
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add Student
-          </Button>
+          {!isEditing && (
+            <Button
+              type="button"
+              onClick={handleAddStudent}
+              variant="secondary"
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add Student
+            </Button>
+          )}
         </div>
 
-        {/* GUARDIAN RIGHT */}
+        {/* GUARDIAN SECTION */}
         <div className="space-y-4">
           <h3 className="font-semibold text-lg">Guardian Information</h3>
-          <div>
-            <Label>Email or Phone</Label>
-            <div className="flex gap-2">
-              <Input
-                value={guardianInput}
-                onChange={(e) => setGuardianInput(e.target.value)}
-                placeholder="Enter email or phone"
-                required
-              />
-              <Button type="button" variant="outline" onClick={handleSearchGuardian}>
-                Search
-              </Button>
-              {guardianInfo && (
-                <Button type="button" variant="ghost" onClick={handleClearGuardian}>
-                  X
+          {!isEditing && (
+            <>
+              <Label>Email or Phone</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={guardianInput}
+                  onChange={(e) => setGuardianInput(e.target.value)}
+                  placeholder="Enter email or phone"
+                  required
+                />
+                <Button type="button" variant="outline" onClick={handleSearchGuardian}>
+                  Search
                 </Button>
-              )}
-            </div>
-
-            {guardianInfo && hasSearched ? (
-              <div className="mt-2 border rounded-md p-3 bg-gray-50 text-sm space-y-1">
-                <p>
-                  <span className="font-medium">Name:</span> {guardianInfo.fullName}
-                </p>
-                <p>
-                  <span className="font-medium">Email:</span> {guardianInfo.email}
-                </p>
-                <p>
-                  <span className="font-medium">Phone:</span> {guardianInfo.phoneNumber}
-                </p>
+                {guardianInfo && (
+                  <Button type="button" variant="ghost" onClick={handleClearGuardian}>
+                    X
+                  </Button>
+                )}
               </div>
-            ) : (
-              hasSearched &&
-              !guardianInfo && (
-                <p className="text-sm text-red-500 mt-1">User not found</p>
-              )
-            )}
-          </div>
+            </>
+          )}
+
+          {guardianInfo && hasSearched ? (
+            <div className="mt-2 border rounded-md p-3 bg-gray-50 text-sm space-y-1">
+              <p>
+                <span className="font-medium">Name:</span> {guardianInfo.fullName}
+              </p>
+              <p>
+                <span className="font-medium">Phone:</span> {guardianInfo.phoneNumber}
+              </p>
+            </div>
+          ) : (
+            hasSearched &&
+            !guardianInfo && (
+              <p className="text-sm text-red-500 mt-1">User not found</p>
+            )
+          )}
         </div>
       </div>
 
       <div className="flex justify-end">
-        <Button type="submit">Save</Button>
+        <Button type="submit">{isEditing ? "Update" : "Save"}</Button>
       </div>
     </form>
   );

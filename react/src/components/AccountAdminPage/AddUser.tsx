@@ -3,7 +3,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { getuser } from "../../service/serviceauth";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import AddUserForm from "./AddUserForm";
 import EditUserForm from "./EditUserForm";
 import AddFileForm from "./AddFileForm";
@@ -24,9 +29,9 @@ export default function AccountManager() {
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [openAddUserDialog, setOpenAddUserDialog] = useState(false);
   const [openAddFileDialog, setOpenAddFileDialog] = useState(false);
-  const [expandedDialog, setExpandedDialog] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [expandedDialog, setExpandedDialog] = useState(false); // chỉ dùng cho Add User
   const itemsPerPage = 10;
 
   const refreshUsers = async () => {
@@ -42,7 +47,7 @@ export default function AccountManager() {
     refreshUsers();
   }, []);
 
-  const filteredAccounts = users.filter(account =>
+  const filteredAccounts = users.filter((account) =>
     account.fullName.toLowerCase().includes(search.toLowerCase()) ||
     account.email.toLowerCase().includes(search.toLowerCase())
   );
@@ -54,8 +59,10 @@ export default function AccountManager() {
   );
 
   const handleUpdate = (updatedUser: Account) => {
-    setUsers(prev =>
-      prev.map(user => (user.userId === updatedUser.userId ? updatedUser : user))
+    setUsers((prev) =>
+      prev.map((user) =>
+        user.userId === updatedUser.userId ? updatedUser : user
+      )
     );
     setSelectedAccount(null);
   };
@@ -78,7 +85,7 @@ export default function AccountManager() {
 
         <div className="relative">
           <Button
-            onClick={() => setDropdownOpen(prev => !prev)}
+            onClick={() => setDropdownOpen((prev) => !prev)}
             className="bg-blue-600 text-white hover:bg-blue-700"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -131,11 +138,16 @@ export default function AccountManager() {
           <tbody>
             {paginatedAccounts.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center p-5 text-gray-500">No users found.</td>
+                <td colSpan={6} className="text-center p-5 text-gray-500">
+                  No users found.
+                </td>
               </tr>
             ) : (
-              paginatedAccounts.map(account => (
-                <tr key={account.email} className="border-t hover:bg-blue-50 transition-colors">
+              paginatedAccounts.map((account) => (
+                <tr
+                  key={account.email}
+                  className="border-t hover:bg-blue-50 transition-colors"
+                >
                   <td className="p-3">{account.fullName}</td>
                   <td className="p-3">{account.email}</td>
                   <td className="p-3">{account.phoneNumber}</td>
@@ -168,17 +180,20 @@ export default function AccountManager() {
         />
       )}
 
-      {/* Dialogs */}
-      <Dialog open={openAddUserDialog} onOpenChange={(val) => {
-        setOpenAddUserDialog(val);
-        if (!val) setExpandedDialog(false);
-      }}>
+      {/* Add User Dialog (can expand) */}
+      <Dialog
+        open={openAddUserDialog}
+        onOpenChange={(val) => {
+          setOpenAddUserDialog(val);
+          if (!val) setExpandedDialog(false);
+        }}
+      >
         <DialogContent className={expandedDialog ? "!max-w-[1000px]" : "!max-w-[600px]"}>
           <DialogTitle>Add a new account</DialogTitle>
           <DialogDescription>Fill in the user information.</DialogDescription>
           <AddUserForm
             onSubmit={(newUser) => {
-              setUsers(prev => [newUser, ...prev]);
+              setUsers((prev) => [newUser, ...prev]);
               setOpenAddUserDialog(false);
               setExpandedDialog(false);
             }}
@@ -187,6 +202,7 @@ export default function AccountManager() {
         </DialogContent>
       </Dialog>
 
+      {/* Add File Dialog */}
       <Dialog open={openAddFileDialog} onOpenChange={setOpenAddFileDialog}>
         <DialogContent>
           <DialogTitle>Import users from file</DialogTitle>
@@ -200,8 +216,9 @@ export default function AccountManager() {
         </DialogContent>
       </Dialog>
 
+      {/* Edit User Dialog (fixed size) */}
       <Dialog open={!!selectedAccount} onOpenChange={() => setSelectedAccount(null)}>
-        <DialogContent className="!max-w-[1000px]">
+        <DialogContent className="!max-w-[600px]">
           <DialogTitle>Edit user</DialogTitle>
           <DialogDescription>Modify user details below.</DialogDescription>
           {selectedAccount && (

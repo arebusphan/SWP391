@@ -45,7 +45,7 @@ namespace BLL.UserService
             user = await _repo.AddAsync(user);
 
             // ✅ Nếu có danh sách học sinh thì thêm
-            if (dto.Students != null && dto.Students.Any())
+            if (dto.Students != null)
             {
                 await _studentService.AddStudentsAsync(dto.Students, user.UserId);
             }

@@ -16,6 +16,7 @@ export type ParentofStudent = {
   fullName: string;
   dateOfBirth: string;
   gender: string;
+  className: string; // ➕ Thêm field className
   guardianId: number;
   guardianName: string;
   guardianPhone: string;
@@ -26,9 +27,8 @@ export default function InfoofParent() {
   const [students, setStudents] = useState<ParentofStudent[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<ParentofStudent | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
-
-  // ✅ Alert state moved here
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleAddAlert = (alert: Omit<AlertItem, "id">) => {
     setAlerts((prev) => [
@@ -55,6 +55,8 @@ export default function InfoofParent() {
           title: "Error",
           description: "Failed to fetch students.",
         });
+      } finally {
+        setLoading(false);
       }
     }
     fetchStudents();
@@ -62,82 +64,89 @@ export default function InfoofParent() {
 
   const formatDate = (dateStr: string) => dateStr?.split("T")[0];
 
-    return (
-        <div className="p-6 max-w-6xl mx-auto relative">
-            {/* Alert */}
-            <div className="fixed top-20 right-6 z-[9999]">
-                <AlertNotification alerts={alerts} onRemove={handleRemoveAlert} />
-            </div>
+  return (
+    <div className="p-6 max-w-6xl mx-auto relative">
+      {/* Alert */}
+      <div className="fixed top-20 right-6 z-[9999]">
+        <AlertNotification alerts={alerts} onRemove={handleRemoveAlert} />
+      </div>
 
-            {/* Tiêu đề tổng */}
-            <h1 className="text-3xl font-bold text-blue-900 mb-8 text-center drop-shadow-md">
-                📋 Parent Dashboard
-            </h1>
+      {/* Tiêu đề tổng */}
+      <h1 className="text-3xl font-bold text-blue-900 mb-8 text-center drop-shadow-md">
+        📋 Parent Dashboard
+      </h1>
 
-            {/* Nội dung chính */}
-            <div className="flex flex-col lg:flex-row gap-6 border-4 border-blue-400 rounded-2xl p-6 bg-white shadow-xl">
-                {/* Parent Info */}
-                <div className="w-full lg:w-1/2">
-                    <h2 className="text-xl font-bold text-blue-800 mb-4">👨‍👩‍👧 Parent Information</h2>
-                    <div className="space-y-3 text-gray-700">
-                        <p><strong>Name:</strong> {user?.Name || "—"}</p>
-                        <p><strong>Phone:</strong> {user?.Phone || "—"}</p>
-                        <p><strong>Email:</strong> {user?.Email || "—"}</p>
-                    </div>
-                </div>
-
-                {/* Connected Students */}
-                <div className="w-full lg:w-1/2">
-                    <h2 className="text-xl font-bold text-blue-800 mb-4">🎓 Connected Students</h2>
-                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1 bg-blue-50 rounded-lg p-2">
-                        {students.map((student) => (
-                            <div
-                                key={student.studentId}
-                                className="cursor-pointer border border-gray-300 rounded-lg p-4 bg-white hover:border-blue-500 hover:shadow-md transition"
-                                onClick={() => {
-                                    setSelectedStudent(student);
-                                    setOpenDialog(true);
-                                }}
-                            >
-                                <div className="flex flex-wrap gap-4 mb-2 text-gray-800">
-                                    <p><strong>Name:</strong> {student.fullName}</p>
-                                    <p><strong>Gender:</strong> {student.gender}</p>
-                                </div>
-                                <div className="text-gray-700">
-                                    <p><strong>Date of Birth:</strong> {formatDate(student.dateOfBirth)}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* Dialog giữ nguyên */}
-            <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-                <DialogContent className="!w-full !max-w-[800px]">
-                    <DialogTitle className="text-blue-700 text-xl font-semibold">
-                        Student Health Info
-                    </DialogTitle>
-                    <DialogDescription className="text-gray-600 mb-4">
-                        View and update yearly health declaration
-                    </DialogDescription>
-
-                    {selectedStudent && (
-                        <ViewHealthProfile
-                            student={selectedStudent}
-                            onSubmit={() => {
-                                handleAddAlert({
-                                    type: "success",
-                                    title: "Updated",
-                                    description: "Student health profile updated.",
-                                });
-                            }}
-                            onAlert={handleAddAlert}
-                        />
-                    )}
-                </DialogContent>
-            </Dialog>
+      {/* Nội dung chính */}
+      <div className="flex flex-col lg:flex-row gap-6 border-4 border-blue-400 rounded-2xl p-6 bg-white shadow-xl">
+        {/* Parent Info */}
+        <div className="w-full lg:w-1/2">
+          <h2 className="text-xl font-bold text-blue-800 mb-4">👨‍👩‍👧 Parent Information</h2>
+          <div className="space-y-3 text-gray-700">
+            <p><strong>Name:</strong> {user?.Name || "—"}</p>
+            <p><strong>Phone:</strong> {user?.Phone || "—"}</p>
+            <p><strong>Email:</strong> {user?.Email || "—"}</p>
+          </div>
         </div>
-    );
 
+        {/* Connected Students */}
+        <div className="w-full lg:w-1/2">
+          <h2 className="text-xl font-bold text-blue-800 mb-4">🎓 Connected Students</h2>
+          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1 bg-blue-50 rounded-lg p-2">
+            {loading ? (
+              <p className="text-gray-500 px-2">Loading students...</p>
+            ) : students.length === 0 ? (
+              <p className="text-gray-500 px-2">No students connected.</p>
+            ) : (
+              students.map((student) => (
+                <div
+                  key={student.studentId}
+                  className="cursor-pointer border border-gray-300 rounded-lg p-4 bg-white hover:border-blue-500 hover:shadow-md transition"
+                  onClick={() => {
+                    setSelectedStudent(student);
+                    setOpenDialog(true);
+                  }}
+                >
+                  <div className="flex flex-wrap gap-4 mb-2 text-gray-800">
+                    <p><strong>Name:</strong> {student.fullName}</p>
+                    <p><strong>Gender:</strong> {student.gender}</p>
+                    <p><strong>Class:</strong> {student.className}</p>
+                  </div>
+                  <div className="text-gray-700">
+                    <p><strong>Date of Birth:</strong> {formatDate(student.dateOfBirth)}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Dialog */}
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="!w-full !max-w-[800px]">
+          <DialogTitle className="text-blue-700 text-xl font-semibold">
+            Student Health Info
+          </DialogTitle>
+          <DialogDescription className="text-gray-600 mb-4">
+            View and update yearly health declaration
+          </DialogDescription>
+
+          {selectedStudent && (
+            <ViewHealthProfile
+              student={selectedStudent}
+              onSubmit={() => {
+                handleAddAlert({
+                  type: "success",
+                  title: "Updated",
+                  description: "Student health profile updated.",
+                });
+                setOpenDialog(false); // Optional: close after submit
+              }}
+              onAlert={handleAddAlert}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }

@@ -22,5 +22,6 @@ namespace DAL.Repositories
             return await _context.Classes
                 .FirstOrDefaultAsync(c => c.ClassName.ToLower() == className.ToLower());
         }
+
     }
 }

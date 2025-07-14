@@ -20,12 +20,14 @@ namespace DAL.Repositories
         public List<Students> GetStudentsByGuardian(int guardianId)
         {
             return _context.Students
-                .Include(s => s.Guardian) // Bao gồm thông tin người giám hộ
-                .Where(s => s.GuardianId == guardianId) // Lọc theo GuardianId
+                .Include(s => s.Class)     // ✅ THÊM dòng này để có thông tin lớp học
+                .Include(s => s.Guardian)  // Bao gồm thông tin người giám hộ
+                .Where(s => s.GuardianId == guardianId)
                 .ToList(); // Trả về danh sách học sinh
         }
 
-       
+
+
         public List<StudentBasicInfoDTO> GetAllBasicProfiles()
         {
             return _context.Students
@@ -75,7 +77,8 @@ namespace DAL.Repositories
         public async Task<List<StudentDTO>> GetStudentDTOsAsync()
         {
             return await _context.Students
-                .Include(s => s.Guardian) // Bao gồm Guardian để lấy thông tin liên quan
+                .Include(s => s.Guardian)
+                .Include(s => s.Class) // 👈 Bao gồm thông tin Class
                 .Select(s => new StudentDTO
                 {
                     StudentId = s.StudentId,
@@ -84,10 +87,13 @@ namespace DAL.Repositories
                     Gender = s.Gender,
                     GuardianId = s.Guardian.UserId,
                     GuardianName = s.Guardian.FullName,
-                    GuardianPhone = s.Guardian.PhoneNumber
+                    GuardianPhone = s.Guardian.PhoneNumber,
+                    ClassName = s.Class.ClassName,
+                    ClassId = s.Class.ClassId 
                 })
-                .ToListAsync(); // Trả về danh sách DTO đầy đủ
+                .ToListAsync();
         }
+
         public async Task<Students?> GetGuardianEmailByStudentIdAsync(int studentId)
         {
             return await _context.Students
@@ -111,6 +117,10 @@ namespace DAL.Repositories
                 .Where(s => classIds.Contains(s.ClassId))
                 .ToListAsync();
         }
-
+        public async Task UpdateAsync(Students student)
+        {
+            _context.Students.Update(student);
+           _context.SaveChanges();
+        }
     }
 }

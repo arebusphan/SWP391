@@ -10,5 +10,7 @@
         public int GuardianId { get; set; }
         public string GuardianName { get; set; }
         public string GuardianPhone { get; set; }
+        public string ClassName {  get; set; }
+        public int ClassId { get; set; }
     }
 }
