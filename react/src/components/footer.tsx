@@ -65,7 +65,7 @@ const Footer = () => {
                 className="
           bg-blue-50 text-gray-700
           shadow-[inset_0_6px_12px_-6px_rgba(0,0,0,0.15)]
-          border-t-4 border-blue-400
+          border-t-4 border-blue-300
           rounded-t-2xl
           relative z-10
         "

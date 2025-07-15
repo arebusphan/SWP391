@@ -85,7 +85,7 @@ const Navbar = () => {
     <>
       {/* Vùng hover */}
       <div
-        className={`fixed z-30 h-20 top-0 transition-all duration-500 ease-in-out
+        className={`fixed z-30 h-20 top-0 transition-all duration-500 ease-in-out 
           ${roundClass}
           ${isDashboardRoute ? "left-10 right-4" : "left-0 right-0"}`}
         onMouseEnter={handleMouseEnter}

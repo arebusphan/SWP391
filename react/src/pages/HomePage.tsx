@@ -21,7 +21,9 @@ const HomePage = () => {
 
           
             <div className="relative z-10">
-                <div className="min-h-40 mb-20">
+                <div className="min-h-40 mb-20 bg-blue-50             
+    border-4 border-blue-300 
+    rounded-2xl shadow-xl  ">
                     <Banner />
                 </div>
 
@@ -29,7 +31,7 @@ const HomePage = () => {
                 <div
                     className="
     bg-blue-50             
-    border-4 border-blue-400 
+    border-4 border-blue-300 
     rounded-2xl shadow-xl  
 mb-20
   
@@ -41,7 +43,7 @@ mb-20
                 <div
                     className="
     bg-blue-50             
-    border-4 border-blue-400 
+    border-4 border-blue-300 
     rounded-2xl shadow-xl  
 
   
