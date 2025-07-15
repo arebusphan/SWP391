@@ -135,10 +135,10 @@ const HealthCheckForm = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-8 space-y-8">
-        <h2 className="text-3xl font-extrabold text-blue-700 text-center tracking-tight">
-          🩺 Periodic Health Check
+    <div className="min-h-screen">
+      <div className=" mx-auto ">
+        <h2 className="text-4xl font-bold text-blue-800 p-10">
+          Periodic Health Check
         </h2>
 
         <AlertNotification alerts={alerts} onRemove={removeAlert} />

@@ -138,8 +138,8 @@ const StudentProfileList = () => {
 
         setSendingReminder(true);
         try {
-            await axios.post(
-                "https://localhost:7195/api/HealthProfile/send-reminder",
+            await apiser.post(
+                "/HealthProfile/send-reminder",
                 { studentIds: selectedForReminder },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -155,8 +155,8 @@ const StudentProfileList = () => {
 
     return (
         <>
-            <div className={`max-w-6xl mx-auto p-6 bg-white rounded-2xl shadow-lg transition-all duration-300 ${selectedStudent ? 'blur-sm pointer-events-none select-none' : ''}`}>
-                <h2 className="text-3xl font-extrabold text-gray-800 mb-6">🎓 Student Profiles</h2>
+            <div className={` mx-auto  transition-all duration-300 ${selectedStudent ? 'blur-sm pointer-events-none select-none' : ''}`}>
+                <h2 className="text-4xl font-bold p-10 text-blue-800">Student Profiles</h2>
 
                 {/* Filters */}
                 <div className="flex flex-wrap gap-4 mb-6 items-center">

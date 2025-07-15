@@ -182,7 +182,7 @@ export const getMedicationRequestHistory = (params?: {
 export const getNotifications = () => {
   const token = localStorage.getItem("token");
 
-  return apiser.get("/notifications", {
+  return apiser.get("/HealthNotification/get", {   
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -227,11 +227,15 @@ export const postIncident = async (
     description: string,
     handledBy: string,
     occurredAt: string,
+    studentName: string,
+    className: string,
     suppliesUsed: { supplyId: number; quantityUsed: number }[]
 ) => {
     return apiser.post("/Incident/post", {
         studentId,
         classId,
+        studentName,
+        className,
         incidentName,
         description,
         handledBy,
@@ -249,9 +253,9 @@ export const AddSupplyToInventory = async (
     });
 };
 export const GetSupplies = async () => {
-    return await apiser.get("/MedicalSupplies/get");
-
-}
+    const res = await apiser.get("/MedicalSupplies/get");
+    return res.data;
+};
 export const getAllStudents = async () => {
   const token = localStorage.getItem("token");
 

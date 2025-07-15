@@ -169,13 +169,14 @@ export default function VaccineResultForm() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-8 bg-white mt-10 shadow-lg rounded-2xl">
+    <div className=" mx-auto">
       <AlertNotification alerts={alerts} onRemove={removeAlert} />
 
-      <h2 className="text-3xl font-bold mb-8 text-center text-blue-800">💉 Vaccine Result</h2>
+      <h2 className="text-4xl font-bold text-blue-800 p-10">Vaccine Result</h2>
 
       {/* Filters & Export */}
-      <div className="flex flex-wrap gap-4 mb-8 justify-center items-center">
+          <div className="flex flex-wrap gap-4 mb-8 justify-center items-center">
+      Vaccin Name:
         <select
           className="border px-4 h-10 rounded-lg shadow-sm text-sm"
           value={selectedNotificationId}
@@ -183,14 +184,14 @@ export default function VaccineResultForm() {
             setSelectedNotificationId(+e.target.value);
             setCurrentPage(1);
           }}
-        >
+              >
           {notifications.map((n) => (
             <option key={n.notificationId} value={n.notificationId}>
               {n.eventName} ({n.eventDate})
             </option>
           ))}
         </select>
-
+        Class:
         <select
           className="border px-4 h-10 rounded-lg shadow-sm text-sm"
           value={selectedClassId}
@@ -205,7 +206,7 @@ export default function VaccineResultForm() {
             </option>
           ))}
         </select>
-
+        Status:
         <select
           className="border px-4 h-10 rounded-lg shadow-sm text-sm"
           value={filterVaccine}

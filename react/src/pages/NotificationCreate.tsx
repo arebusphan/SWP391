@@ -135,9 +135,9 @@ const NotificationCreate = () => {
     const totalPages = Math.ceil(history.length / itemsPerPage);
 
     return (
-        <div className="max-w-5xl mx-auto p-8 mt-10 bg-white rounded-2xl shadow-xl space-y-10">
+        <div className=" mx-auto  ">
             {/* Header */}
-            <h2 className="text-3xl font-extrabold text-blue-700 tracking-tight">📢 Send Health Notification</h2>
+            <h2 className="text-4xl p-10 font-bold text-blue-900 ">Send Health Notification</h2>
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-8">
@@ -248,11 +248,11 @@ const NotificationCreate = () => {
 
             {/* History */}
             <div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-4">📜 Sent Notifications History</h3>
+                <h3 className="text-2xl font-bold text-blue-800 p-10">Sent Notifications History</h3>
 
                 <div className="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
                     <table className="min-w-full text-sm text-left">
-                        <thead className="bg-gray-100 text-gray-700">
+                        <thead className="bg-blue-100 text-blue-900">
                             <tr>
                                 <th className="px-4 py-2">Event</th>
                                 <th className="px-4 py-2">Type</th>

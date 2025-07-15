@@ -109,11 +109,12 @@ const ConfirmStudentList = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto p-8 bg-white mt-10 shadow-lg rounded-2xl">
-            <h2 className="text-3xl font-bold mb-8 text-center text-blue-800">💉 Vaccination Confirmation</h2>
+        <div className=" mx-auto ">
+            <h2 className="text-4xl font-bold p-10 text-blue-800">Vaccination Confirmation</h2>
 
             {/* Bộ lọc */}
-            <div className="flex flex-wrap gap-4 mb-8 justify-center items-center">
+            <div className="flex flex-wrap gap-4 mb-8  items-center">
+            Vaccin Event:
                 <select
                     className="border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     value={selectedNotificationId}
@@ -125,7 +126,7 @@ const ConfirmStudentList = () => {
                         </option>
                     ))}
                 </select>
-
+                Class
                 <select
                     className="border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     value={selectedClassId}
@@ -138,7 +139,7 @@ const ConfirmStudentList = () => {
                     ))}
                 </select>
 
-                <label className="flex items-center gap-2 text-sm">
+             
                     Filter Status:
                     <select
                         className="border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"
@@ -150,7 +151,7 @@ const ConfirmStudentList = () => {
                         <option value="Pending">Pending</option>
                         <option value="Declined">Declined</option>
                     </select>
-                </label>
+               
             </div>
 
             {/* Danh sách học sinh */}

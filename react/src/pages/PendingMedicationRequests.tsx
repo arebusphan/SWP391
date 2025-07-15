@@ -193,7 +193,8 @@ export default function PendingMedicationRequests() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-10 pt-6 animate-fade-in">
+      <div className=" mx-auto  animate-fade-in">
+          <div className="text-4xl font-bold p-10 text-blue-800">Request For Medicine</div>
       <div className="mb-4">
         <AlertNotification
           alerts={alerts}
@@ -248,7 +249,7 @@ export default function PendingMedicationRequests() {
         onImageClick={(img) => setSelectedImage(img)}
       />
 
-      <div className="flex justify-end gap-2">
+      <div className="flex justify-end p-5 gap-2">
         <button
           className={`px-3 py-1 text-sm rounded border ${
             viewMode === "approved"
