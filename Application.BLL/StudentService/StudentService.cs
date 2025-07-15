@@ -41,24 +41,34 @@ public class StudentService : IStudentService
 
     public async Task AddStudentsAsync(List<StudentAddDTO> studentDtos, int guardianId)
     {
-        var validStudents = studentDtos
-            .Where(s => !string.IsNullOrWhiteSpace(s.FullName)
-                     && s.DateOfBirth != default
-                     && !string.IsNullOrWhiteSpace(s.Gender))
-            .Select(s => new Students
+        if (studentDtos == null || studentDtos.Count == 0)
+            return;
+
+        var validStudents = new List<Students>();
+
+        foreach (var s in studentDtos)
+        {
+            // Kiểm tra từng trường tránh lỗi null
+            if (string.IsNullOrWhiteSpace(s.FullName)) continue;
+            if (s.DateOfBirth == default) continue;
+            if (string.IsNullOrWhiteSpace(s.Gender)) continue;
+
+            validStudents.Add(new Students
             {
                 FullName = s.FullName,
                 DateOfBirth = s.DateOfBirth,
                 Gender = s.Gender,
                 GuardianId = guardianId,
-                ClassId = s.ClassId,
-            }).ToList();
+                ClassId = s.ClassId
+            });
+        }
 
-        if (validStudents.Any())
+        if (validStudents.Count > 0)
         {
             await _studentRepository.AddAsync(validStudents);
         }
     }
+
     public async Task<IEnumerable<StudentDTO>> GetStudentsByClassAsync(int classId)
     {
         return await _studentRepository.GetByClassIdAsync(classId);
