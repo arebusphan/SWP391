@@ -63,18 +63,18 @@ namespace BLL.IncidentService
 
      
                 var body = new StringBuilder();
-                body.AppendLine("📋 THÔNG BÁO SỰ CỐ Y TẾ");
-                body.AppendLine($"👦 Học sinh: {student.FullName}");
-                body.AppendLine($"🏫 Lớp: {student.Class?.ClassName}");
-                body.AppendLine($"⚠️ Sự cố: {dto.IncidentName}");
-                body.AppendLine($"📝 Mô tả: {dto.Description}");
-                body.AppendLine($"👩‍⚕️ Người xử lý: {dto.HandledBy}");
-                body.AppendLine($"🕒 Thời gian: {(dto.OccurredAt ?? DateTime.Now):dd/MM/yyyy HH:mm}");
+                body.AppendLine("Incident Notification");
+                body.AppendLine($"Student: {student.FullName}");
+                body.AppendLine($"Class: {student.Class?.ClassName}");
+                body.AppendLine($"Incident: {dto.IncidentName}");
+                body.AppendLine($"Description: {dto.Description}");
+                body.AppendLine($"Handle by: {dto.HandledBy}");
+                body.AppendLine($"Time: {(dto.OccurredAt ?? DateTime.Now):dd/MM/yyyy HH:mm}");
 
            
                 var mail = new MailMessage(fromEmail, toEmail)
                 {
-                    Subject = "Thông báo sự cố y tế học sinh",
+                    Subject = "Incident Notification",
                     Body = body.ToString(),
                     IsBodyHtml = false
                 };

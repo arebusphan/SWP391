@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getAllClass, getStudentsByClassId, GetSupplies, postIncident } from "@/service/serviceauth";
 import IncidentHistory from "./IncidentHistory";
+import IncidentHistoryGroup from "./IncidentHistory";
 
 export default function IncidentFormFull() {
     const [classes, setClasses] = useState<any[]>([]);
@@ -18,7 +19,7 @@ export default function IncidentFormFull() {
     const [incidentName, setIncidentName] = useState("");
     const [description, setDescription] = useState("");
     const [handledBy, setHandledBy] = useState("");
-
+    const [refreshHistory, setRefreshHistory] = useState(false);
     const [supplies, setSupplies] = useState<any[]>([]);
     const [selectedSupplyId, setSelectedSupplyId] = useState<number>(0);
     const [supplyQuantity, setSupplyQuantity] = useState<number>(1);
@@ -158,6 +159,7 @@ export default function IncidentFormFull() {
         }
 
         alert("Incident report submitted successfully!");
+        setRefreshHistory(true);
         resetForm();
     };
 
@@ -375,7 +377,10 @@ export default function IncidentFormFull() {
                 </button>
             </div>
             </div>
-            <IncidentHistory />
+            <IncidentHistoryGroup
+                refresh={refreshHistory}
+                onRefreshed={() => setRefreshHistory(false)}
+            />
 
         </div>
     );

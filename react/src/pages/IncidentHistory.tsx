@@ -1,37 +1,53 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
-
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { GetIncidentHistory } from "../service/serviceauth";
 
-// ✅ Hàm nhóm sự cố chỉ theo incidentName
+interface Props {
+    refresh: boolean;
+    onRefreshed: () => void;
+}
+
+// ✅ Hàm nhóm và sắp xếp giảm dần theo thời gian
 function groupIncidentsByEvent(incidents: any[]) {
     const groups: { [key: string]: any[] } = {};
 
     incidents.forEach((incident) => {
         const key = incident.incidentName;
-
         if (!groups[key]) {
             groups[key] = [];
         }
         groups[key].push(incident);
     });
 
-    // Trả về mảng object group
-    return Object.entries(groups).map(([incidentName, incidents]) => ({
-        incidentName,
-        incidents,
-    }));
+    return Object.entries(groups)
+        .map(([incidentName, incidents]) => ({
+            incidentName,
+            incidents,
+            latestTime: Math.max(...incidents.map(i => new Date(i.createdAt).getTime())),
+        }))
+        .sort((a, b) => b.latestTime - a.latestTime);
 }
 
-export default function IncidentHistoryGroup() {
+export default function IncidentHistoryGroup({ refresh, onRefreshed }: Props) {
     const [incidents, setIncidents] = useState<any[]>([]);
     const [selectedGroup, setSelectedGroup] = useState<any | null>(null);
 
+    const fetchData = async () => {
+        const data = await GetIncidentHistory();
+        setIncidents(data);
+    };
+
     useEffect(() => {
-        GetIncidentHistory().then(setIncidents);
+        fetchData();
     }, []);
+
+    useEffect(() => {
+        if (refresh) {
+            fetchData().then(() => onRefreshed());
+        }
+    }, [refresh]);
 
     const groupedIncidents = groupIncidentsByEvent(incidents);
 
@@ -55,7 +71,6 @@ export default function IncidentHistoryGroup() {
                 ))}
             </div>
 
-            {/* Dialog hiển thị chi tiết học sinh trong sự kiện */}
             {selectedGroup && (
                 <Dialog open={true} onOpenChange={() => setSelectedGroup(null)}>
                     <DialogContent className="rounded-2xl max-w-2xl">
