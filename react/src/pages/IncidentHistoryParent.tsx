@@ -49,7 +49,7 @@ const IncidentHistoryParent = () => {
 
     return (
         <div>
-            <h2 className="text-4xl font-bold text-center text-blue-900 drop-shadow p-10">
+            <h2 className="text-4xl font-bold  text-blue-800 p-10">
                 Incident History
             </h2>
         <div className="  rounded-2xl shadow-md mx-auto drop-shadow">

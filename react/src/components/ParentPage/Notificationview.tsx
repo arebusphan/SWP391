@@ -1,13 +1,12 @@
 ﻿import { useEffect, useState } from "react";
 import { getNotifications } from "@/service/serviceauth";
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
 interface EventNotification {
     id: number;
@@ -18,10 +17,15 @@ interface EventNotification {
     eventImage: string;
 }
 
+const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return isNaN(date.getTime()) ? "N/A" : date.toLocaleString("vi-VN");
+};
+
 export default function NotificationPage() {
     const [notifications, setNotifications] = useState<EventNotification[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [selected, setSelected] = useState<EventNotification | null>(null);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const itemsPerPage = 6;
 
     useEffect(() => {
@@ -30,125 +34,107 @@ export default function NotificationPage() {
             .catch((err) => console.error("Error loading notifications:", err));
     }, []);
 
-    const indexOfLast = currentPage * itemsPerPage;
-    const indexOfFirst = indexOfLast - itemsPerPage;
-    const currentItems = notifications.slice(indexOfFirst, indexOfLast);
     const totalPages = Math.ceil(notifications.length / itemsPerPage);
-
-    const getPaginationRange = () => {
-        const maxPagesToShow = 5;
-        let start = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-        let end = start + maxPagesToShow - 1;
-        if (end > totalPages) {
-            end = totalPages;
-            start = Math.max(1, end - maxPagesToShow + 1);
-        }
-        return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-    };
+    const currentItems = notifications.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
     return (
-        <div className="p-6 max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6 text-center text-blue-500">All Notifications</h1>
+        <div className=" mx-auto ">
+            <h1 className="text-4xl font-bold  text-blue-900 drop-shadow p-10">
+                Event Notifications
+            </h1>
 
-            <div className="space-y-4">
+            <div className="rounded-2xl shadow-md drop-shadow">
                 {notifications.length === 0 ? (
-                    <p className="text-gray-500">No notifications found.</p>
+                    <div className="text-gray-500 italic text-center">
+                        No notifications found.
+                    </div>
                 ) : (
-                    currentItems.map((note) => (
-                        <div
-                            key={note.id}
-                            className="border rounded-md shadow-sm bg-white p-4 hover:shadow-md transition"
-                        >
-                            <div className="flex justify-between items-center">
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                                    <span className="text-sm font-semibold bg-gray-100 px-2 py-1 rounded">
-                                        {note.eventType}
-                                    </span>
-                                    <span className="text-xs text-gray-500">
-                                        {new Date(note.eventDate).toLocaleString()}
-                                    </span>
-                                </div>
-
-                                <button
-                                    onClick={() => setSelected(note)}
-                                    className="text-blue-600 text-sm hover:underline"
-                                >
-                                    View
-                                </button>
-                            </div>
+                    <>
+                        <div className="overflow-x-auto bg-white rounded-xl shadow border border-gray-300">
+                            <table className="w-full text-sm text-center">
+                                <thead className="bg-blue-900 text-white">
+                                    <tr>
+                                        <th className="border px-3 py-2">#</th>
+                                        <th className="border px-3 py-2">Event Name</th>
+                                        <th className="border px-3 py-2">Event Type</th>
+                                        <th className="border px-3 py-2">Date</th>
+                                        <th className="border px-3 py-2">Class</th>
+                                        <th className="border px-3 py-2">Image</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {currentItems.map((note, index) => (
+                                        <tr
+                                            key={note.id}
+                                            className="hover:bg-blue-50 transition border-b text-gray-800"
+                                        >
+                                            <td className="border px-3 py-2">
+                                                {(currentPage - 1) * itemsPerPage + index + 1}
+                                            </td>
+                                            <td className="border px-3 py-2">{note.eventName}</td>
+                                            <td className="border px-3 py-2">{note.eventType}</td>
+                                            <td className="border px-3 py-2">{formatDate(note.eventDate)}</td>
+                                            <td className="border px-3 py-2">{note.className || "N/A"}</td>
+                                            <td className="border px-3 py-2">
+                                                {note.eventImage ? (
+                                                    <img
+                                                        src={note.eventImage}
+                                                        alt="event"
+                                                        className="h-16 object-contain rounded mx-auto cursor-pointer hover:opacity-80 transition"
+                                                        onClick={() => setSelectedImage(note.eventImage)}
+                                                    />
+                                                ) : (
+                                                    <span className="text-gray-400 italic">No image</span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
-                    ))
+
+                        {/* Pagination */}
+                        <div className="flex justify-center items-center gap-4 mt-6">
+                            <Button
+                                variant="outline"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage((prev) => prev - 1)}
+                                className="border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white"
+                            >
+                                Previous
+                            </Button>
+                            <span className="text-gray-700 font-medium">
+                                Page {currentPage} / {totalPages}
+                            </span>
+                            <Button
+                                variant="outline"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage((prev) => prev + 1)}
+                                className="border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white"
+                            >
+                                Next
+                            </Button>
+                        </div>
+                    </>
                 )}
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <div className="flex justify-center mt-6 space-x-2">
-                    <button
-                        onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                        className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                        disabled={currentPage === 1}
-                    >
-                        Prev
-                    </button>
-
-                    {getPaginationRange().map((page) => (
-                        <button
-                            key={page}
-                            onClick={() => setCurrentPage(page)}
-                            className={`px-3 py-1 rounded ${currentPage === page
-                                    ? "bg-blue-600 text-white"
-                                    : "bg-gray-200 hover:bg-gray-300"
-                                }`}
-                        >
-                            {page}
-                        </button>
-                    ))}
-
-                    <button
-                        onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                        className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                        disabled={currentPage === totalPages}
-                    >
-                        Next
-                    </button>
-                </div>
-            )}
-
-            {/* Dialog hiển thị thông tin chi tiết */}
-            <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
-                <DialogContent className="max-w-md sm:max-w-xl">
+            {/* Dialog xem ảnh lớn */}
+            <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+                <DialogContent className="max-w-3xl">
                     <DialogHeader>
-                        <DialogTitle>Notification Details</DialogTitle>
+                        <DialogTitle>Preview Image</DialogTitle>
                     </DialogHeader>
-
-                    {selected && (
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <span className="text-sm font-semibold bg-gray-100 px-2 py-1 rounded">
-                                    {selected.eventType}
-                                </span>
-                                <span className="text-xs text-gray-500">
-                                    {new Date(selected.eventDate).toLocaleString()}
-                                </span>
-                            </div>
-
-                            <p className="text-lg font-semibold">{selected.eventName}</p>
-                            <p className="text-sm text-gray-700">Class: {selected.className}</p>
-
-                            {selected.eventImage && (
-                                <img
-                                    src={selected.eventImage}
-                                    alt="Event"
-                                    className="mt-2 w-full max-h-60 object-contain rounded"
-                                />
-                            )}
-                        </div>
+                    {selectedImage && (
+                        <img
+                            src={selectedImage}
+                            alt="Preview"
+                            className="w-full h-auto rounded-lg shadow"
+                        />
                     )}
-
-                    <DialogFooter>
-                        <Button onClick={() => setSelected(null)}>Close</Button>
-                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>

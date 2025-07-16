@@ -97,8 +97,8 @@ export default function SendMedicineView() {
   );
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen text-[16px] md:text-[17px]">
-      <h2 className="text-3xl font-bold text-blue-900 text-center drop-shadow-md mb-3">
+    <div className="mx-auto">
+      <h2 className="text-4xl font-bold text-blue-900  drop-shadow-md p-10">
         Medication Request History
       </h2>
 

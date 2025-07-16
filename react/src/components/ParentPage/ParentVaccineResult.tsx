@@ -44,8 +44,8 @@ export default function ParentVaccineResult() {
     };
 
     return (
-        <div className="  mx-auto drop-shadow">
-            <h1 className="text-4xl font-bold text-center text-blue-900 drop-shadow p-10">
+        <div className="  mx-auto ">
+            <h1 className="text-4xl font-bold text-blue-800  p-10">
                 Vaccine Results for Your Children
             </h1>
 

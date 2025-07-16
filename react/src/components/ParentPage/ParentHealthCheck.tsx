@@ -62,7 +62,7 @@ const ParentHealthCheck = () => {
 
     return (
         <div>
-            <h2 className="text-4xl font-bold text-blue-900 drop-shadow text-center p-10">
+            <h2 className="text-4xl font-bold text-blue-800  p-10">
                  Periodic Health Check Records
             </h2>
         <div className=" mx-auto">

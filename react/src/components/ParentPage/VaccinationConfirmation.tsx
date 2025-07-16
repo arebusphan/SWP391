@@ -6,7 +6,8 @@ import {
 } from "@/service/serviceauth";
 import { useAuth } from "@/context/AuthContext";
 import AlertNotification from "@/components/MedicalStaffPage/AlertNotification";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+
 import type { AlertItem } from "@/components/MedicalStaffPage/AlertNotification";
 
 interface VaccinationEvent {
@@ -26,8 +27,9 @@ interface VaccinationEvent {
 export default function VaccinationList() {
     const [data, setData] = useState<VaccinationEvent[]>([]);
     const [alerts, setAlerts] = useState<AlertItem[]>([]);
-    const [declineReasons, setDeclineReasons] = useState<Record<number, string>>({});
     const [imageDialog, setImageDialog] = useState<string | null>(null);
+    const [declineDialog, setDeclineDialog] = useState<null | VaccinationEvent>(null);
+    const [declineReason, setDeclineReason] = useState("");
     const { user } = useAuth();
     const parentPhone = user?.Phone || "";
 
@@ -67,9 +69,9 @@ export default function VaccinationList() {
         }
     };
 
-    const handleDecline = async (item: VaccinationEvent) => {
-        const reason = declineReasons[item.notificationStudentId];
-        if (!reason || reason.trim() === "") {
+    const handleDeclineConfirm = async () => {
+        if (!declineDialog) return;
+        if (!declineReason.trim()) {
             showAlert({
                 type: "error",
                 title: "Decline Failed",
@@ -77,21 +79,24 @@ export default function VaccinationList() {
             });
             return;
         }
+
         try {
             await confirmVaccination(
-                item.notificationStudentId,
+                declineDialog.notificationStudentId,
                 "Declined",
                 parentPhone,
-                reason
+                declineReason
             );
             setData((prev) =>
-                prev.filter((d) => d.notificationStudentId !== item.notificationStudentId)
+                prev.filter((d) => d.notificationStudentId !== declineDialog.notificationStudentId)
             );
             showAlert({
                 type: "success",
                 title: "Vaccination Declined",
-                description: `You have declined vaccination for ${item.studentName}.`,
+                description: `You have declined vaccination for ${declineDialog.studentName}.`,
             });
+            setDeclineDialog(null);
+            setDeclineReason("");
         } catch (error) {
             console.error("Error declining:", error);
             showAlert({
@@ -103,12 +108,12 @@ export default function VaccinationList() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6 drop-shadow">
+        <div className="min-h-screen">
             <AlertNotification
                 alerts={alerts}
                 onRemove={(id) => setAlerts((prev) => prev.filter((a) => a.id !== id))}
             />
-            <h1 className="text-center text-3xl font-extrabold text-blue-900 mb-8 drop-shadow">
+            <h1 className="text-4xl font-bold p-10 text-blue-800">
                 Vaccination Event Confirmation
             </h1>
 
@@ -124,14 +129,13 @@ export default function VaccinationList() {
                             <th className="border px-3 py-2">Student</th>
                             <th className="border px-3 py-2">Class</th>
                             <th className="border px-3 py-2">Image</th>
-                            <th className="border px-3 py-2">Decline Reason</th>
                             <th className="border px-3 py-2">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {data.length === 0 ? (
                             <tr>
-                                <td colSpan={10} className="text-center py-6 text-gray-500">
+                                <td colSpan={9} className="text-center py-6 text-gray-500">
                                     No pending vaccinations 🎉
                                 </td>
                             </tr>
@@ -160,20 +164,6 @@ export default function VaccinationList() {
                                             className="h-16 w-24 object-cover rounded shadow cursor-pointer hover:opacity-80"
                                         />
                                     </td>
-                                    <td className="border px-3 py-2">
-                                        <textarea
-                                            className="border rounded p-1 text-xs w-full"
-                                            rows={2}
-                                            placeholder="Enter reason..."
-                                            value={declineReasons[item.notificationStudentId] || ""}
-                                            onChange={(e) =>
-                                                setDeclineReasons((prev) => ({
-                                                    ...prev,
-                                                    [item.notificationStudentId]: e.target.value,
-                                                }))
-                                            }
-                                        />
-                                    </td>
                                     <td className="border px-3 py-2 flex flex-col space-y-1">
                                         <Button
                                             size="sm"
@@ -185,8 +175,11 @@ export default function VaccinationList() {
                                         <Button
                                             size="sm"
                                             variant="destructive"
-                                            onClick={() => handleDecline(item)}
                                             className="drop-shadow"
+                                            onClick={() => {
+                                                setDeclineDialog(item);
+                                                setDeclineReason(""); // reset
+                                            }}
                                         >
                                             Decline
                                         </Button>
@@ -199,7 +192,7 @@ export default function VaccinationList() {
             </div>
 
             {/* Dialog xem ảnh */}
-            <Dialog open={imageDialog !== null} onOpenChange={() => setImageDialog(null)}>
+            <Dialog open={!!imageDialog} onOpenChange={() => setImageDialog(null)}>
                 <DialogContent className="max-w-4xl p-4 bg-white rounded-2xl shadow-xl">
                     {imageDialog && (
                         <img
@@ -210,6 +203,39 @@ export default function VaccinationList() {
                     )}
                 </DialogContent>
             </Dialog>
+
+            {/* Dialog nhập lý do từ chối */}
+            <Dialog open={!!declineDialog} onOpenChange={() => setDeclineDialog(null)}>
+                <DialogContent className="sm:max-w-lg p-6">
+                    <DialogHeader>
+                        <DialogTitle>Decline Vaccination for {declineDialog?.studentName}</DialogTitle>
+                    </DialogHeader>
+
+                    <textarea
+                        placeholder="Enter reason for declining..."
+                        rows={4}
+                        value={declineReason}
+                        onChange={(e) => setDeclineReason(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    />
+
+                    <DialogFooter className="mt-4 flex justify-end gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => setDeclineDialog(null)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            className="bg-red-600 text-white hover:bg-red-700"
+                            onClick={handleDeclineConfirm}
+                        >
+                            Submit Decline
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
         </div>
     );
 }
