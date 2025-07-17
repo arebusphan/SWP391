@@ -105,23 +105,23 @@ namespace DAL.Incident
                     OccurredAt = i.OccurredAt
                 }).FirstOrDefaultAsync();
         }
-
         public async Task<List<IncidentDTO>> GetIncidentsByGuardianIdAsync(int guardianId)
         {
             return await _context.MedicalIncidents
                 .Include(i => i.Student).ThenInclude(s => s.Class)
-
-.Select(i => new IncidentDTO
-{
-    StudentId = i.StudentId,
-    ClassId = i.Student.ClassId,
-    IncidentName = i.IncidentName,
-    Description = i.Description,
-    HandledBy = i.HandledBy,
-    OccurredAt = i.OccurredAt,
-    StudentName = i.Student.FullName,
-    ClassName = i.Student.Class.ClassName
-}).ToListAsync();
+                .Where(i => i.Student.GuardianId == guardianId)
+                .Select(i => new IncidentDTO
+                {
+                    StudentId = i.StudentId,
+                    ClassId = i.Student.ClassId,
+                    IncidentName = i.IncidentName,
+                    Description = i.Description,
+                    HandledBy = i.HandledBy,
+                    OccurredAt = i.OccurredAt,
+                    StudentName = i.Student.FullName,
+                    ClassName = i.Student.Class.ClassName
+                })
+                .ToListAsync();
         }
     }
 }

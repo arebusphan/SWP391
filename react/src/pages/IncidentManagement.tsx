@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getAllClass, getStudentsByClassId, GetSupplies, postIncident } from "@/service/serviceauth";
-import IncidentHistory from "./IncidentHistory";
+
 import IncidentHistoryGroup from "./IncidentHistory";
 
 export default function IncidentFormFull() {
