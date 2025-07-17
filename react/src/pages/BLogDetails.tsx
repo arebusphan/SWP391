@@ -1,7 +1,7 @@
 ﻿// src/components/BlogDetail.tsx
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import axios from "axios"
+
 import { apiser } from "../service/apiser"
 
 interface Blog {

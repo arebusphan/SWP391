@@ -3,7 +3,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from 
 import { Button } from "@/components/ui/button"
 import CreateBlogForm from "../components/CreateBlog"
 import { useAuth } from "../context/AuthContext";
-import ViewBlog from "./ViewBlog";
+
 
 
 const BlogPage = () => {
