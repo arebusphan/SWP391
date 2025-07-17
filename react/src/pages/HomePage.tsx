@@ -1,6 +1,7 @@
 ﻿import AboutSection from "../components/AboutSection";
 import Banner from "../components/forhp/Banner";
 import News from "../components/forhp/News";
+import ViewBlog from "./ViewBlog";
 
 const HomePage = () => {
     return (
@@ -45,9 +46,25 @@ mb-20
     bg-blue-50             
     border-4 border-blue-300 
     rounded-2xl shadow-xl  
+mb-20
+  
+  
+  "
+                >
+                    <h2 className="text-4xl font-bold py-10 px-5 text-blue-900 drop-shadow-md text-center">
+                        Blog
+                    </h2>
+                    <div className="min-h-100 w-full">
+                        <ViewBlog /> 
+                    </div>
+                  
+                </div>
+                <div
+                    className="
+    bg-blue-50             
+    border-4 border-blue-300 
+    rounded-2xl shadow-xl  
 
-  
-  
   "
                 >
                 <h2 className="text-4xl font-bold py-10 px-5 text-blue-900 drop-shadow-md text-center">

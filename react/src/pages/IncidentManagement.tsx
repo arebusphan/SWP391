@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
-import { getAllClass, getStudentsByClassId, GetSupplies, postIncident } from "@/service/serviceauth";
+import { AddSupplyToInventory, getAllClass, getStudentsByClassId, GetSupplies, postIncident } from "@/service/serviceauth";
 
 import IncidentHistoryGroup from "./IncidentHistory";
 
@@ -157,7 +157,9 @@ export default function IncidentFormFull() {
                 selectedSupplies
             );
         }
-
+        for (const supply of selectedSupplies) {
+            await AddSupplyToInventory(supply.supplyId, supply.quantityUsed);
+        }
         alert("Incident report submitted successfully!");
         setRefreshHistory(true);
         resetForm();
@@ -179,7 +181,7 @@ export default function IncidentFormFull() {
     };
 
     return (
-        <div className="mx-auto  rounded-2xl">
+        <div className="mx-auto  rounded-2xl min-h-280">
             <h1 className="text-4xl font-bold text-blue-800 p-10">Incident Management</h1>
             <div className="bg-white rounded-2xl mb-10 px-2 py-2">
             {/* Select Class & Student */}
@@ -371,7 +373,7 @@ export default function IncidentFormFull() {
             <div className="flex justify-end">
                 <button
                     onClick={handleSubmit}
-                    className="bg-blue-900 text-white px-6 py-2 rounded-2xl shadow hover:bg-blue-800 transition"
+                        className="bg-blue-900 text-white px-6 py-2 cursor-pointer  rounded-2xl shadow hover:bg-blue-800 transition"
                 >
                     Submit Report
                 </button>

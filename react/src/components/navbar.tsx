@@ -124,14 +124,16 @@ const Navbar = () => {
                   Home
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/blog"
-                  className="px-4 py-2 rounded-md hover:bg-blue-500 hover:text-white"
-                >
-                  Blog
-                </Link>
-              </li>
+                          {user?.Role === "Manager" && (
+                              <li>
+                                  <Link
+                                      to="/blog"
+                                      className="px-4 py-2 rounded-md hover:bg-blue-500 hover:text-white"
+                                  >
+                                      Blog
+                                  </Link>
+                              </li>
+                          )}
 
               {user && (
                 <>

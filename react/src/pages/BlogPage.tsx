@@ -9,11 +9,15 @@ import ViewBlog from "./ViewBlog";
 const BlogPage = () => {
     const [open, setOpen] = useState(false)
     const { user } = useAuth();
-
+    console.log("===> BlogPage rendered");
+    console.log("user:", user);
+    console.log("user.Role:", user?.Role);
+    console.log("So sánh:", user?.Role === "Manager");
+    console.log("typeof:", typeof user?.Role);
     return (
         <>
             {user?.Role === "Manager" ? (
-                <div className="p-4">
+                <div className="mt-40">
                     <Dialog open={open} onOpenChange={setOpen}>
                         <DialogTrigger asChild>
                             <Button
@@ -26,7 +30,7 @@ const BlogPage = () => {
 
                         <DialogContent className="!w-full !max-w-[1000px] mx-auto p-6 overflow-y-auto max-h-[90vh]">
                             <DialogHeader>
-                                <DialogTitle className="text-xl font-bold">Tạo bài viết mới</DialogTitle>
+                                <DialogTitle className="text-xl font-bold">Add New</DialogTitle>
                             </DialogHeader>
 
                             <CreateBlogForm />
@@ -37,7 +41,7 @@ const BlogPage = () => {
                 <div className="text-center text-gray-500 mt-10"></div>
             )}
 
-            <div>   <ViewBlog /> </div>
+           
         </>
     );
 };

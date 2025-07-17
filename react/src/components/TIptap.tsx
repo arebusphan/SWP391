@@ -121,8 +121,9 @@ interface TiptapProps {
              [&_img]:max-w-full [&_img]:h-auto [&_*]:!break-words [&_*]:!whitespace-normal"
             >
                 <EditorContent
+                    className="tiptap ProseMirror"
                     editor={editor}
-                    className="w-full control-showcase"
+                    
                     style={{
                         width: '100%',
                         maxWidth: '100%',

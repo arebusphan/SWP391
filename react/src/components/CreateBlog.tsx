@@ -1,6 +1,7 @@
 ﻿import { useState } from "react"
 import axios from "axios"
 import Tiptap from "./TIptap"
+import { apiser } from "../service/apiser"
 
 const CreateBlogForm = () => {
   const [title, setTitle] = useState("")
@@ -45,7 +46,7 @@ const CreateBlogForm = () => {
         createdAt: new Date().toISOString(),
       }
 
-      await axios.post("https://localhost:7195/api/article/post", payload)
+      await apiser.post("/article/post", payload)
       alert("✅ Tạo bài viết thành công!")
       setTitle("")
       setImageFile(null)

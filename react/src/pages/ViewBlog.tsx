@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { apiser } from "../service/apiser";
 
 interface Blog {
     id: number;
@@ -19,7 +20,7 @@ const ViewBlog = () => {
     useEffect(() => {
         const fetchBlogs = async () => {
             try {
-                const res = await axios.get("https://localhost:7195/api/article/get");
+                const res = await apiser.get("/article/get");
                 setBlogs(res.data);
             } catch (err) {
                 console.error("❌ Lỗi khi tải blog:", err);
@@ -36,7 +37,7 @@ const ViewBlog = () => {
     );
 
     return (
-        <div className="min-h-[100vh] bg-gray-50 py-8 px-4">
+        <div className=" py-8 px-4 min-h-150">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
                 {currentBlogs.map((blog) => (
                     <Link to={`/blogs/${blog.id}`} key={blog.id} className="flex justify-center">
