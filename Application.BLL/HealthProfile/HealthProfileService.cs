@@ -7,8 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BLL.EmailService;
-using DAL.Repositories;
 using DAL.EmailRepo;
+using DAL.StudentRepo;
 
 namespace BLL.HealthProfile
 {

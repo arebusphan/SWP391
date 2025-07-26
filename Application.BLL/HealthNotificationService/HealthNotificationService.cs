@@ -1,7 +1,7 @@
 ﻿using BLL.EmailService;
 using DAL.EmailRepo;
 using DAL.Models;
-using DAL.Repositories;
+using DAL.StudentRepo;
 public class HealthNotificationService : IHealthNotificationService
 
 

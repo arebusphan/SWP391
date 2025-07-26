@@ -1,6 +1,6 @@
 ﻿using BLL.StudentService;
 using DAL.Models;
-using DAL.Repositories;
+using DAL.StudentRepo;
 using System.Collections.Generic;
 using System.Linq;
 

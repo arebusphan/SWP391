@@ -1,7 +1,7 @@
 ﻿using DAL.Models;
 using System.Collections.Generic;
 
-namespace DAL.Repositories
+namespace DAL.StudentRepo
 {
     public interface IStudentRepository
     {

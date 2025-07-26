@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
-namespace DAL.Repositories
+namespace DAL.HealthCheckRepo
 {
     public class HealthCheckRepository : IHealthCheckRepository
     {

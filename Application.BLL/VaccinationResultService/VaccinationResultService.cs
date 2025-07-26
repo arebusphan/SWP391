@@ -1,6 +1,6 @@
 ﻿using DAL.EmailRepo;
 using DAL.Models;
-using DAL.Repositories;
+using DAL.StudentRepo;
 using Microsoft.EntityFrameworkCore;
 
 public class VaccinationResultService : IVaccinationResultService

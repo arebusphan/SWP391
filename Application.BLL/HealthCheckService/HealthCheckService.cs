@@ -1,6 +1,6 @@
 ﻿using DAL.EmailRepo;
 using DAL.Models;
-using DAL.Repositories;
+using DAL.StudentRepo;
 using DTOs;
 
 namespace BLL.HealthCheckService

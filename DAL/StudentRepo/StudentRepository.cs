@@ -1,9 +1,9 @@
-﻿using DAL.Models; 
+﻿using DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DAL.Repositories
+namespace DAL.StudentRepo
 {
     // Repository xử lý các thao tác liên quan đến bảng Students
     public class StudentRepository : IStudentRepository
