@@ -181,23 +181,23 @@ export default function IncidentFormFull() {
     };
 
     return (
-        <div className="mx-auto  rounded-2xl min-h-280">
+        <div className="mx-auto rounded-2xl min-h-screen">
             <h1 className="text-4xl font-bold text-blue-800 p-10">Incident Management</h1>
-            <div className="bg-white rounded-2xl mb-10 px-2 py-2">
+            <div className=" rounded-2xl px-2 py-2">
             {/* Select Class & Student */}
             <div className="flex gap-10  flex-wrap">
                 {/* Class */}
                 <div className="relative w-64">
-                    <label className="font-semibold text-blue-900">Select Class:</label>
+                    <label className="font-semibold text-blue-900 font-bold">Select Class:</label>
                     <div
                         onClick={() => setClassDropdownOpen(!classDropdownOpen)}
-                        className="border rounded-xl p-2 mt-1 cursor-pointer hover:bg-blue-50 transition"
+                            className="border rounded-xl p-2 mt-1 cursor-pointer hover:bg-blue-50 transition shadow-lg	 bg-white"
                     >
                         {selectedClasses.length > 0 ? selectedClassNames : "Select class..."}
                     </div >
 
                     {classDropdownOpen && (
-                        <div className="absolute z-10 w-full bg-white border rounded-xl mt-1 p-2 shadow-xl max-h-64 overflow-y-auto">
+                            <div className="absolute z-10 w-full bg-white shadow-lg	 border rounded-xl mt-1 p-2 shadow-xl max-h-64 overflow-y-auto">
                             <input
                                 type="text"
                                 value={classSearchQuery}
@@ -230,10 +230,10 @@ export default function IncidentFormFull() {
                 {/* Student */}
                 {selectedClasses.length > 0 && (
                     <div className="relative w-80">
-                        <label className="font-semibold text-blue-900">Select Student:</label>
+                        <label className="font-semibold text-blue-900 ">Select Student:</label>
                         <div
                             onClick={() => setStudentDropdownOpen(!studentDropdownOpen)}
-                            className="border rounded-xl p-2 mt-1 cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap hover:bg-blue-50 transition"
+                                className="border rounded-xl p-2 mt-1 cursor-pointer bg-white shadow-lg	 overflow-hidden text-ellipsis whitespace-nowrap hover:bg-blue-50 transition"
                         >
                             {selectedStudents.length > 0
                                 ? displaySelectedStudents()
@@ -247,7 +247,7 @@ export default function IncidentFormFull() {
                                     value={studentSearchQuery}
                                     onChange={(e) => handleStudentSearch(e.target.value)}
                                     placeholder="Search student..."
-                                    className="w-full border rounded-lg p-1 mb-2 focus:ring focus:border-blue-400"
+                                    className="w-full border rounded-lg  p-1 mb-2 focus:ring focus:border-blue-400"
                                 />
 
                                 <div className="flex items-center gap-2 mb-2">
@@ -286,25 +286,77 @@ export default function IncidentFormFull() {
             </div>
 
             {/* Incident & Handler */}
-            <div className="flex gap-10 flex-wrap">
+            <div className="flex gap-10 flex-wrap min-h-30">
                 <div className="w-64">
                     <label className="font-semibold text-blue-900">Incident Name:</label>
                     <input
                         type="text"
                         value={incidentName}
                         onChange={(e) => setIncidentName(e.target.value)}
-                        className="w-full border rounded-xl p-2 mt-1 focus:ring focus:border-blue-400"
+                            className="w-full border rounded-xl p-2 mt-1 focus:ring bg-white shadow-lg	 focus:border-blue-400"
                     />
-                </div>
+                    </div>
+
                 <div className="w-64">
                     <label className="font-semibold text-blue-900">Handled By:</label>
                     <input
                         type="text"
                         value={handledBy}
                         onChange={(e) => setHandledBy(e.target.value)}
-                        className="w-full border rounded-xl p-2 mt-1 focus:ring focus:border-blue-400"
+                            className="w-full border rounded-xl p-2 mt-1 bg-white shadow-lg	 focus:ring focus:border-blue-400"
                     />
-                </div>
+                    </div>
+                    {/* Supplies */}
+                    <div>
+                        <label className="font-semibold text-blue-900">Medical Supplies Used:</label>
+                        <div className="flex gap-3 mt-2 flex-wrap items-center">
+                            <select
+                                value={selectedSupplyId}
+                                onChange={(e) => setSelectedSupplyId(Number(e.target.value))}
+                                className="border rounded-xl p-2 min-w-[180px] bg-white shadow-lg	 focus:ring focus:border-blue-400"
+                            >
+                                <option value={0}>-- Select Supply --</option>
+                                {supplies.map((sup) => (
+                                    <option key={sup.supplyId} value={sup.supplyId}>
+                                        {sup.supplyName}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <input
+                                type="number"
+                                min={1}
+                                value={supplyQuantity}
+                                onChange={(e) => setSupplyQuantity(Number(e.target.value))}
+                                className="border rounded-xl bg-white p-2 w-24 focus:ring focus:border-blue-400"
+                            />
+
+                            <button
+                                type="button"
+                                onClick={addSupply}
+                                className="bg-blue-900 text-white px-4 py-2 rounded-xl hover:bg-blue-800"
+                            >
+                                Add Supply
+                            </button>
+                        </div>
+
+                        {/* Display selected supplies */}
+                        <ul className="gap-10 flex">
+                            {selectedSupplies.map((sup, index) => (
+                                <li key={index} className="flex items-center gap-4 text-blue-900">
+                                    <span>{sup.supplyName} — {sup.quantityUsed}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => removeSupply(index)}
+                                        className="text-red-600 font-bold hover:underline text-sm"
+                                    >
+                                        X
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+
+                    </div>
             </div>
 
             {/* Description */}
@@ -313,61 +365,11 @@ export default function IncidentFormFull() {
                 <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full border rounded-xl p-2 mt-1 min-h-[120px] focus:ring focus:border-blue-400"
+                        className="w-full border bg-white shadow-lg	 rounded-xl p-2 mt-1 min-h-[120px] focus:ring focus:border-blue-400"
                 />
             </div>
 
-            {/* Supplies */}
-            <div>
-                <label className="font-semibold text-blue-900">Medical Supplies Used:</label>
-                <div className="flex gap-3 mt-2 flex-wrap items-center">
-                    <select
-                        value={selectedSupplyId}
-                        onChange={(e) => setSelectedSupplyId(Number(e.target.value))}
-                        className="border rounded-xl p-2 min-w-[180px] focus:ring focus:border-blue-400"
-                    >
-                        <option value={0}>-- Select Supply --</option>
-                        {supplies.map((sup) => (
-                            <option key={sup.supplyId} value={sup.supplyId}>
-                                {sup.supplyName}
-                            </option>
-                        ))}
-                    </select>
 
-                    <input
-                        type="number"
-                        min={1}
-                        value={supplyQuantity}
-                        onChange={(e) => setSupplyQuantity(Number(e.target.value))}
-                        className="border rounded-xl p-2 w-24 focus:ring focus:border-blue-400"
-                    />
-
-                    <button
-                        type="button"
-                        onClick={addSupply}
-                        className="bg-blue-900 text-white px-4 py-2 rounded-xl hover:bg-blue-800"
-                    >
-                        Add Supply
-                    </button>
-                </div>
-
-                {/* Display selected supplies */}
-                <ul className="gap-10 flex">
-                    {selectedSupplies.map((sup, index) => (
-                        <li key={index} className="flex items-center gap-4 text-blue-900">
-                            <span>{sup.supplyName} — {sup.quantityUsed}</span>
-                            <button
-                                type="button"
-                                onClick={() => removeSupply(index)}
-                                className="text-red-600 font-bold hover:underline text-sm"
-                            >
-                                X
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-
-            </div>
 
             {/* Submit */}
             <div className="flex justify-end">
