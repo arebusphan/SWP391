@@ -1,5 +1,5 @@
 
-﻿using BLL;
+using BLL;
 using BLL.AuthService;
 using BLL.EmailService;
 using BLL.ExcelService;
@@ -20,10 +20,9 @@ using BLL.StudentDetailService;
 using BLL.StudentService;
 using BLL.UserService;
 using DAL;
+using DAL.ClassesRepo;
 using DAL.EmailRepo;
 using DAL.Incident;
-
-using DAL.Interfaces;
 using DAL.MedicationIntakeLogs;
 using DAL.Models;
 using DAL.ReportRepo;

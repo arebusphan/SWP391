@@ -1,8 +1,7 @@
 ﻿using DAL.Models;
-using DAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace DAL.Repositories
+namespace DAL.ClassesRepo
 {
     public class ClassesRepository : IClassesRepository
     {

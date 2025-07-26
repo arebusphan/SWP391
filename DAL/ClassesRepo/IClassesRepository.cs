@@ -1,6 +1,6 @@
 ﻿using DAL.Models;
 
-namespace DAL.Interfaces
+namespace DAL.ClassesRepo
 {
     public interface IClassesRepository
     {
