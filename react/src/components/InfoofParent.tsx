@@ -73,14 +73,14 @@ export default function InfoofParent() {
 
       {/* Tiêu đề tổng */}
       <h1 className="text-3xl font-bold text-blue-900 mb-8 text-center drop-shadow-md">
-        📋 Parent Dashboard
+        Parent Dashboard
       </h1>
 
       {/* Nội dung chính */}
       <div className="flex flex-col lg:flex-row gap-6 border-4 border-blue-400 rounded-2xl p-6 bg-white shadow-xl">
         {/* Parent Info */}
         <div className="w-full lg:w-1/2">
-          <h2 className="text-xl font-bold text-blue-800 mb-4">👨‍👩‍👧 Parent Information</h2>
+          <h2 className="text-xl font-bold text-blue-800 mb-4">Parent Information</h2>
           <div className="space-y-3 text-gray-700">
             <p><strong>Name:</strong> {user?.Name || "—"}</p>
             <p><strong>Phone:</strong> {user?.Phone || "—"}</p>
@@ -90,7 +90,7 @@ export default function InfoofParent() {
 
         {/* Connected Students */}
         <div className="w-full lg:w-1/2">
-          <h2 className="text-xl font-bold text-blue-800 mb-4">🎓 Connected Students</h2>
+          <h2 className="text-xl font-bold text-blue-800 mb-4">Connected Students</h2>
           <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1 bg-blue-50 rounded-lg p-2">
             {loading ? (
               <p className="text-gray-500 px-2">Loading students...</p>

@@ -21,8 +21,7 @@ export default function IncidentFormFull() {
     const [handledBy, setHandledBy] = useState("");
     const [refreshHistory, setRefreshHistory] = useState(false);
     const [supplies, setSupplies] = useState<any[]>([]);
-    const [selectedSupplyId, setSelectedSupplyId] = useState<number>(0);
-    const [supplyQuantity, setSupplyQuantity] = useState<number>(1);
+
     const [selectedSupplies, setSelectedSupplies] = useState<{ supplyId: number; quantityUsed: number; supplyName: string }[]>([]);
     const [supplyDropdownOpen, setSupplyDropdownOpen] = useState(false);
     const [supplySearchQuery, setSupplySearchQuery] = useState("");
@@ -79,8 +78,7 @@ export default function IncidentFormFull() {
         setSelectedClasses([]);
         setSelectedStudents([]);
         setSelectedSupplies([]);
-        setSupplyQuantity(1);
-        setSelectedSupplyId(0);
+     
         setClassSearchQuery("");
         setStudentSearchQuery("");
     };
@@ -114,27 +112,7 @@ export default function IncidentFormFull() {
         return `${names.slice(0, 2).join(", ")}... (${names.length} students)`;
     };
 
-    const addSupply = () => {
-        if (selectedSupplyId === 0 || supplyQuantity <= 0) {
-            alert("Please select a supply and enter a valid quantity.");
-            return;
-        }
 
-        const selectedSupply = supplies.find(s => s.supplyId === selectedSupplyId);
-        if (!selectedSupply) return;
-
-        setSelectedSupplies(prev => [
-            ...prev,
-            {
-                supplyId: selectedSupplyId,
-                quantityUsed: supplyQuantity,
-                supplyName: selectedSupply.supplyName,
-            },
-        ]);
-
-        setSelectedSupplyId(0);
-        setSupplyQuantity(1);
-    };
 
     const handleSubmit = async () => {
         if (

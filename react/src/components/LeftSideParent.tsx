@@ -84,7 +84,7 @@ const LeftSideParent = () => {
     <div className="h-screen flex">
       {/* Sidebar (chiếm không gian, không overlay) */}
       <div
-        className={`bg-blue-900 text-white overflow-hidden transition-all duration-300 ease-in-out flex flex-col ${
+        className={`bg-blue-800 text-white overflow-hidden transition-all duration-300 ease-in-out flex flex-col ${
           isOpen ? "w-72 p-5" : "w-12 p-2"
         }`}
       >

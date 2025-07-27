@@ -42,11 +42,11 @@ export default function NotificationPage() {
 
     return (
         <div className=" mx-auto ">
-            <h1 className="text-4xl font-bold  text-blue-900 drop-shadow p-10">
+            <h1 className="text-4xl font-bold  text-blue-900  p-10">
                 Event Notifications
             </h1>
 
-            <div className="rounded-2xl shadow-md drop-shadow">
+            <div className="rounded-2xl ">
                 {notifications.length === 0 ? (
                     <div className="text-gray-500 italic text-center">
                         No notifications found.

@@ -185,7 +185,7 @@ const NotificationCreate = () => {
             </form>
             <hr className="border-gray-200" />
             <div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-4">📜 Sent Notifications History</h3>
+                <h3 className="text-2xl font-bold text-blue-800 mb-4">Sent Notifications History</h3>
                 <div className="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
                     <table className="min-w-full text-sm text-left">
                         <thead className="bg-gray-100 text-gray-700">

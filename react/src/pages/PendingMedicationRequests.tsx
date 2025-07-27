@@ -282,7 +282,7 @@ export default function PendingMedicationRequests() {
         onHistory={(r) => setHistoryDialogRequest(r)}
         onGive={viewMode === "approved" ? (r) => setLogDialogRequest(r) : undefined}
         onDone={viewMode === "approved" ? (r) => setConfirmDialog({ type: "done", request: r }) : undefined}
-        title={viewMode === "approved" ? "✅ Approved Requests" : "📜 Medication History"}
+        title={viewMode === "approved" ? "✅ Approved Requests" : " Medication History"}
         hideActions={viewMode === "history"}
       />
 

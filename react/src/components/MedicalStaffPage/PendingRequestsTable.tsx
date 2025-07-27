@@ -47,7 +47,7 @@ export default function PendingRequestsTable({
 
   return (
     <section className="bg-white p-6 rounded-xl shadow border border-blue-100">
-      <h3 className="text-xl font-semibold text-blue-600 mb-4">⏳ Pending Requests</h3>
+      <h3 className="text-xl font-semibold text-blue-600 mb-4">Pending Requests</h3>
       <div className="overflow-x-auto rounded-md">
         <table className="w-full text-sm border border-gray-200">
           <thead className="bg-blue-50 text-blue-800">
