@@ -102,7 +102,7 @@ namespace DAL.Incident
                     Description = i.Description,
 
                     HandledBy = i.HandledBy,
-                    OccurredAt = i.OccurredAt
+                    OccurredAt = i.CreatedAt
                 }).FirstOrDefaultAsync();
         }
         public async Task<List<IncidentDTO>> GetIncidentsByGuardianIdAsync(int guardianId)
@@ -117,7 +117,7 @@ namespace DAL.Incident
                     IncidentName = i.IncidentName,
                     Description = i.Description,
                     HandledBy = i.HandledBy,
-                    OccurredAt = i.OccurredAt,
+                    OccurredAt = i.CreatedAt,
                     StudentName = i.Student.FullName,
                     ClassName = i.Student.Class.ClassName
                 })
