@@ -43,3 +43,17 @@ D:\SWP\SWP391\SWP391\DAL\obj\Debug\net9.0\refint\DAL.dll
 D:\SWP\SWP391\SWP391\DAL\obj\Debug\net9.0\DAL.pdb
 D:\SWP\SWP391\SWP391\DAL\obj\Debug\net9.0\DAL.genruntimeconfig.cache
 D:\SWP\SWP391\SWP391\DAL\obj\Debug\net9.0\ref\DAL.dll
+E:\learning\myapp\SchoolHealthSystem\DAL\bin\Debug\net9.0\DAL.deps.json
+E:\learning\myapp\SchoolHealthSystem\DAL\bin\Debug\net9.0\DAL.runtimeconfig.json
+E:\learning\myapp\SchoolHealthSystem\DAL\bin\Debug\net9.0\DAL.dll
+E:\learning\myapp\SchoolHealthSystem\DAL\bin\Debug\net9.0\DAL.pdb
+E:\learning\myapp\SchoolHealthSystem\DAL\obj\Debug\net9.0\DAL.csproj.AssemblyReference.cache
+E:\learning\myapp\SchoolHealthSystem\DAL\obj\Debug\net9.0\DAL.GeneratedMSBuildEditorConfig.editorconfig
+E:\learning\myapp\SchoolHealthSystem\DAL\obj\Debug\net9.0\DAL.AssemblyInfoInputs.cache
+E:\learning\myapp\SchoolHealthSystem\DAL\obj\Debug\net9.0\DAL.AssemblyInfo.cs
+E:\learning\myapp\SchoolHealthSystem\DAL\obj\Debug\net9.0\DAL.csproj.CoreCompileInputs.cache
+E:\learning\myapp\SchoolHealthSystem\DAL\obj\Debug\net9.0\DAL.dll
+E:\learning\myapp\SchoolHealthSystem\DAL\obj\Debug\net9.0\refint\DAL.dll
+E:\learning\myapp\SchoolHealthSystem\DAL\obj\Debug\net9.0\DAL.pdb
+E:\learning\myapp\SchoolHealthSystem\DAL\obj\Debug\net9.0\DAL.genruntimeconfig.cache
+E:\learning\myapp\SchoolHealthSystem\DAL\obj\Debug\net9.0\ref\DAL.dll
